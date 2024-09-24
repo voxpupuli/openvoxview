@@ -1,0 +1,49 @@
+name: Build and Release
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers the workflow on version tags
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        goos: ['linux', 'freebsd']
+        arch: ['amd64', 'arm']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: |
+          npm install -g yarn
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+      - name: Build Backend/Binary for ${{ matrix.goos }} ${{ matrix.arch }} 
+        run: make all BINARY_NAME=openvoxview-${{matrix.goos}}-${{matrix.arch}}
+        env:
+          GOOS: ${{matrix.goos}}
+          GOARCH: ${{matrix.arch}}
+      - name: Upload binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: openvoxview-${{matrix.goos}}-${{matrix.arch}}
+          path: openvoxview-${{matrix.goos}}-${{matrix.arch}}
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./
+          pattern: openvoxview-*
+          merge-multiple: true
+          
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: openvoxview-*
