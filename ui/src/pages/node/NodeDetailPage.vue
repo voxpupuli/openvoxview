@@ -29,9 +29,13 @@ const isReportsLoading = ref(true);
 const filteredFacts = computed(() => {
   if (!needle.value) return node_facts.value;
 
-  return node_facts.value.filter((s) =>
-    s.name.toLowerCase().includes(needle.value!.toLowerCase())
-  );
+  return node_facts.value.filter((s) => {
+    const needleLower = needle.value!.toLowerCase();
+    return (
+      s.name.toLowerCase().includes(needleLower) ||
+      (s.value && JSON.stringify(s.value).toLowerCase().includes(needleLower))
+    );
+  });
 });
 
 const columns: QTableColumn[] = [
