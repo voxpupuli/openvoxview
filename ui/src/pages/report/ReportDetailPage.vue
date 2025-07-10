@@ -16,85 +16,89 @@ const events = ref<PuppetEvent[]>();
 
 const report_hash = computed(() => {
   return route.params.report_hash;
-})
+});
 const certname = computed(() => {
   return route.params.certname;
-})
+});
 
 function loadReport() {
   const query = new PqlQuery(PqlEntity.Reports);
 
-  query.filter()
-    .and().equal('certname', certname.value)
-    .and().equal('hash', report_hash.value)
+  query
+    .filter()
+    .and()
+    .equal('certname', certname.value)
+    .and()
+    .equal('hash', report_hash.value);
 
-  Backend.getQueryResult<ApiPuppetReport[]>(query).then(result => {
+  Backend.getQueryResult<ApiPuppetReport[]>(query).then((result) => {
     if (result.status === 200) {
       report.value = PuppetReport.fromApi(result.data.Data.Data[0]);
     }
-  })
+  });
 }
 
 function loadEvents() {
   const eventQuery = new PqlQuery(PqlEntity.Events);
 
-  eventQuery.filter()
-    .and().equal('report', report_hash.value)
-    .and().equal('certname', certname.value);
+  eventQuery
+    .filter()
+    .and()
+    .equal('report', report_hash.value)
+    .and()
+    .equal('certname', certname.value);
 
-  Backend.getQueryResult<ApiPuppetEvent[]>(eventQuery).then(result => {
+  Backend.getQueryResult<ApiPuppetEvent[]>(eventQuery).then((result) => {
     if (result.status === 200) {
-      events.value = result.data.Data.Data.map(s => PuppetEvent.fromApi(s));
+      events.value = result.data.Data.Data.map((s) => PuppetEvent.fromApi(s));
     }
-  })
+  });
 }
 
 onMounted(() => {
   loadReport();
   loadEvents();
-})
+});
 </script>
 
 <template>
-<q-page padding>
-  <q-card v-if="report">
-    <q-card-section class="bg-primary text-white text-h6">
-      {{ $t('LABEL_SUMMARY') }}
-    </q-card-section>
-    <q-card-section class="q-pa-none">
-      <ReportSummaryTable flat :reports="[report]"/>
-    </q-card-section>
-  </q-card>
+  <q-page padding>
+    <q-card v-if="report">
+      <q-card-section class="bg-primary text-white text-h6">
+        {{ $t('LABEL_SUMMARY') }}
+      </q-card-section>
+      <q-card-section class="q-pa-none">
+        <ReportSummaryTable flat :reports="[report]" />
+      </q-card-section>
+    </q-card>
 
-  <q-card class="q-mt-lg" v-if="report">
-    <q-card-section class="bg-primary text-white text-h6">
-      {{ $t('LABEL_LOG', 2)}}
-    </q-card-section>
-    <q-card-section class="q-pa-none">
-      <ReportLogsTable :logs="report.logs.data" flat/>
-    </q-card-section>
-  </q-card>
+    <q-card class="q-mt-lg" v-if="report">
+      <q-card-section class="bg-primary text-white text-h6">
+        {{ $t('LABEL_LOG', 2) }}
+      </q-card-section>
+      <q-card-section class="q-pa-none">
+        <ReportLogsTable :logs="report.logsMapped" flat />
+      </q-card-section>
+    </q-card>
 
-  <q-card v-if="events" class="q-mt-lg">
-    <q-card-section class="bg-primary text-white text-h6">
-      {{ $t('LABEL_EVENT', 2) }}
-    </q-card-section>
-    <q-card-section class="q-pa-none">
-      <EventsTable flat :events="events"/>
-    </q-card-section>
-  </q-card>
+    <q-card v-if="events" class="q-mt-lg">
+      <q-card-section class="bg-primary text-white text-h6">
+        {{ $t('LABEL_EVENT', 2) }}
+      </q-card-section>
+      <q-card-section class="q-pa-none">
+        <EventsTable flat :events="events" />
+      </q-card-section>
+    </q-card>
 
-  <q-card v-if="report" class="q-mt-lg">
-    <q-card-section class="bg-primary text-white text-h6">
-      {{ $t('LABEL_METRIC', 2) }}
-    </q-card-section>
-    <q-card-section>
-      <MetricsTable flat :metrics="report.metrics.data"/>
-    </q-card-section>
-  </q-card>
-</q-page>
+    <q-card v-if="report" class="q-mt-lg">
+      <q-card-section class="bg-primary text-white text-h6">
+        {{ $t('LABEL_METRIC', 2) }}
+      </q-card-section>
+      <q-card-section>
+        <MetricsTable flat :metrics="report.metrics.data" />
+      </q-card-section>
+    </q-card>
+  </q-page>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

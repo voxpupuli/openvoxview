@@ -41,6 +41,19 @@ export class PuppetReportLog extends autoImplement<ApiPuppetReportLog>() {
   static fromApi(apiItem: ApiPuppetReportLog): PuppetReportLog {
     return new PuppetReportLog(apiItem);
   }
+
+  get color() {
+    switch (this.level) {
+      case 'info':
+        return 'primary';
+      case 'notice':
+        return 'secondary';
+      case 'err':
+        return 'negative';
+      case 'warning':
+        return 'warning';
+    }
+  }
 }
 
 export interface ApiPuppetReport {
@@ -94,10 +107,16 @@ export class PuppetReport extends autoImplement<ApiPuppetReport>() {
   }
 
   get durationInMs() {
-    return new Date(this.end_time).valueOf() - new Date(this.start_time).valueOf();
+    return (
+      new Date(this.end_time).valueOf() - new Date(this.start_time).valueOf()
+    );
   }
 
   get durationFormatted() {
-    return msToTime(this.durationInMs)
+    return msToTime(this.durationInMs);
+  }
+
+  get logsMapped() {
+    return this.logs.data.map((s) => PuppetReportLog.fromApi(s));
   }
 }
