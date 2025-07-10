@@ -2,7 +2,7 @@ module github.com/sebastianrakel/openvoxview
 
 go 1.22.7
 
-require github.com/gin-gonic/gin v1.10.0
+require github.com/gin-gonic/gin v1.10.1
 
 require (
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
