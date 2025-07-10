@@ -49,5 +49,6 @@
   "LABEL_NODE": "node|nodes",
   "LABEL_METRIC": "metric|metrics",
   "LABEL_LOCATION_SHORT": "location (short)",
-  "LABEL_DESCRIPTION": "description"
+  "LABEL_DESCRIPTION": "description",
+  "BTN_REFRESH": "refresh"
 }

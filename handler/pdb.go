@@ -86,7 +86,13 @@ func (h *PdbHandler) PdbQueryHistory(c *gin.Context) {
 }
 
 func (h *PdbHandler) PdbQueryPredefined(c *gin.Context) {
-	c.JSON(http.StatusOK, NewSuccessResponse(h.config.PqlQueries))
+	result := h.config.PqlQueries
+
+	if result == nil {
+		result = []config.ConfigPqlQuery{}
+	}
+
+	c.JSON(http.StatusOK, NewSuccessResponse(result))
 }
 
 func (h *PdbHandler) PdbGetFactNames(c *gin.Context) {

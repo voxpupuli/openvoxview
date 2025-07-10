@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type configPqlQuery struct {
+type ConfigPqlQuery struct {
 	Description string `mapstructure:"description"`
 	Query       string `mapstructure:"query"`
 }
@@ -24,7 +24,7 @@ type Config struct {
 		TLS_KEY   string `mapstructure:"tls_key"`
 		TLS_CERT  string `mapstructure:"tls_cert"`
 	} `mapstructure:"puppetdb"`
-	PqlQueries []configPqlQuery `mapstructure:"queries"`
+	PqlQueries []ConfigPqlQuery `mapstructure:"queries"`
 	Views      []model.View     `mapstructure:"views"`
 }
 

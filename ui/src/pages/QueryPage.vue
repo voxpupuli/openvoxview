@@ -2,7 +2,10 @@
 import QueryExecuter from 'components/QueryExecuter.vue';
 import { onMounted, ref } from 'vue';
 import Backend from 'src/client/backend';
-import { PuppetQueryHistoryEntry, PuppetQueryPredefined } from 'src/puppet/models';
+import {
+  PuppetQueryHistoryEntry,
+  PuppetQueryPredefined,
+} from 'src/puppet/models';
 
 const queries = ref<string[]>([]);
 const tab = ref('query');
@@ -18,9 +21,11 @@ function loadHistory() {
 }
 
 function loadPredefinedQueries() {
-  Backend.getQueryPredefined().then(result => {
-    predefinedQueries.value = result.data.Data.map(s => PuppetQueryPredefined.fromApi(s));
-  })
+  Backend.getQueryPredefined().then((result) => {
+    predefinedQueries.value = result.data.Data.map((s) =>
+      PuppetQueryPredefined.fromApi(s)
+    );
+  });
 }
 
 function addNewQuery(query?: string) {
@@ -68,7 +73,13 @@ onMounted(() => {
         </div>
       </q-tab-panel>
       <q-tab-panel name="history">
-        <q-btn icon="refresh" @click="loadHistory" />
+        <q-btn
+          class="full-width q-mb-md"
+          color="primary"
+          icon="refresh"
+          @click="loadHistory"
+          :label="$t('BTN_REFRESH')"
+        />
         <q-markup-table>
           <thead>
             <tr>
@@ -96,27 +107,26 @@ onMounted(() => {
       <q-tab-panel name="predefined">
         <q-markup-table>
           <thead>
-          <tr>
-            <th>{{ $t('LABEL_DESCRIPTION') }}</th>
-            <th>{{ $t('LABEL_QUERY') }}</th>
-            <th></th>
-          </tr>
+            <tr>
+              <th>{{ $t('LABEL_DESCRIPTION') }}</th>
+              <th>{{ $t('LABEL_QUERY') }}</th>
+              <th></th>
+            </tr>
           </thead>
           <tbody>
-          <tr
-            v-for="query in predefinedQueries"
-            :key="query.Query"
-          >
-            <td>{{ query.Description }}</td>
-            <td><pre>{{ query.Query }}</pre></td>
-            <td>
-              <q-btn
-                icon="play_arrow"
-                color="primary"
-                @click="addNewQuery(query.Query)"
-              />
-            </td>
-          </tr>
+            <tr v-for="query in predefinedQueries" :key="query.Query">
+              <td>{{ query.Description }}</td>
+              <td>
+                <pre>{{ query.Query }}</pre>
+              </td>
+              <td>
+                <q-btn
+                  icon="play_arrow"
+                  color="primary"
+                  @click="addNewQuery(query.Query)"
+                />
+              </td>
+            </tr>
           </tbody>
         </q-markup-table>
       </q-tab-panel>
