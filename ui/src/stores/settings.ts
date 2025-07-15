@@ -7,7 +7,12 @@ export const useSettingsStore = defineStore(
     const environment = ref<string | null>();
     const darkMode = ref(false);
 
-    return { environment, darkMode };
+    function hasEnvironment() {
+      if (!environment.value) return false;
+      return environment.value != '*' && environment.value != '';
+    }
+
+    return { environment, darkMode, hasEnvironment };
   },
   { persist: true }
 );

@@ -46,7 +46,9 @@ type CountResult = {
 function loadPopulation() {
   if (!settings.environment) return;
   const builder = new PqlQuery(PqlEntity.Nodes);
-  builder.filter().and().equal('catalog_environment', settings.environment);
+  if (settings.hasEnvironment()) {
+    builder.filter().and().equal('catalog_environment', settings.environment);
+  }
   builder.addProjectionField('count()');
 
   Backend.getQueryResult<CountResult[]>(builder).then((result) => {
