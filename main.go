@@ -27,7 +27,7 @@ func main() {
 
 	log.Printf("LISTEN: %s", config.Listen)
 	log.Printf("PORT: %d", config.Port)
-	log.Printf("PUPPET_SERVER_ADDRESS: %s", config.GetPuppetDbAddress())
+	log.Printf("PUPPETDB_ADDRESS: %s", config.GetPuppetDbAddress())
 
 	r := gin.Default()
 
