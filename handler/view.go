@@ -27,6 +27,10 @@ type NodesOverviewQuery struct {
 	Status      []string `form:"status"`
 }
 
+func (n *NodesOverviewQuery) HasEnvironment() bool {
+	return n.Environment != "*" && n.Environment != ""
+}
+
 func (h *ViewHandler) NodesOverview(c *gin.Context) {
 	var nodesOverviewQuery NodesOverviewQuery
 	err := c.BindQuery(&nodesOverviewQuery)
@@ -52,15 +56,18 @@ func (h *ViewHandler) NodesOverview(c *gin.Context) {
 		return
 	}
 
-	nodesQuery := puppetdb.PdbQuery{
-		Query: []any{
+	nodesQuery := &puppetdb.PdbQuery{
+		Query: []any{},
+	}
+
+	if nodesOverviewQuery.HasEnvironment() {
+		nodesQuery.Query = append(nodesQuery.Query,
 			"and",
 			[]any{
 				"=",
 				"catalog_environment",
 				nodesOverviewQuery.Environment,
-			},
-		},
+			})
 	}
 
 	if len(nodesOverviewQuery.Status) > 0 {
@@ -75,7 +82,11 @@ func (h *ViewHandler) NodesOverview(c *gin.Context) {
 		nodesQuery.Query = append(nodesQuery.Query, orQuery)
 	}
 
-	nodes, err := dbClient.GetNodes(&nodesQuery)
+	if len(nodesQuery.Query) == 0 {
+		nodesQuery = nil
+	}
+
+	nodes, err := dbClient.GetNodes(nodesQuery)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(err))
 		return
