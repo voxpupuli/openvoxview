@@ -51,5 +51,7 @@
   "LABEL_LOCATION_SHORT": "location (short)",
   "LABEL_DESCRIPTION": "description",
   "BTN_REFRESH": "refresh",
-  "MENU_VIEWS": "Views"
+  "MENU_VIEWS": "Views",
+  "LABEL_ACTION": "action|actions",
+  "BTN_CLOSE": "close"
 }

@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Backend from 'src/client/backend';
-import { PuppetFact } from 'src/puppet/models';
+import { ApiPuppetFact, PuppetFact } from 'src/puppet/models';
 import ReportStatus from 'components/ReportStatus.vue';
 import { ApiPuppetNode, PuppetNode } from 'src/puppet/models/puppet-node';
 import { ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
@@ -65,9 +65,11 @@ const pagination = ref({
 function loadFacts() {
   const query = `facts {certname = '${node}' }`;
 
-  Backend.getRawQueryResult<PuppetFact[]>(query).then((result) => {
+  Backend.getRawQueryResult<ApiPuppetFact[]>(query).then((result) => {
     if (result.status === 200) {
-      node_facts.value = result.data.Data.Data;
+      node_facts.value = result.data.Data.Data.map((s) =>
+        PuppetFact.fromApi(s)
+      );
     }
   });
 }

@@ -6,11 +6,60 @@ import {
   PuppetQueryHistoryEntry,
   PuppetQueryPredefined,
 } from 'src/puppet/models';
+import { useI18n } from 'vue-i18n';
+import { emptyPagination } from 'src/helper/objects';
+import { formatTimestamp } from 'src/helper/functions';
+import { QTableColumn } from 'quasar';
 
 const queries = ref<string[]>([]);
 const tab = ref('query');
 const queryHistoryEntries = ref<PuppetQueryHistoryEntry[]>([]);
 const predefinedQueries = ref<PuppetQueryPredefined[]>([]);
+const { t } = useI18n();
+
+const predefinedColumns: QTableColumn[] = [
+  {
+    name: 'description',
+    field: 'Description',
+    label: t('LABEL_DESCRIPTION'),
+    align: 'left',
+  },
+  {
+    name: 'query',
+    field: 'Query',
+    label: t('LABEL_QUERY'),
+    align: 'left',
+  },
+  {
+    name: 'actions',
+    label: t('LABEL_ACTION', 2),
+    align: 'left',
+    field: '',
+  },
+];
+
+const historyColumns: QTableColumn[] = [
+  {
+    name: 'query',
+    field: (row) => row.Query.Query,
+    label: t('LABEL_QUERY'),
+    align: 'left',
+  },
+  {
+    name: 'timestamp',
+    field: (row) => row.Result.ExecutedOn,
+    label: t('LABEL_TIMESTAMP'),
+    align: 'left',
+    format: (value) => formatTimestamp(value),
+    sortable: true,
+  },
+  {
+    name: 'actions',
+    label: t('LABEL_ACTION', 2),
+    align: 'left',
+    field: '',
+  },
+];
 
 function loadHistory() {
   Backend.getQueryHistory().then((result) => {
@@ -80,55 +129,52 @@ onMounted(() => {
           @click="loadHistory"
           :label="$t('BTN_REFRESH')"
         />
-        <q-markup-table>
-          <thead>
-            <tr>
-              <th>{{ $t('LABEL_QUERY') }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="historyEntry in queryHistoryEntries"
-              :key="historyEntry.Query.Query"
-            >
-              <td>{{ historyEntry.Query.Query }}</td>
-              <td>
-                <q-btn
-                  icon="play_arrow"
-                  color="primary"
-                  @click="addNewQuery(historyEntry.Query.Query)"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </q-markup-table>
+        <q-table :rows="queryHistoryEntries" :columns="historyColumns">
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                <div v-if="col.name == 'query'">
+                  <pre>{{ col.value }}</pre>
+                </div>
+                <div v-else-if="col.name == 'actions'">
+                  <q-btn
+                    icon="play_arrow"
+                    color="primary"
+                    @click="addNewQuery(props.row.Query)"
+                  />
+                </div>
+                <div v-else>{{ col.value }}</div>
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
       </q-tab-panel>
       <q-tab-panel name="predefined">
-        <q-markup-table>
-          <thead>
-            <tr>
-              <th>{{ $t('LABEL_DESCRIPTION') }}</th>
-              <th>{{ $t('LABEL_QUERY') }}</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="query in predefinedQueries" :key="query.Query">
-              <td>{{ query.Description }}</td>
-              <td>
-                <pre>{{ query.Query }}</pre>
-              </td>
-              <td>
-                <q-btn
-                  icon="play_arrow"
-                  color="primary"
-                  @click="addNewQuery(query.Query)"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </q-markup-table>
+        <q-table
+          :rows="predefinedQueries"
+          :pagination="emptyPagination"
+          :columns="predefinedColumns"
+          hide-pagination
+          table-header-class="bg-primary text-white"
+        >
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                <div v-if="col.name == 'query'">
+                  <pre>{{ col.value }}</pre>
+                </div>
+                <div v-else-if="col.name == 'actions'">
+                  <q-btn
+                    icon="play_arrow"
+                    color="primary"
+                    @click="addNewQuery(props.row.Query)"
+                  />
+                </div>
+                <div v-else>{{ col.value }}</div>
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
       </q-tab-panel>
     </q-tab-panels>
   </q-page>
