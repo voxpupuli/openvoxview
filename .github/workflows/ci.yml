@@ -45,7 +45,14 @@ jobs:
           path: ./
           pattern: openvoxview-*
           merge-multiple: true
-          
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Release
         uses: softprops/action-gh-release@v2
         with:

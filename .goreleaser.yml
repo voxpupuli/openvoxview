@@ -1,0 +1,51 @@
+before:
+  hooks:
+    - go mod download
+archives:
+  - id: openvoxview
+builds:
+  - id: webhook-go
+    ldflags: -s -w -X 'VERSION={{.Version}} COMMIT={{.Commit}}'
+    goos:
+      - linux
+      - freebsd
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - "6"
+      - "7"
+nfpms:
+    - vendor: Vox Pupuli
+      homepage: https://github.com/voxpupuli/openvoxview
+      maintainer: Vox Pupuli <voxpupuli@groups.io>
+      description: |-
+          PuppetDB Dashboard
+      license: Apache 2.0
+      formats:
+          - deb
+          - rpm
+dockers:
+    - image_templates:
+        - "ghcr.io/voxpupuli/{{ .ProjectName }}:{{ .Version }}"
+      dockerfile: Containerfile
+      use: buildx
+      build_flag_templates:
+        - --platform=linux/amd64
+release:
+  github:
+    owner: voxpupuli
+    name: openvoxview
+  name_template: "Release v{{.Version}}"
+  prerelease: auto
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
