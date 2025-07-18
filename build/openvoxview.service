@@ -5,7 +5,7 @@ Documentation=https://github.com/voxpupuli/openvoxview
 
 [Service]
 Environment=GIN_MODE=release
-ExecStart=/usr/bin/openvoxview --config /etc/voxpupuli/openvoxview.yml
+ExecStart=/usr/bin/openvoxview -config /etc/voxpupuli/openvoxview.yml
 ExecReload=/bin/kill -HUP $PID
 KillMode=process
 

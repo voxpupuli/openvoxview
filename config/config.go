@@ -1,11 +1,19 @@
 package config
 
 import (
+	"flag"
 	"fmt"
+	"log"
 
 	"github.com/sebastianrakel/openvoxview/model"
 	"github.com/spf13/viper"
 )
+
+var configPath = flag.String("config", "config.yml", "path to the config file ")
+
+func init() {
+	flag.Parse()
+}
 
 type ConfigPqlQuery struct {
 	Description string `mapstructure:"description"`
@@ -32,6 +40,11 @@ func GetConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
+
+	if configPath != nil {
+		log.Printf("Using config: %s", *configPath)
+		viper.SetConfigFile(*configPath)
+	}
 
 	viper.SetDefault("port", 5000)
 	viper.SetDefault("puppetdb.host", "localhost")
