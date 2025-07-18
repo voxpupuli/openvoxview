@@ -1,4 +1,4 @@
-FROM alpine:3.20 AS BUILD
+FROM alpine:3.20 AS build
 
 RUN apk add --no-cache go yarn make
 
@@ -8,10 +8,10 @@ COPY . /build
 ARG VUE_APP_COMMIT=dirty
 ENV VUE_APP_COMMIT=${VUE_APP_COMMIT}
 
-RUN make all
+RUN make backend
 
 FROM alpine:3.21
 ENV PORT=8080
-COPY --from=BUILD /build/openvoxview /openvoxview
+COPY --from=build /build/openvoxview /openvoxview
 
 ENTRYPOINT /openvoxview
