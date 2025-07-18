@@ -4,7 +4,7 @@ before:
 archives:
   - id: openvoxview
 builds:
-  - id: webhook-go
+  - id: openvoxview
     ldflags: -s -w -X 'VERSION={{.Version}} COMMIT={{.Commit}}'
     goos:
       - linux

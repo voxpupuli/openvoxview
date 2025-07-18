@@ -1,0 +1,22 @@
+---
+listen: '127.0.0.1'
+port: 5000
+puppetdb:
+  host: 'localhost'
+  port: 8080
+  tls: false
+views:
+  - name: 'Inventory'
+    facts:
+      - name: 'Hostname'
+        fact: 'trusted'
+        renderer: 'hostname'
+      - name: 'IP Address'
+        fact: 'networking.ip'
+      - name: 'OS'
+        fact: 'os'
+        renderer: 'os_name'
+      - name: 'Kernel Version'
+        fact: 'kernelrelease'
+      - name: 'Puppet Version'
+        fact: 'puppetversion'
