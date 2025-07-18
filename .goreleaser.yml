@@ -1,6 +1,7 @@
 before:
   hooks:
     - go mod download
+    - make ui
 archives:
   - id: openvoxview
 builds:

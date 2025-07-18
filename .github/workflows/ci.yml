@@ -17,6 +17,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: |
+          npm install -g yarn
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
