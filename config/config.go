@@ -10,6 +10,7 @@ import (
 )
 
 var configPath = flag.String("config", "config.yml", "path to the config file ")
+var printVersion = flag.Bool("version", false, "prints version")
 
 func init() {
 	flag.Parse()
@@ -34,6 +35,14 @@ type Config struct {
 	} `mapstructure:"puppetdb"`
 	PqlQueries []ConfigPqlQuery `mapstructure:"queries"`
 	Views      []model.View     `mapstructure:"views"`
+}
+
+func PrintVersion(version string) bool {
+	if *printVersion {
+		fmt.Println(version)
+		return true
+	}
+	return false
 }
 
 func GetConfig() (*Config, error) {

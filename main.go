@@ -18,16 +18,18 @@ const (
 )
 
 func main() {
+	if config.PrintVersion(VERSION) {
+		return
+	}
 	log.Printf("OpenVox View - %s (%s)", VERSION, COMMIT)
-
-	config, err := config.GetConfig()
+	cfg, err := config.GetConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("LISTEN: %s", config.Listen)
-	log.Printf("PORT: %d", config.Port)
-	log.Printf("PUPPETDB_ADDRESS: %s", config.GetPuppetDbAddress())
+	log.Printf("LISTEN: %s", cfg.Listen)
+	log.Printf("PORT: %d", cfg.Port)
+	log.Printf("PUPPETDB_ADDRESS: %s", cfg.GetPuppetDbAddress())
 
 	r := gin.Default()
 
@@ -45,8 +47,8 @@ func main() {
 
 	r.Use(AllowCORS)
 
-	pdbHandler := handler.NewPdbHandler(config)
-	viewHandler := handler.NewViewHandler(config)
+	pdbHandler := handler.NewPdbHandler(cfg)
+	viewHandler := handler.NewViewHandler(cfg)
 
 	api := r.Group("/api/v1/")
 	{
@@ -79,7 +81,7 @@ func main() {
 		}
 	}
 
-	r.Run(fmt.Sprintf("%s:%d", config.Listen, config.Port))
+	r.Run(fmt.Sprintf("%s:%d", cfg.Listen, cfg.Port))
 }
 
 func AllowCORS(c *gin.Context) {
