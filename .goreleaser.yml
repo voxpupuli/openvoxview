@@ -6,7 +6,9 @@ archives:
   - id: openvoxview
 builds:
   - id: openvoxview
-    ldflags: -X 'main.VERSION={{.Version}} main.COMMIT={{.Commit}}'
+    ldflags: -s -w -X 'main.VERSION={{.Version}}' -X 'main.COMMIT={{.Commit}}'
+    env:
+      - CGO_ENABLED=0
     goos:
       - linux
       - freebsd
