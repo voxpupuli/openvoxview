@@ -12,7 +12,7 @@ import (
 	"github.com/sebastianrakel/openvoxview/handler"
 )
 
-const (
+var (
 	VERSION = "0.1.0"
 	COMMIT  = "dirty"
 )
