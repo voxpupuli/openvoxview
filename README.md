@@ -24,7 +24,7 @@ You can build a container with the Containerfile
 ```podman build -t openvoxview .```
 
 or for Docker 
-```docker build -t openvoxview -f Containerfile```
+```docker build -t openvoxview -f Containerfile .```
 
 ## Screenshots
 ### Reports Overview
