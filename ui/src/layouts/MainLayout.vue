@@ -124,7 +124,7 @@ function toggleLeftDrawer() {
 }
 
 function loadVersion() {
-  Backend.getVersion().then((result) => {
+  void Backend.getVersion().then((result) => {
     if (result.status === 200) {
       version.value = result.data.Data.Version;
     }
@@ -132,7 +132,7 @@ function loadVersion() {
 }
 
 function loadPredefinedViews() {
-  Backend.getPredefinedViews().then((result) => {
+  void Backend.getPredefinedViews().then((result) => {
     if (result.status === 200) {
       predefinedViews.value = result.data.Data.map((s) =>
         PredefinedView.fromApi(s)

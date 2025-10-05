@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import Backend from 'src/client/backend';
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
-import { PuppetQueryResult } from 'src/puppet/models';
+import { type PuppetQueryResult } from 'src/puppet/models';
 
 const data = ref<PuppetQueryResult<unknown[]> | null>(null);
 const query = defineModel('query', { type: String });
@@ -14,7 +14,7 @@ function executeQuery() {
   console.log('executing: ', query.value)
   if (!query.value) return;
   isLoading.value = true;
-  Backend.getRawQueryResult<unknown[]>(query.value, true)
+  void Backend.getRawQueryResult<unknown[]>(query.value, true)
     .then((result) => {
       if (result.status === 200) {
         data.value = result.data.Data;

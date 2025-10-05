@@ -14,7 +14,7 @@ const filteredFacts = ref<string[]>([]);
 const groupedFilteredFacts = ref<IFactHash>({});
 
 function loadFacts() {
-  Backend.getFactNames().then(result => {
+  void Backend.getFactNames().then(result => {
     if (result.status === 200) {
       facts.value = result.data.Data;
       refreshFilteredFacts();
@@ -25,7 +25,7 @@ function loadFacts() {
 }
 
 function refreshFilteredFacts() {
-  let result = {} as IFactHash;
+  const result = {} as IFactHash;
 
   if (needle.value) {
     filteredFacts.value = facts.value.filter(s => s.includes(needle.value as string));
@@ -46,7 +46,7 @@ function refreshFilteredFacts() {
   groupedFilteredFacts.value = result;
 }
 
-watch(needle, async () => {
+watch(needle, () => {
   refreshFilteredFacts();
 })
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { QTableColumn } from 'quasar';
-import { PuppetReport } from 'src/puppet/models/puppet-report';
+import { type QTableColumn } from 'quasar';
+import { type PuppetReport } from 'src/puppet/models/puppet-report';
 import { useI18n } from 'vue-i18n';
 import { emptyPagination } from 'src/helper/objects';
 import { formatTimestamp } from 'src/helper/functions';

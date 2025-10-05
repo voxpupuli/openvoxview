@@ -51,9 +51,9 @@ function loadPopulation() {
   }
   builder.addProjectionField('count()');
 
-  Backend.getQueryResult<CountResult[]>(builder).then((result) => {
+  void Backend.getQueryResult<CountResult[]>(builder).then((result) => {
     if (result.status === 200) {
-      population.value = result.data.Data.Data[0].count as number;
+      population.value = result.data.Data.Data[0]!.count;
     }
   });
 }
@@ -64,16 +64,16 @@ function loadResources() {
   builder.filter().and().equal('environment', settings.environment);
   builder.addProjectionField('count()');
 
-  Backend.getQueryResult<CountResult[]>(builder).then((result) => {
+  void Backend.getQueryResult<CountResult[]>(builder).then((result) => {
     if (result.status === 200) {
-      resources.value = result.data.Data.Data[0].count as number;
+      resources.value = result.data.Data.Data[0]!.count;
     }
   });
 }
 
 function loadData() {
   if (!settings.environment) return;
-  Backend.getViewNodeOverview(settings.environment).then((result) => {
+  void Backend.getViewNodeOverview(settings.environment).then((result) => {
     if (result.status === 200) {
       nodes.value = result.data.Data.map((s) =>
         PuppetNodeWithEventCount.fromApi(s)
