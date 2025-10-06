@@ -62,7 +62,7 @@ func (h *PdbHandler) PdbExecuteQuery(c *gin.Context) {
 	queryResult := QueryResult{
 		Data:                 res,
 		Error:                err,
-		Success:              err != nil,
+		Success:              err == nil,
 		ExecutedOn:           time.Now(),
 		ExecutionTimeInMilli: duration,
 		Count:                len(res),
