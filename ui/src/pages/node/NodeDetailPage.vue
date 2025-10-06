@@ -2,21 +2,23 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Backend from 'src/client/backend';
-import { ApiPuppetFact, PuppetFact } from 'src/puppet/models';
+import { type ApiPuppetFact, PuppetFact } from 'src/puppet/models';
 import ReportStatus from 'components/ReportStatus.vue';
-import { ApiPuppetNode, PuppetNode } from 'src/puppet/models/puppet-node';
-import { ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
+import { type ApiPuppetNode, PuppetNode } from 'src/puppet/models/puppet-node';
+import { type ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
 import { formatTimestamp } from 'src/helper/functions';
 import PqlQuery, { PqlEntity, PqlSortOrder } from 'src/puppet/query-builder';
 import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
-import { QTableColumn, useQuasar } from 'quasar';
+import { type QTableColumn, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
 const q = useQuasar();
 const { t } = useI18n();
 const route = useRoute();
-const node = route.params.node;
+const node = computed(() => {
+  return route.params.node as string
+});
 
 const node_info = ref<PuppetNode>();
 const node_facts = ref<PuppetFact[]>([]);
@@ -63,9 +65,9 @@ const pagination = ref({
 });
 
 function loadFacts() {
-  const query = `facts {certname = '${node}' }`;
+  const query = `facts {certname = '${node.value}' }`;
 
-  Backend.getRawQueryResult<ApiPuppetFact[]>(query).then((result) => {
+  void Backend.getRawQueryResult<ApiPuppetFact[]>(query).then((result) => {
     if (result.status === 200) {
       node_facts.value = result.data.Data.Data.map((s) =>
         PuppetFact.fromApi(s)
@@ -75,13 +77,13 @@ function loadFacts() {
 }
 
 function loadNodeInfo() {
-  const query = `nodes { certname = '${node}' }`;
+  const query = `nodes { certname = '${node.value}' }`;
   isLoading.value = true;
 
-  Backend.getRawQueryResult<ApiPuppetNode[]>(query)
+  void Backend.getRawQueryResult<ApiPuppetNode[]>(query)
     .then((result) => {
       if (result.status === 200) {
-        node_info.value = PuppetNode.fromApi(result.data.Data.Data[0]);
+        node_info.value = PuppetNode.fromApi(result.data.Data.Data[0]!);
       }
     })
     .finally(() => {
@@ -92,11 +94,11 @@ function loadNodeInfo() {
 function loadReports() {
   isReportsLoading.value = true;
   const query = new PqlQuery(PqlEntity.Reports);
-  query.filter().and().equal('certname', node);
+  query.filter().and().equal('certname', node.value);
   query.sortBy().add('end_time', PqlSortOrder.Descending);
   query.limit(10);
 
-  Backend.getQueryResult<ApiPuppetReport[]>(query)
+  void Backend.getQueryResult<ApiPuppetReport[]>(query)
     .then((result) => {
       if (result.status === 200) {
         reports.value = result.data.Data.Data.map((s) =>
@@ -109,7 +111,7 @@ function loadReports() {
     });
 }
 
-onMounted(async () => {
+onMounted(() => {
   loadNodeInfo();
   loadReports();
   loadFacts();

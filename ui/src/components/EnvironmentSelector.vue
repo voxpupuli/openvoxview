@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import PqlQuery, { PqlEntity } from 'src/puppet/query-builder';
 import Backend from 'src/client/backend';
-import { PuppetEnvironment } from 'src/puppet/models';
+import { type PuppetEnvironment } from 'src/puppet/models';
 import { useSettingsStore } from 'stores/settings';
 
 const environments = ref<string[]>([]);
@@ -11,7 +11,7 @@ const settings = useSettingsStore();
 function loadEnvironments() {
   const query = new PqlQuery(PqlEntity.Environments);
 
-  Backend.getQueryResult<PuppetEnvironment[]>(query).then((result) => {
+  void Backend.getQueryResult<PuppetEnvironment[]>(query).then((result) => {
     if (result.status === 200) {
       environments.value = result.data.Data.Data.map((s) => s.name);
       environments.value.push('*');

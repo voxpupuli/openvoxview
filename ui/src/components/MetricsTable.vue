@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { QTableColumn } from 'quasar';
+import { type QTableColumn } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { PuppetReportMetric } from 'src/puppet/models/puppet-report';
+import { type PuppetReportMetric } from 'src/puppet/models/puppet-report';
 import { emptyPagination } from 'src/helper/objects';
 
 const {t} = useI18n();

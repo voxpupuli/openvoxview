@@ -1,15 +1,15 @@
 import { api } from 'boot/axios';
-import { AxiosPromise } from 'axios';
-import { ApiVersion, BaseResponse } from 'src/client/models';
-import PqlQuery from 'src/puppet/query-builder';
-import {
+import type { AxiosPromise } from 'axios';
+import type { ApiVersion, BaseResponse } from 'src/client/models';
+import type PqlQuery from 'src/puppet/query-builder';
+import type {
   ApiPredefinedView, ApiPredefinedViewResult,
   ApiPuppetQueryPredefined,
   PuppetQueryHistoryEntry,
   PuppetQueryRequest,
   PuppetQueryResult
 } from 'src/puppet/models';
-import { ApiPuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
+import { type ApiPuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
 
 class Backend {
   getQueryResult<T>(query: PqlQuery) : AxiosPromise<BaseResponse<PuppetQueryResult<T>>> {

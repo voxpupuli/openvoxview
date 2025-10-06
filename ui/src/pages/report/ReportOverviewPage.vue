@@ -3,10 +3,10 @@ import { onMounted, ref, watch } from 'vue';
 import Backend from 'src/client/backend';
 import ReportStatus from 'components/ReportStatus.vue';
 import { useI18n } from 'vue-i18n';
-import { QTableColumn } from 'quasar';
+import { type QTableColumn } from 'quasar';
 import NodeLink from 'components/NodeLink.vue';
 import PqlQuery, { PqlEntity, PqlSortOrder } from 'src/puppet/query-builder';
-import { ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
+import { type ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
 
 const { t } = useI18n();
 const reports = ref<PuppetReport[]>([]);
@@ -117,7 +117,7 @@ function loadReports() {
   query.limit(rowsPerPage);
   query.offset(start);
 
-  Backend.getQueryResult<ApiPuppetReport[]>(query)
+  void Backend.getQueryResult<ApiPuppetReport[]>(query)
     .then((result) => {
       if (result.status === 200) {
         reports.value = result.data.Data.Data.map(s => PuppetReport.fromApi(s));
@@ -128,7 +128,6 @@ function loadReports() {
     });
 }
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 function onRequest() {
   loadReports();
 }

@@ -3,20 +3,23 @@ import VueJsonPretty from 'vue-json-pretty';
 import 'vue-json-pretty/lib/styles.css';
 import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
-import { PuppetFact, ApiPuppetFact } from 'src/puppet/models';
+import { PuppetFact, type ApiPuppetFact } from 'src/puppet/models';
 import Backend from 'src/client/backend';
 import { useI18n } from 'vue-i18n';
-import { QTableColumn, useQuasar } from 'quasar';
+import { type QTableColumn, useQuasar } from 'quasar';
 
 const route = useRoute();
 const router = useRouter();
-const fact = route.params.fact;
 const facts = ref([] as PuppetFact[]);
 const needle = ref<string | null>(null);
 const { t } = useI18n();
 const showJsonView = ref(false);
 const selectedFact = ref<PuppetFact | null>();
 const q = useQuasar();
+
+const fact = computed(() => {
+  return route.params.fact as string;
+})
 
 const columns: QTableColumn<PuppetFact>[] = [
   {
@@ -35,7 +38,7 @@ const columns: QTableColumn<PuppetFact>[] = [
 ];
 
 function loadFacts() {
-  Backend.getRawQueryResult<ApiPuppetFact[]>(`facts { name = '${fact}'}`).then(
+  void Backend.getRawQueryResult<ApiPuppetFact[]>(`facts { name = '${fact.value}'}`).then(
     (result) => {
       if (result.status === 200) {
         facts.value = result.data.Data.Data.map((s) => PuppetFact.fromApi(s));
@@ -54,7 +57,7 @@ const filteredFacts = computed(() => {
 });
 
 function jumpToNode(event: unknown, row: PuppetFact) {
-  router.push({ name: 'NodeDetail', params: { node: row.certname } });
+  void router.push({ name: 'NodeDetail', params: { node: row.certname } });
 }
 
 function showJson(fact: PuppetFact) {

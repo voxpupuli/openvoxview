@@ -3,13 +3,13 @@ import QueryExecuter from 'components/QueryExecuter.vue';
 import { onMounted, ref } from 'vue';
 import Backend from 'src/client/backend';
 import {
-  PuppetQueryHistoryEntry,
+  type PuppetQueryHistoryEntry,
   PuppetQueryPredefined,
 } from 'src/puppet/models';
 import { useI18n } from 'vue-i18n';
 import { emptyPagination } from 'src/helper/objects';
 import { formatTimestamp } from 'src/helper/functions';
-import { QTableColumn } from 'quasar';
+import { type QTableColumn } from 'quasar';
 
 const queries = ref<string[]>([]);
 const tab = ref('query');
@@ -62,7 +62,7 @@ const historyColumns: QTableColumn[] = [
 ];
 
 function loadHistory() {
-  Backend.getQueryHistory().then((result) => {
+  void Backend.getQueryHistory().then((result) => {
     if (result.status === 200) {
       queryHistoryEntries.value = result.data.Data;
     }
@@ -70,7 +70,7 @@ function loadHistory() {
 }
 
 function loadPredefinedQueries() {
-  Backend.getQueryPredefined().then((result) => {
+  void Backend.getQueryPredefined().then((result) => {
     predefinedQueries.value = result.data.Data.map((s) =>
       PuppetQueryPredefined.fromApi(s)
     );

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { PuppetEvent } from 'src/puppet/models/puppet-event';
-import { QTableColumn } from 'quasar';
+import { type PuppetEvent } from 'src/puppet/models/puppet-event';
+import { type QTableColumn } from 'quasar';
 import { useI18n } from 'vue-i18n';
 
 const {t} = useI18n();

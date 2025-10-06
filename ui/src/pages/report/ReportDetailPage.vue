@@ -4,8 +4,8 @@ import PqlQuery, { PqlEntity } from 'src/puppet/query-builder';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Backend from 'src/client/backend';
-import { ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
-import { ApiPuppetEvent, PuppetEvent } from 'src/puppet/models/puppet-event';
+import { type ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
+import { type ApiPuppetEvent, PuppetEvent } from 'src/puppet/models/puppet-event';
 import EventsTable from 'components/EventsTable.vue';
 import ReportLogsTable from 'components/ReportLogsTable.vue';
 import MetricsTable from 'components/MetricsTable.vue';
@@ -31,9 +31,9 @@ function loadReport() {
     .and()
     .equal('hash', report_hash.value);
 
-  Backend.getQueryResult<ApiPuppetReport[]>(query).then((result) => {
+  void Backend.getQueryResult<ApiPuppetReport[]>(query).then((result) => {
     if (result.status === 200) {
-      report.value = PuppetReport.fromApi(result.data.Data.Data[0]);
+      report.value = PuppetReport.fromApi(result.data.Data.Data[0]!);
     }
   });
 }
@@ -48,7 +48,7 @@ function loadEvents() {
     .and()
     .equal('certname', certname.value);
 
-  Backend.getQueryResult<ApiPuppetEvent[]>(eventQuery).then((result) => {
+  void Backend.getQueryResult<ApiPuppetEvent[]>(eventQuery).then((result) => {
     if (result.status === 200) {
       events.value = result.data.Data.Data.map((s) => PuppetEvent.fromApi(s));
     }

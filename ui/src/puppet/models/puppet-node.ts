@@ -1,5 +1,5 @@
 import { autoImplement } from 'src/helper/functions';
-import { ApiPuppetEventCount, PuppetEventCount } from 'src/puppet/models/puppet-event-count';
+import { type ApiPuppetEventCount, PuppetEventCount } from 'src/puppet/models/puppet-event-count';
 
 export interface ApiPuppetNode {
   cached_catalog_status: string;

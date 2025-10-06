@@ -5,7 +5,7 @@ import { PredefinedViewResult } from 'src/puppet/models';
 import backend from 'src/client/backend';
 import NodeLink from 'components/NodeLink.vue';
 import { getOsNameFromOsFact } from 'src/helper/functions';
-import { QTableColumn } from 'quasar';
+import { type QTableColumn } from 'quasar';
 
 const route = useRoute();
 const viewName = computed(() => {
@@ -39,7 +39,7 @@ function getProperty(obj: never, key: string): string | undefined {
 }
 
 function loadViewResult() {
-  backend.getPredefinedViewsResult(viewName.value).then((result) => {
+  void backend.getPredefinedViewsResult(viewName.value).then((result) => {
     if (result.status === 200) {
       viewResult.value = PredefinedViewResult.fromApi(result.data.Data);
     }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import EventCountBlock from 'components/EventCountBlock.vue';
 import NodeLink from 'components/NodeLink.vue';
-import { QTableColumn } from 'quasar';
+import { type QTableColumn } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { PropType } from 'vue';
-import { PuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
+import { type PropType } from 'vue';
+import { type PuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
 import { emptyPagination } from 'src/helper/objects';
 import StatusButton from 'components/StatusButton.vue';
 

@@ -1,5 +1,5 @@
-import { boot } from 'quasar/wrappers';
-import axios, { AxiosInstance } from 'axios';
+import { defineBoot } from '#q-app/wrappers';
+import axios, { type AxiosInstance } from 'axios';
 import { Notify } from 'quasar';
 
 declare module 'vue' {
@@ -10,9 +10,9 @@ declare module 'vue' {
 }
 
 
-const api = axios.create({ baseURL: process.env.VUE_APP_BACKEND_BASE_ADDRESS });
+const api = axios.create({ baseURL: process.env.VUE_APP_BACKEND_BASE_ADDRESS || ''});
 
-export default boot(({ app }) => {
+export default defineBoot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
   api.interceptors.response.use(function (response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
@@ -29,7 +29,7 @@ export default boot(({ app }) => {
       })
     }
 
-    return Promise.reject(error);
+    return Promise.reject(new Error(error));
   });
 
 

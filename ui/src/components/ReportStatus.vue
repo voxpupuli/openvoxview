@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import StatusButton from 'components/StatusButton.vue';
-import { PropType } from 'vue';
-import { PuppetReport } from 'src/puppet/models/puppet-report';
+import { type PropType } from 'vue';
+import { type PuppetReport } from 'src/puppet/models/puppet-report';
 import EventCountBlock from 'components/EventCountBlock.vue';
 
 const report = defineModel('report', {

@@ -1,6 +1,6 @@
 import { autoImplement, msToTime } from 'src/helper/functions';
 import {
-  ApiPuppetEventCount,
+  type ApiPuppetEventCount,
   PuppetEventCount,
 } from 'src/puppet/models/puppet-event-count';
 import moment from 'moment';
@@ -90,7 +90,7 @@ export class PuppetReport extends autoImplement<ApiPuppetReport>() {
   public getMetricsValue(category: string, name: string) {
     return this.metrics.data.filter(
       (s) => s.category == category && s.name == name
-    )[0].value;
+    )[0]!.value;
   }
 
   public getEventCounts(): PuppetEventCount {

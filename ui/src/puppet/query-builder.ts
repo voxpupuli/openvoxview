@@ -2,7 +2,7 @@
 // this needs a lot of refactoring to work with queries
 class PqlQueryFilterField {
   parent: PqlQueryFilter;
-  value: any | null;
+  value: any;
   filterString = '';
   operator: string;
   group: number;
@@ -14,7 +14,7 @@ class PqlQueryFilterField {
   }
 
   private getFieldValue(value: any): string {
-    if (value instanceof String || typeof value == 'string') {
+    if (typeof value == 'string') {
       return `'${value}'`;
     }
 
@@ -108,7 +108,7 @@ class PqlQueryFilter {
 
     Object.keys(grouped).forEach((groupNumber) => {
       let groupQuery = '';
-      grouped[groupNumber].forEach((field: PqlQueryFilterField) => {
+      grouped[groupNumber]!.forEach((field: PqlQueryFilterField) => {
         if (groupQuery.length > 0) {
           groupQuery = `${groupQuery} ${field.operator} `;
         }
@@ -117,7 +117,7 @@ class PqlQueryFilter {
       })
 
       if (query.length > 0) {
-        query = query + ` ${grouped[groupNumber][0].operator} `
+        query = query + ` ${grouped[groupNumber]![0]!.operator} `
       }
       query = query + `(${groupQuery})`;
     })

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import moment from 'moment';
-import { PropType } from 'vue';
+import { type PropType } from 'vue';
 
 const value = defineModel('value', { type: Object as PropType<string | Date>, required: true })
 
