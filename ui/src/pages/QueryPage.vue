@@ -106,7 +106,7 @@ onMounted(() => {
         <q-btn
           class="full-width"
           color="primary"
-          :label="$t('BTN_ADD_NEW_QUERY')"
+          :label="t('BTN_ADD_NEW_QUERY')"
           @click="addNewQuery()"
         />
         <div class="q-mt-md" v-for="(query, index) in queries" :key="index">
