@@ -27,13 +27,13 @@ export type PuppetQueryRequest = {
   Query: string;
 };
 
-export type PuppetQueryResult<T> = {
+export interface PuppetQueryResult<T> {
   Data: T;
   Error: string;
   Success: boolean;
   ExecutedOn: Date;
   ExecutionTimeInMilli: number;
-};
+}
 
 export type PuppetQueryHistoryEntry = {
   Query: PuppetQueryRequest;

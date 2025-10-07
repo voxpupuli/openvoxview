@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import VueJsonPretty from 'vue-json-pretty';
-import 'vue-json-pretty/lib/styles.css';
 import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
 import { PuppetFact, type ApiPuppetFact } from 'src/puppet/models';
 import Backend from 'src/client/backend';
 import { useI18n } from 'vue-i18n';
-import { type QTableColumn, useQuasar } from 'quasar';
+import { type QTableColumn } from 'quasar';
+import JsonViewDialog from 'components/JsonViewDialog.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -15,7 +14,6 @@ const needle = ref<string | null>(null);
 const { t } = useI18n();
 const showJsonView = ref(false);
 const selectedFact = ref<PuppetFact | null>();
-const q = useQuasar();
 
 const fact = computed(() => {
   return route.params.fact as string;
@@ -51,7 +49,7 @@ const filteredFacts = computed(() => {
   if (needle.value == null) return facts.value;
   return facts.value.filter(
     (s) =>
-      s.value.toString().includes(needle.value) ||
+      s.value.toString().includes(needle.value ?? '') ||
       s.certname.toLowerCase().includes(needle.value!.toLowerCase())
   );
 });
@@ -97,30 +95,8 @@ onMounted(() => {
         </q-tr>
       </template>
     </q-table>
+    <JsonViewDialog v-if="selectedFact" v-model:show="showJsonView" :model-value="selectedFact.value" :label="selectedFact?.name"/>
   </q-page>
-  <q-dialog v-model="showJsonView" v-if="selectedFact">
-    <q-card>
-      <q-card-section class="bg-primary text-white text-h6">
-        {{ selectedFact.name }}
-      </q-card-section>
-      <q-card-section style="max-height: 50vh" class="scroll">
-        <vue-json-pretty
-          :data="selectedFact.value"
-          :theme="q.dark.isActive ? 'dark' : 'light'"
-        />
-      </q-card-section>
-      <q-card-section>
-        <q-card-actions>
-          <q-btn
-            color="negative"
-            class="full-width"
-            :label="t('BTN_CLOSE')"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card-section>
-    </q-card>
-  </q-dialog>
 </template>
 
 <style scoped></style>
