@@ -2,21 +2,20 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 import { ref } from 'vue';
 import Backend from 'src/client/backend';
-import {
-  type PuppetQueryResult,
-} from 'src/puppet/models';
+import { type PuppetQueryResult } from 'src/puppet/models';
 import { JsonViewer } from 'vue3-json-viewer';
 import 'vue3-json-viewer/dist/vue3-json-viewer.css';
 import JsonViewDialog from 'components/JsonViewDialog.vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
+import { formatDuration, formatTimestamp } from 'src/helper/functions';
 
 interface SelectedItem {
   name: string;
   value: any;
 }
 
-const {t} = useI18n();
+const { t } = useI18n();
 const data = ref<PuppetQueryResult<unknown[]>>();
 const query = defineModel('query', { type: String });
 const isLoading = ref(false);
@@ -44,7 +43,7 @@ function showJson(label: string, value: any) {
   selectedItem.value = {
     name: label,
     value: value,
-  }
+  };
   showJsonDialog.value = true;
 }
 </script>
@@ -71,7 +70,11 @@ function showJson(label: string, value: any) {
         @click="executeQuery"
         :loading="isLoading"
       >
-        <q-badge class="q-ml-md" color="secondary" :label="t('KEY_CTRL_RETURN')"/>
+        <q-badge
+          class="q-ml-md"
+          color="secondary"
+          :label="t('KEY_CTRL_RETURN')"
+        />
       </q-btn>
     </q-card-section>
     <q-card-section v-if="data">
@@ -129,22 +132,30 @@ function showJson(label: string, value: any) {
                 <q-item-label caption>{{
                   $t('LABEL_EXECUTION_TIME')
                 }}</q-item-label>
-                <q-item-label>{{ data.ExecutionTimeInMilli }}</q-item-label>
+
+                <q-item-label>{{
+                  formatDuration(data.ExecutionTimeInMilli)
+                }}</q-item-label>
               </q-item-section>
             </q-item>
             <q-item>
               <q-item-section>
                 <q-item-label caption>{{
-                  $t('LABEL_EXECUTED_ON')
+                  t('LABEL_EXECUTED_ON')
                 }}</q-item-label>
-                <q-item-label>{{ data.ExecutedOn }}</q-item-label>
+                <q-item-label>{{ formatTimestamp(data.ExecutedOn) }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
         </q-tab-panel>
       </q-tab-panels>
     </q-card-section>
-    <JsonViewDialog v-if="selectedItem" :model-value="selectedItem.value" :label="selectedItem.name" v-model:show="showJsonDialog"/>
+    <JsonViewDialog
+      v-if="selectedItem"
+      :model-value="selectedItem.value"
+      :label="selectedItem.name"
+      v-model:show="showJsonDialog"
+    />
   </q-card>
 </template>
 

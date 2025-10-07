@@ -13,6 +13,31 @@ export function formatTimestamp(input: string|Date, withMs?: boolean) : string {
   return moment(input).format(`DD. MMM. YYYY - HH:mm:ss${withMs ? '.SSS' : ''}`)
 }
 
+export function formatDuration(milliseconds: number): string {
+  if (milliseconds < 0) return "0ms";
+
+  const units = [
+    { name: "d", value: 24 * 60 * 60 * 1000 },
+    { name: "h", value: 60 * 60 * 1000 },
+    { name: "m", value: 60 * 1000 },
+    { name: "s", value: 1000 },
+    { name: "ms", value: 1 }
+  ];
+
+  const parts: string[] = [];
+  let remaining = milliseconds;
+
+  for (const unit of units) {
+    if (remaining >= unit.value) {
+      const count = Math.floor(remaining / unit.value);
+      parts.push(`${count}${unit.name}`);
+      remaining %= unit.value;
+    }
+  }
+
+  return parts.length > 0 ? parts.join(" ") : "0ms";
+}
+
 export function msToTime(duration: number) {
   const milliseconds = (duration%1000)/100
     , seconds = parseInt(((duration/1000)%60).toString())
