@@ -1,5 +1,5 @@
 # OpenVox View
-[![Build and Release](https://github.com/sebastianrakel/openvoxview/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastianrakel/openvoxview/actions/workflows/ci.yml)
+[![Build and Release](https://github.com/voxpupuli/openvoxview/actions/workflows/ci.yml/badge.svg)](https://github.com/voxpupuli/openvoxview/actions/workflows/ci.yml)
 
 <img src="./ui/public/logo.png" alt="Logo" width="256" height="256">
 
