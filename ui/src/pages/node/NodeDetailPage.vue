@@ -8,10 +8,10 @@ import { type ApiPuppetNode, PuppetNode } from 'src/puppet/models/puppet-node';
 import { type ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
 import { formatTimestamp } from 'src/helper/functions';
 import PqlQuery, { PqlEntity, PqlSortOrder } from 'src/puppet/query-builder';
-import VueJsonPretty from 'vue-json-pretty';
-import 'vue-json-pretty/lib/styles.css';
 import { type QTableColumn, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
+import { JsonViewer } from 'vue3-json-viewer';
+import "vue3-json-viewer/dist/vue3-json-viewer.css";
 
 const q = useQuasar();
 const { t } = useI18n();
@@ -214,9 +214,12 @@ onMounted(() => {
               <tr v-for="fact in filteredFacts" :key="fact.name">
                 <td>{{ fact.name }}</td>
                 <td class="text-left">
-                  <vue-json-pretty
-                    :data="fact.value"
+                  <JsonViewer
+                    :value="fact.value"
+                    expanded
+                    :expand-depth="-1"
                     :theme="q.dark.isActive ? 'dark' : 'light'"
+                    preview-mode
                   />
                 </td>
               </tr>
@@ -229,4 +232,5 @@ onMounted(() => {
   </q-page>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>

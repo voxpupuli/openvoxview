@@ -3,11 +3,12 @@ import type { AxiosPromise } from 'axios';
 import type { ApiVersion, BaseResponse } from 'src/client/models';
 import type PqlQuery from 'src/puppet/query-builder';
 import type {
-  ApiPredefinedView, ApiPredefinedViewResult,
+  ApiPredefinedView,
+  ApiPredefinedViewResult,
   ApiPuppetQueryPredefined,
   PuppetQueryHistoryEntry,
   PuppetQueryRequest,
-  PuppetQueryResult
+  PuppetQueryResult,
 } from 'src/puppet/models';
 import { type ApiPuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
 
