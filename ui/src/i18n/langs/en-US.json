@@ -53,5 +53,6 @@
   "BTN_REFRESH": "refresh",
   "MENU_VIEWS": "Views",
   "LABEL_ACTION": "action|actions",
-  "BTN_CLOSE": "close"
+  "BTN_CLOSE": "close",
+  "KEY_CTRL_RETURN": "Ctrl + Return"
 }

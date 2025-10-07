@@ -62,6 +62,7 @@ function showJson(label: string, value: any) {
         type="textarea"
         label="Query"
         placeholder="nodes {}"
+        @keyup.ctrl.enter="executeQuery"
       />
       <q-btn
         label="Execute"
@@ -69,7 +70,9 @@ function showJson(label: string, value: any) {
         color="primary"
         @click="executeQuery"
         :loading="isLoading"
-      />
+      >
+        <q-badge class="q-ml-md" color="secondary" :label="t('KEY_CTRL_RETURN')"/>
+      </q-btn>
     </q-card-section>
     <q-card-section v-if="data">
       <q-tabs
