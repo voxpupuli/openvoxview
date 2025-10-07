@@ -140,7 +140,7 @@ onMounted(() => {
                   <q-btn
                     icon="play_arrow"
                     color="primary"
-                    @click="addNewQuery(props.row.Query)"
+                    @click="addNewQuery(props.row.Query.Query)"
                   />
                 </div>
                 <div v-else>{{ col.value }}</div>
