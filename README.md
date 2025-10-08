@@ -22,10 +22,14 @@ OpenVox View is a viewer for openvoxdb/puppetdb, inspired by [Puppetboard](https
 ## Container
 You can build a container with the Containerfile
 
-```podman build -t openvoxview .```
+```bash
+podman build -t openvoxview .
+```
 
 or for Docker 
-```docker build -t openvoxview -f Containerfile .```
+```bash
+docker build -t openvoxview -f Containerfile .
+```
 
 ## Screenshots
 ### Reports Overview
