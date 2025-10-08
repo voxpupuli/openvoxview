@@ -1,5 +1,6 @@
 # OpenVox View
 [![Build and Release](https://github.com/voxpupuli/openvoxview/actions/workflows/ci.yml/badge.svg)](https://github.com/voxpupuli/openvoxview/actions/workflows/ci.yml)
+[![Apache-2 License](https://img.shields.io/github/license/voxpupuli/openvoxview.svg)](LICENSE)
 
 <img src="./ui/public/logo.png" alt="Logo" width="256" height="256">
 
@@ -21,10 +22,14 @@ OpenVox View is a viewer for openvoxdb/puppetdb, inspired by [Puppetboard](https
 ## Container
 You can build a container with the Containerfile
 
-```podman build -t openvoxview .```
+```bash
+podman build -t openvoxview .
+```
 
 or for Docker 
-```docker build -t openvoxview -f Containerfile .```
+```bash
+docker build -t openvoxview -f Containerfile .
+```
 
 ## Screenshots
 ### Reports Overview
