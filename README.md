@@ -1,5 +1,6 @@
 # OpenVox View
 [![Build and Release](https://github.com/voxpupuli/openvoxview/actions/workflows/ci.yml/badge.svg)](https://github.com/voxpupuli/openvoxview/actions/workflows/ci.yml)
+[![Apache-2 License](https://img.shields.io/github/license/voxpupuli/openvoxview.svg)](LICENSE)
 
 <img src="./ui/public/logo.png" alt="Logo" width="256" height="256">
 
