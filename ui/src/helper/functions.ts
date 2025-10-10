@@ -62,3 +62,7 @@ export function getOsNameFromOsFact(os_fact: any) : string {
       return os_fact['distro']['description']
   }
 }
+
+export async function copyToClipboard(payload: any): Promise<void> {
+  await navigator.clipboard.writeText(payload);
+}

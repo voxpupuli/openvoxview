@@ -8,7 +8,11 @@ import 'vue3-json-viewer/dist/vue3-json-viewer.css';
 import JsonViewDialog from 'components/JsonViewDialog.vue';
 import { useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
-import { formatDuration, formatTimestamp } from 'src/helper/functions';
+import {
+  formatDuration,
+  formatTimestamp,
+  copyToClipboard,
+} from 'src/helper/functions';
 
 interface SelectedItem {
   name: string;
@@ -45,6 +49,26 @@ function showJson(label: string, value: any) {
     value: value,
   };
   showJsonDialog.value = true;
+}
+
+function getIsoStringFromDate(date: Date): string {
+  return new Date(date).toISOString();
+}
+
+function copyTimestampToClipboard(timestamp: Date) {
+  copyToClipboard(getIsoStringFromDate(timestamp))
+    .then(() => {
+      q.notify({
+        type: 'positive',
+        message: t('NOTIFICATION_COPY_TO_CLIPBOARD_SUCCESSFUL'),
+      });
+    })
+    .catch(() => {
+      q.notify({
+        type: 'negative',
+        message: t('NOTIFICATION_COPY_TO_CLIPBOARD_FAILED'),
+      });
+    });
 }
 </script>
 
@@ -143,7 +167,16 @@ function showJson(label: string, value: any) {
                 <q-item-label caption>{{
                   t('LABEL_EXECUTED_ON')
                 }}</q-item-label>
-                <q-item-label>{{ formatTimestamp(data.ExecutedOn) }}</q-item-label>
+                <q-item-label
+                  @click="copyTimestampToClipboard(data.ExecutedOn)"
+                >
+                  <span>
+                    {{ formatTimestamp(data.ExecutedOn) }}
+                    <q-tooltip anchor="center middle" self="bottom middle">
+                      {{ getIsoStringFromDate(data.ExecutedOn) }}
+                    </q-tooltip>
+                  </span>
+                </q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
