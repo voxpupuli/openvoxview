@@ -113,6 +113,8 @@ import EnvironmentSelector from 'components/EnvironmentSelector.vue';
 import { useSettingsStore } from 'stores/settings';
 import Backend from 'src/client/backend';
 import { PredefinedView } from 'src/puppet/models';
+import { getBrowserLocale } from 'boot/i18n';
+import { useI18n } from 'vue-i18n';
 
 const leftDrawerOpen = ref(false);
 const settings = useSettingsStore();
@@ -142,14 +144,23 @@ function loadPredefinedViews() {
 }
 
 const q = useQuasar();
+const i18n = useI18n();
 
 watch(settings, () => {
   q.dark.set(settings.darkMode);
 });
 
+function addLanguageChangeListener() {
+  window.addEventListener('languagechange', () => {
+    const detectedLocale = getBrowserLocale();
+    i18n.locale.value = detectedLocale as string;
+  });
+}
+
 onMounted(() => {
   q.dark.set(settings.darkMode);
   loadVersion();
   loadPredefinedViews();
+  addLanguageChangeListener();
 });
 </script>
