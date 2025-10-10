@@ -14,7 +14,7 @@ export function formatTimestamp(input: string|Date, withMs?: boolean) : string {
 }
 
 export function formatDuration(milliseconds: number): string {
-  if (milliseconds < 0) return "0ms";
+  if (milliseconds < 0) return "0 ms";
 
   const units = [
     { name: "d", value: 24 * 60 * 60 * 1000 },
@@ -30,12 +30,12 @@ export function formatDuration(milliseconds: number): string {
   for (const unit of units) {
     if (remaining >= unit.value) {
       const count = Math.floor(remaining / unit.value);
-      parts.push(`${count}${unit.name}`);
+      parts.push(`${count} ${unit.name}`);
       remaining %= unit.value;
     }
   }
 
-  return parts.length > 0 ? parts.join(" ") : "0ms";
+  return parts.length > 0 ? parts.join(" ") : "0 ms";
 }
 
 export function msToTime(duration: number) {
