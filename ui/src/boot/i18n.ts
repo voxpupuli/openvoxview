@@ -20,10 +20,9 @@ declare module 'vue-i18n' {
   export interface DefineNumberFormat {}
 }
 /* eslint-enable @typescript-eslint/no-empty-object-type */
-
 export default defineBoot(({ app }) => {
   const i18n = createI18n<{ message: MessageSchema }, MessageLanguages>({
-    locale: 'en-US',
+    locale: getBrowserLocale(),
     legacy: false,
     messages,
   });
@@ -31,3 +30,28 @@ export default defineBoot(({ app }) => {
   // Set i18n instance on app
   app.use(i18n);
 });
+
+export function getBrowserLocale(): MessageLanguages {
+  const availableLocales: MessageLanguages[] = Object.keys(messages) as MessageLanguages[];
+  const fallbackLocale: MessageLanguages = 'en-US';
+
+  if (navigator.languages) {
+    for (const lang of navigator.languages) {
+      // Try an exact match
+      if (availableLocales.includes(lang as MessageLanguages)) {
+        return lang as MessageLanguages;
+      }
+
+      // Otherwise try to split language code and try to compare the first part only
+      const langCode = lang.split('-')[0];
+      const match = availableLocales.find(
+        (loc) => loc.split('-')[0] === langCode,
+      );
+      if (match) {
+        return match;
+      }
+    }
+  }
+
+  return fallbackLocale;
+}
