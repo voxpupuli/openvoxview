@@ -28,7 +28,7 @@
     "vue3-json-viewer": "^2.4.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.37.0",
+    "@eslint/js": "^9.38.0",
     "@intlify/unplugin-vue-i18n": "^11.0.1",
     "@quasar/app-vite": "^2.4.0",
     "@types/node": "^24.7.2",
