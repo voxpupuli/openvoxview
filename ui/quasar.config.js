@@ -96,6 +96,17 @@ export default defineConfig((ctx) => {
 					}
 				}, { server: false }]
 			],
+
+      extendViteConf(viteConf) {
+        viteConf.build ??= {}
+        viteConf.build.rollupOptions ??= {}
+        viteConf.build.rollupOptions.output = {
+          sanitizeFileName(name) {
+            // eslint-disable-next-line no-control-regex
+            return name.replaceAll(/[\u0000-\u001F"*/:<>?\\|]/g, '-')
+          }
+        }
+      }
 		},
 
 		// Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#devServer
