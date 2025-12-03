@@ -32,7 +32,8 @@ docker build -t openvoxview -f Containerfile .
 ```
 
 ## Configuration
-See [CONFIGURATION.md]( ./CONFIGURATION.md)
+See [CONFIGURATION.md](./CONFIGURATION.md)
+
 
 ## Screenshots
 ### Reports Overview
@@ -48,7 +49,13 @@ See [CONFIGURATION.md]( ./CONFIGURATION.md)
 ![Query History](./screenshots/query_history.png)
 
 ## Contribution
-We welcome you to create issues or submit pull requests. Be excellent to each other.
+We welcome you to create issues or submit pull requests. Most important be excellent to each other.
+
+For more infos, see [DEVELOPMENT.md](./DEVELOPMENT.md)
+
+## OpenVox/Puppet Module
+There is also a openvox module for deployment of openvoxview see [puppet-openvoxview](https://github.com/voxpupuli/puppet-openvoxview)
+
 
 ## Special Thanks
 We extend our gratitude for the remarkable work on [Puppetboard](https://github.com/voxpupuli/puppetboard).
