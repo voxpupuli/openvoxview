@@ -31,6 +31,9 @@ or for Docker
 docker build -t openvoxview -f Containerfile .
 ```
 
+## Configuration
+See [CONFIGURATION.md]( ./CONFIGURATION.md)
+
 ## Screenshots
 ### Reports Overview
 ![Reports Overview](./screenshots/reports.png)
