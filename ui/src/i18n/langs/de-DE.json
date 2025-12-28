@@ -56,5 +56,6 @@
   "BTN_CLOSE": "Schließen",
   "KEY_CTRL_RETURN": "Strg + Eingabe",
   "NOTIFICATION_COPY_TO_CLIPBOARD_SUCCESSFUL": "Erfolgreich in die Zwischenablage kopiert.",
-  "NOTIFICATION_COPY_TO_CLIPBOARD_FAILED": "Fehler beim Kopieren in die Zwischenablage."
+  "NOTIFICATION_COPY_TO_CLIPBOARD_FAILED": "Fehler beim Kopieren in die Zwischenablage.",
+  "LABEL_ERROR": "Fehler"
 }
