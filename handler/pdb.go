@@ -54,7 +54,7 @@ func (h *PdbHandler) PdbExecuteQuery(c *gin.Context) {
 	}
 
 	start := time.Now()
-	res, err := dbClient.Query(queryRequest.Query)
+	res, code, err := dbClient.Query(queryRequest.Query)
 	end := time.Now()
 
 	duration := end.Sub(start).Milliseconds()
@@ -74,7 +74,7 @@ func (h *PdbHandler) PdbExecuteQuery(c *gin.Context) {
 		h.QueryHistory = append(h.QueryHistory, historyEntry)
 	}
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(err))
+		c.AbortWithStatusJSON(code, NewErrorResponse(err))
 		return
 	}
 

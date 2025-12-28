@@ -1,6 +1,7 @@
 import { defineBoot } from '#q-app/wrappers';
-import axios, { type AxiosInstance } from 'axios';
+import axios, {type AxiosError, type AxiosInstance} from 'axios';
 import { Notify } from 'quasar';
+import {type ErrorResponse} from "src/client/models";
 
 declare module 'vue' {
   interface ComponentCustomProperties {
@@ -18,18 +19,18 @@ export default defineBoot(({ app }) => {
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
     return response;
-  }, function (error) {
-    if (error.response) {
+  }, function (error: AxiosError<ErrorResponse>) {
+    if (error.response && error.status != 400) {
       console.log('Cached Error: ', error.response.data.Error);
       Notify.create({
-        message: error.response.data.Error,
+        message: error.response.data.Error ?? error.message,
         color: 'negative',
         multiLine: true,
         closeBtn: true,
       })
     }
 
-    return Promise.reject(new Error(error));
+    return Promise.reject(error);
   });
 
 

@@ -56,5 +56,6 @@
   "BTN_CLOSE": "close",
   "KEY_CTRL_RETURN": "Ctrl + Return",
   "NOTIFICATION_COPY_TO_CLIPBOARD_SUCCESSFUL": "Successfully copied to clipboard.",
-  "NOTIFICATION_COPY_TO_CLIPBOARD_FAILED": "Failed to copy to clipboard."
+  "NOTIFICATION_COPY_TO_CLIPBOARD_FAILED": "Failed to copy to clipboard.",
+  "LABEL_ERROR": "Error"
 }
