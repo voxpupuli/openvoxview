@@ -31,7 +31,7 @@ nfpms:
           - rpm
 dockers_v2:
     - images:
-        - "ghcr.io/voxpupuli/{{ .ProjectName }}:{{ .Version }}"
+        - "ghcr.io/voxpupuli/{{ .ProjectName }}"
       dockerfile: Containerfile
       platforms:
         - linux/amd64
