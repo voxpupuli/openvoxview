@@ -1,4 +1,5 @@
 FROM scratch
+ENV PORT=8080
 EXPOSE 8080
 COPY linux/amd64/openvoxview /openvoxview
 ENTRYPOINT [ "/openvoxview" ]
