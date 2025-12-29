@@ -11,7 +11,7 @@ ENV VUE_APP_COMMIT=${VUE_APP_COMMIT}
 RUN make backend
 
 FROM alpine:3.21
-ENV PORT=8080
+ENV PORT=5000
 COPY --from=build /build/openvoxview /openvoxview
 
 ENTRYPOINT /openvoxview
