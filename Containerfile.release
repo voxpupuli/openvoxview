@@ -1,4 +1,4 @@
 FROM scratch
 EXPOSE 8080
-COPY openvoxview /openvoxview
+COPY linux/amd64/openvoxview /openvoxview
 ENTRYPOINT [ "/openvoxview" ]
