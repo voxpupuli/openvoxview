@@ -29,6 +29,13 @@ nfpms:
       formats:
           - deb
           - rpm
+dockers:
+    - image_templates:
+        - "ghcr.io/voxpupuli/{{ .ProjectName }}:{{ .Version }}"
+      dockerfile: Containerfile
+      use: buildx
+      build_flag_templates:
+        - --platform=linux/amd64
 release:
   github:
     owner: voxpupuli
