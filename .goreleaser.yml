@@ -29,13 +29,14 @@ nfpms:
       formats:
           - deb
           - rpm
-dockers:
-    - image_templates:
+dockers_v2:
+    - images:
         - "ghcr.io/voxpupuli/{{ .ProjectName }}:{{ .Version }}"
       dockerfile: Containerfile
-      use: buildx
-      build_flag_templates:
-        - --platform=linux/amd64
+      platforms:
+        - linux/amd64
+      ids:
+        - openvoxview
 release:
   github:
     owner: voxpupuli
