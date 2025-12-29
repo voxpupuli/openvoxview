@@ -35,8 +35,6 @@ dockers_v2:
       dockerfile: Containerfile.release
       platforms:
         - linux/amd64
-      ids:
-        - openvoxview
 release:
   github:
     owner: voxpupuli

@@ -4,3 +4,4 @@ openvoxview
 /config.yaml
 /.direnv/
 /ui/.direnv/
+/dist/
