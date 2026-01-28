@@ -240,8 +240,11 @@ onMounted(() => {
       binary-state-sort
       @request="onRequest"
       class="q-mt-md"
-      table-header-class="bg-primary text-white"
+      :title="$t('LABEL_REPORT', 2)"
     >
+      <template v-slot:top-right>
+        <q-btn icon="refresh" color="secondary" @click="loadReports"/>
+      </template>
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td v-for="col in props.cols" :key="col.name" :props="props">
