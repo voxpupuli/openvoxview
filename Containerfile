@@ -1,5 +1,6 @@
 FROM alpine:3.21 AS build
 
+ENV GIN_MODE=release
 RUN apk add --no-cache go yarn make
 
 WORKDIR /build
