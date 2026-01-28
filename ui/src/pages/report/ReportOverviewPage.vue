@@ -25,6 +25,8 @@ const isLoading = ref(false);
 const filter = ref('');
 const filterEndTimeStart = ref<string | null>(null);
 const filterEndTimeEnd = ref<string | null>(null);
+const filterOnlyLatest = ref(false);
+const filterExpanded = ref(true);
 
 const filterStatus = ref(['failed', 'changed', 'unchanged', 'noop']);
 const filterOptions = ref([
@@ -123,6 +125,10 @@ function loadReports() {
     query.filter().newGroup().and().in('status', filterStatus.value);
   }
 
+  if (filterOnlyLatest.value) {
+    query.filter().and().equal('latest_report?', true);
+  }
+
   const start = (page ?? 1 - 1) * (rowsPerPage ?? 0);
 
   if (sortBy) {
@@ -178,56 +184,84 @@ onMounted(() => {
   <q-page padding>
     <q-card>
       <q-card-section class="bg-primary text-white text-h6">
-        {{ $t('LABEL_FILTER') }}
-      </q-card-section>
-      <q-card-section>
-        <q-input
-          debounce="300"
-          v-model="filter"
-          :placeholder="$t('LABEL_SEARCH')"
-          class="full-width"
-        />
-        <q-select
-          :label="$t('LABEL_STATUS')"
-          v-model="filterStatus"
-          :options="filterOptions"
-          multiple
-          use-chips
-          map-options
-          emit-value
-          class="full-width"
-        >
-          <template v-slot:option="{ itemProps, opt, selected, toggleOption }">
-            <q-item v-bind="itemProps">
-              <q-item-section>
-                <q-item-label>{{ opt.label }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-toggle
-                  :model-value="selected"
-                  @update:model-value="toggleOption(opt)"
-                />
-              </q-item-section>
-            </q-item>
-          </template>
-        </q-select>
         <div class="row">
-          <div class="col q-py-md q-pr-md">
-            <q-input
-              type="date"
-              v-model="filterEndTimeStart"
-              :label="$t('LABEL_END_TIME_START')"
-            />
-          </div>
-          <div class="col q-py-md">
-            <q-input
-              type="date"
-              v-model="filterEndTimeEnd"
-              :label="$t('LABEL_END_TIME_START')"
-            />
-          </div>
+          {{ $t('LABEL_FILTER') }}
+          <q-space />
+          <q-btn
+            color="grey"
+            round
+            flat
+            dense
+            :icon="filterExpanded ? 'keyboard_arrow_up' : 'keyboard_arrow_down'"
+            @click="filterExpanded = !filterExpanded"
+          />
         </div>
       </q-card-section>
+      <q-slide-transition>
+        <div v-show="filterExpanded">
+          <q-card-section>
+            <q-input
+              debounce="300"
+              v-model="filter"
+              :placeholder="$t('LABEL_SEARCH')"
+              class="full-width"
+            />
+            <q-select
+              :label="$t('LABEL_STATUS')"
+              v-model="filterStatus"
+              :options="filterOptions"
+              multiple
+              use-chips
+              map-options
+              emit-value
+              class="full-width"
+            >
+              <template
+                v-slot:option="{ itemProps, opt, selected, toggleOption }"
+              >
+                <q-item v-bind="itemProps">
+                  <q-item-section>
+                    <q-item-label>{{ opt.label }}</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-toggle
+                      :model-value="selected"
+                      @update:model-value="toggleOption(opt)"
+                    />
+                  </q-item-section>
+                </q-item>
+              </template>
+            </q-select>
+            <div class="row">
+              <div class="col q-py-md q-pr-md">
+                <q-input
+                  type="date"
+                  v-model="filterEndTimeStart"
+                  :label="$t('LABEL_END_TIME_START')"
+                />
+              </div>
+              <div class="col q-py-md">
+                <q-input
+                  type="date"
+                  v-model="filterEndTimeEnd"
+                  :label="$t('LABEL_END_TIME_START')"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <div class="col q-py-md q-pr-md">
+                <q-toggle
+                  v-model="filterOnlyLatest"
+                  :label="$t('LABEL_SHOW_ONLY_LATEST_REPORTS')"
+                />
+              </div>
+            </div>
+            <div class="row">
+              <q-btn class="full-width" color="primary" @click="loadReports" :label="$t('LABEL_APPLY_FILTERS')"/>
+            </div>
+          </q-card-section>
+        </div>
+      </q-slide-transition>
     </q-card>
     <q-table
       :rows="reports"
@@ -243,7 +277,7 @@ onMounted(() => {
       :title="$t('LABEL_REPORT', 2)"
     >
       <template v-slot:top-right>
-        <q-btn icon="refresh" color="secondary" @click="loadReports"/>
+        <q-btn icon="refresh" color="secondary" @click="loadReports" />
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">

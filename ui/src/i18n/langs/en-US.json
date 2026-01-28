@@ -57,5 +57,7 @@
   "KEY_CTRL_RETURN": "Ctrl + Return",
   "NOTIFICATION_COPY_TO_CLIPBOARD_SUCCESSFUL": "Successfully copied to clipboard.",
   "NOTIFICATION_COPY_TO_CLIPBOARD_FAILED": "Failed to copy to clipboard.",
-  "LABEL_ERROR": "Error"
+  "LABEL_ERROR": "Error",
+  "LABEL_APPLY_FILTERS": "apply filters",
+  "LABEL_SHOW_ONLY_LATEST_REPORTS": "show only latest reports"
 }
