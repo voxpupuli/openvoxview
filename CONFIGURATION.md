@@ -6,19 +6,21 @@ Default it will look for a config.yaml in the current directory,
 but you can pass the -config parameter to define the location of the config file
 
 ## Options
-| Option              | Environment Variable | Default   | Type   | Description                           |
-|---------------------|----------------------|-----------|--------|---------------------------------------|
-| listen              | LISTEN               | localhost | string | Listen host/ip                        |
-| port                | PORT                 | 5000      | int    | Listen to port                        |
-| puppetdb.host       | PUPPETDB_HOST        | localhost | string | Address of puppetdb                   |
-| puppetdb.port       | PUPPETDB_PORT        | 8080      | int    | Port of puppetdb                      |
-| puppetdb.tls        | PUPPETDB_TLS         | false     | bool   | Communicate over tls with puppetdb    |
-| puppetdb.tls_ignore | PUPPETDB_TLS_IGNORE  | false     | bool   | Ignore validation of tls certificate  |
-| puppetdb.tls_ca     | PUPPETDB_TLS_CA      |           | string | Path to ca cert file for puppetdb     |
-| puppetdb.tls_key    | PUPPETDB_TLS_KEY     |           | string | Path to client key file for puppetdb  |
-| puppetdb.tls_crt    | PUPPETDB_TLS_CERT    |           | string | Path to client cert file for puppetdb |
-| queries             |                      |           | array  | predefined queries (see query table)  |
-| views               |                      |           | array  | predefined views (see view table)     |
+| Option              | Environment Variable | Default   | Type   | Description                                          |
+|---------------------|----------------------|-----------|--------|------------------------------------------------------|
+| listen              | LISTEN               | localhost | string | Listen host/ip                                       |
+| port                | PORT                 | 5000      | int    | Listen to port                                       |
+| puppetdb.host       | PUPPETDB_HOST        | localhost | string | Address of puppetdb                                  |
+| puppetdb.port       | PUPPETDB_PORT        | 8080      | int    | Port of puppetdb                                     |
+| puppetdb.tls        | PUPPETDB_TLS         | false     | bool   | Communicate over tls with puppetdb                   |
+| puppetdb.tls_ignore | PUPPETDB_TLS_IGNORE  | false     | bool   | Ignore validation of tls certificate                 |
+| puppetdb.tls_ca     | PUPPETDB_TLS_CA      |           | string | Path to ca cert file for puppetdb                    |
+| puppetdb.tls_key    | PUPPETDB_TLS_KEY     |           | string | Path to client key file for puppetdb                 |
+| puppetdb.tls_crt    | PUPPETDB_TLS_CERT    |           | string | Path to client cert file for puppetdb                |
+| queries             |                      |           | array  | predefined queries (see query table)                 |
+| views               |                      |           | array  | predefined views (see view table)                    |
+| trusted_proxies     | TRUSTED_PROXIES      |           | array  | List of trusted proxies (env var is space seperated) |
+
 
 ### predefined Queries
 | Option      | Type   | Description               |
@@ -47,6 +49,8 @@ but you can pass the -config parameter to define the location of the config file
 ---
 listen: 127.0.0.1
 port: 5000
+trusted_proxies: 
+ - 127.0.0.1
 
 puppetdb:
   host: localhost
