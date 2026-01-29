@@ -59,5 +59,7 @@
   "NOTIFICATION_COPY_TO_CLIPBOARD_FAILED": "Failed to copy to clipboard.",
   "LABEL_ERROR": "Error",
   "LABEL_APPLY_FILTERS": "apply filters",
-  "LABEL_SHOW_ONLY_LATEST_REPORTS": "show only latest reports"
+  "LABEL_SHOW_ONLY_LATEST_REPORTS": "show only latest reports",
+  "LABEL_RENDERED_QUERY": "rendered query",
+  "LABEL_PARAMETER": "parameter|parameters"
 }
