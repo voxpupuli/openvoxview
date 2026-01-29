@@ -129,7 +129,7 @@ function loadReports() {
     query.filter().and().equal('latest_report?', true);
   }
 
-  const start = (page ?? 1 - 1) * (rowsPerPage ?? 0);
+  const start = ((page ?? 1) - 1) * (rowsPerPage ?? 0);
 
   if (sortBy) {
     query
