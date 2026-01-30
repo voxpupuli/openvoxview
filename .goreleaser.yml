@@ -9,6 +9,7 @@ builds:
     ldflags: -s -w -X 'main.VERSION={{.Version}}' -X 'main.COMMIT={{.Commit}}'
     env:
       - CGO_ENABLED=0
+      - GIN_MODE=release
     goos:
       - linux
       - freebsd
