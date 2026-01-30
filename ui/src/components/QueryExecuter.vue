@@ -204,8 +204,8 @@ function copyTimestampToClipboard(timestamp: Date) {
       <q-separator />
 
       <q-tab-panels v-model="tab" animated>
-        <q-tab-panel v-if="data.Data" name="data">
-          <q-table :rows="data.Data">
+        <q-tab-panel v-if="data.Data" name="data" class="q-pa-none">
+          <q-table :rows="data.Data" flat>
             <template v-slot:body="props">
               <q-tr :props="props">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
@@ -224,7 +224,7 @@ function copyTimestampToClipboard(timestamp: Date) {
           </q-table>
         </q-tab-panel>
 
-        <q-tab-panel v-if="data.Data" name="json">
+        <q-tab-panel v-if="data.Data" name="json" class="q-pa-none">
           <JsonViewer
             :value="data.Data"
             expanded
@@ -234,7 +234,7 @@ function copyTimestampToClipboard(timestamp: Date) {
           />
         </q-tab-panel>
 
-        <q-tab-panel name="meta">
+        <q-tab-panel name="meta" class="q-pa-none">
           <q-list>
             <q-item>
               <q-item-section>
