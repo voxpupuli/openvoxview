@@ -4,9 +4,6 @@
 
 <img src="./ui/public/logo.png" alt="Logo" width="256" height="256">
 
-## Project Status
-This project is currently in its beta stage and may not be suitable for production use.
-
 ## Introduction
 OpenVox View is a viewer for openvoxdb/puppetdb, inspired by [Puppetboard](https://github.com/voxpupuli/puppetboard).
 
