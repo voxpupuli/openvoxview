@@ -22,9 +22,10 @@ type ConfigPqlQuery struct {
 }
 
 type Config struct {
-	Listen   string `mapstructure:"listen"`
-	Port     uint64 `mapstructure:"port"`
-	PuppetDB struct {
+	Listen         string   `mapstructure:"listen"`
+	Port           uint64   `mapstructure:"port"`
+	TrustedProxies []string `mapstructure:"trusted_proxies"`
+	PuppetDB       struct {
 		Host      string `mapstructure:"host"`
 		Port      uint64 `mapstructure:"port"`
 		TLS       bool   `mapstructure:"tls"`
@@ -64,6 +65,7 @@ func GetConfig() (*Config, error) {
 
 	viper.BindEnv("port", "PORT")
 	viper.BindEnv("listen", "LISTEN")
+	viper.BindEnv("trusted_proxies", "TRUSTED_PROXIES")
 	viper.BindEnv("puppetdb.port", "PUPPETDB_PORT")
 	viper.BindEnv("puppetdb.host", "PUPPETDB_HOST")
 	viper.BindEnv("puppetdb.tls", "PUPPETDB_TLS")
@@ -77,6 +79,8 @@ func GetConfig() (*Config, error) {
 	var cfg Config
 
 	err := viper.Unmarshal(&cfg)
+
+	cfg.TrustedProxies = viper.GetStringSlice("trusted_proxies")
 
 	return &cfg, err
 }

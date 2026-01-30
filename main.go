@@ -30,6 +30,7 @@ func main() {
 	log.Printf("LISTEN: %s", cfg.Listen)
 	log.Printf("PORT: %d", cfg.Port)
 	log.Printf("PUPPETDB_ADDRESS: %s", cfg.GetPuppetDbAddress())
+	log.Printf("TRUSTED_PROXIES: %#v", cfg.TrustedProxies)
 
 	r := gin.Default()
 
@@ -46,6 +47,10 @@ func main() {
 	r.StaticFS("ui", http.FS(uiFSSub))
 
 	r.Use(AllowCORS)
+
+	if len(cfg.TrustedProxies) > 0 {
+		r.SetTrustedProxies(cfg.TrustedProxies)
+	}
 
 	pdbHandler := handler.NewPdbHandler(cfg)
 	viewHandler := handler.NewViewHandler(cfg)
