@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Backend from 'src/client/backend';
 import { type ApiPuppetFact, PuppetFact } from 'src/puppet/models';
 import ReportStatus from 'components/ReportStatus.vue';
 import { type ApiPuppetNode, PuppetNode } from 'src/puppet/models/puppet-node';
-import { type ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
+import {
+  type ApiPuppetReport,
+  PuppetReport,
+} from 'src/puppet/models/puppet-report';
 import { formatTimestamp } from 'src/helper/functions';
 import PqlQuery, { PqlEntity, PqlSortOrder } from 'src/puppet/query-builder';
 import { type QTableColumn, useQuasar } from 'quasar';
 import { useI18n } from 'vue-i18n';
 import { JsonViewer } from 'vue3-json-viewer';
-import "vue3-json-viewer/dist/vue3-json-viewer.css";
+import 'vue3-json-viewer/dist/vue3-json-viewer.css';
+import { useSettingsStore } from 'stores/settings';
 
 const q = useQuasar();
 const { t } = useI18n();
 const route = useRoute();
 const node = computed(() => {
-  return route.params.node as string
+  return route.params.node as string;
 });
 
 const node_info = ref<PuppetNode>();
@@ -25,6 +29,7 @@ const node_facts = ref<PuppetFact[]>([]);
 const reports = ref<PuppetReport[]>([]);
 const needle = ref<string | null>(null);
 const isLoading = ref(true);
+const settings = useSettingsStore();
 
 const isReportsLoading = ref(true);
 
@@ -65,19 +70,19 @@ const pagination = ref({
 });
 
 function loadFacts() {
-  const query = `facts {certname = '${node.value}' }`;
+  const query = `facts {certname = '${node.value}' and environment = '${settings.environment}' }`;
 
   void Backend.getRawQueryResult<ApiPuppetFact[]>(query).then((result) => {
     if (result.status === 200) {
       node_facts.value = result.data.Data.Data.map((s) =>
-        PuppetFact.fromApi(s)
+        PuppetFact.fromApi(s),
       );
     }
   });
 }
 
 function loadNodeInfo() {
-  const query = `nodes { certname = '${node.value}' }`;
+  const query = `nodes { certname = '${node.value}' and catalog_environment = '${settings.environment}' }`;
   isLoading.value = true;
 
   void Backend.getRawQueryResult<ApiPuppetNode[]>(query)
@@ -95,6 +100,7 @@ function loadReports() {
   isReportsLoading.value = true;
   const query = new PqlQuery(PqlEntity.Reports);
   query.filter().and().equal('certname', node.value);
+  query.filter().and().equal('environment', settings.environment);
   query.sortBy().add('end_time', PqlSortOrder.Descending);
   query.limit(10);
 
@@ -102,7 +108,7 @@ function loadReports() {
     .then((result) => {
       if (result.status === 200) {
         reports.value = result.data.Data.Data.map((s) =>
-          PuppetReport.fromApi(s)
+          PuppetReport.fromApi(s),
         );
       }
     })
@@ -111,10 +117,20 @@ function loadReports() {
     });
 }
 
-onMounted(() => {
+function load() {
   loadNodeInfo();
   loadReports();
   loadFacts();
+}
+
+onMounted(() => {
+  watch(
+    () => settings.environment,
+    () => {
+      load();
+    },
+    { immediate: true },
+  );
 });
 </script>
 
@@ -232,5 +248,4 @@ onMounted(() => {
   </q-page>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

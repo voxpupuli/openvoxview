@@ -10,6 +10,7 @@ import {
   type ApiPuppetReport,
   PuppetReport,
 } from 'src/puppet/models/puppet-report';
+import { useSettingsStore } from 'stores/settings';
 
 interface PaginationInterface {
   sortBy?: string | null;
@@ -27,6 +28,7 @@ const filterEndTimeStart = ref<string | null>(null);
 const filterEndTimeEnd = ref<string | null>(null);
 const filterOnlyLatest = ref(false);
 const filterExpanded = ref(true);
+const settings = useSettingsStore();
 
 const filterStatus = ref(['failed', 'changed', 'unchanged', 'noop']);
 const filterOptions = ref([
@@ -129,6 +131,8 @@ function loadReports() {
     query.filter().and().equal('latest_report?', true);
   }
 
+  query.filter().and().equal('environment', settings.environment);
+
   const start = ((page ?? 1) - 1) * (rowsPerPage ?? 0);
 
   if (sortBy) {
@@ -176,7 +180,13 @@ watch(filterEndTimeEnd, () => {
 });
 
 onMounted(() => {
-  loadReports();
+  watch(
+    () => settings.environment,
+    () => {
+      loadReports();
+    },
+    { immediate: true },
+  );
 });
 </script>
 
@@ -257,7 +267,12 @@ onMounted(() => {
               </div>
             </div>
             <div class="row">
-              <q-btn class="full-width" color="primary" @click="loadReports" :label="$t('LABEL_APPLY_FILTERS')"/>
+              <q-btn
+                class="full-width"
+                color="primary"
+                @click="loadReports"
+                :label="$t('LABEL_APPLY_FILTERS')"
+              />
             </div>
           </q-card-section>
         </div>
