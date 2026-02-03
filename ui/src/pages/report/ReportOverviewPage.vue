@@ -131,7 +131,9 @@ function loadReports() {
     query.filter().and().equal('latest_report?', true);
   }
 
-  query.filter().and().equal('environment', settings.environment);
+  if (settings.hasEnvironment()) {
+    query.filter().and().equal('environment', settings.environment);
+  }
 
   const start = ((page ?? 1) - 1) * (rowsPerPage ?? 0);
 

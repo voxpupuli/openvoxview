@@ -61,7 +61,9 @@ function loadPopulation() {
 function loadResources() {
   if (!settings.environment) return;
   const builder = new PqlQuery(PqlEntity.Resources);
-  builder.filter().and().equal('environment', settings.environment);
+  if (settings.hasEnvironment()) {
+    builder.filter().and().equal('environment', settings.environment);
+  }
   builder.addProjectionField('count()');
 
   void Backend.getQueryResult<CountResult[]>(builder).then((result) => {
@@ -76,7 +78,7 @@ function loadData() {
   void Backend.getViewNodeOverview(settings.environment).then((result) => {
     if (result.status === 200) {
       nodes.value = result.data.Data.map((s) =>
-        PuppetNodeWithEventCount.fromApi(s)
+        PuppetNodeWithEventCount.fromApi(s),
       );
     }
   });
@@ -88,11 +90,14 @@ function load() {
   loadData();
 }
 
-
 onMounted(() => {
-  watch(() => settings.environment, () => {
-    load();
-  }, { immediate: true });
+  watch(
+    () => settings.environment,
+    () => {
+      load();
+    },
+    { immediate: true },
+  );
 });
 </script>
 
