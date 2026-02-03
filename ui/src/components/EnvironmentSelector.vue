@@ -14,7 +14,7 @@ function loadEnvironments() {
   void Backend.getQueryResult<PuppetEnvironment[]>(query).then((result) => {
     if (result.status === 200) {
       environments.value = result.data.Data.Data.map((s) => s.name);
-      environments.value.push('*');
+      environments.value.unshift('*');
 
       if (!settings.environment) {
         settings.environment = environments.value[0];

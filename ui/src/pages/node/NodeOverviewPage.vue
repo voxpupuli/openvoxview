@@ -17,17 +17,17 @@ const statusOptions = ['failed', 'changed', 'unchanged', 'pending'];
 function loadData() {
   if (!settings.environment) return;
   isLoading.value = true;
-  void Backend.getViewNodeOverview(settings.environment, statusFilter.value).then(
-    (result) => {
+  void Backend.getViewNodeOverview(settings.environment, statusFilter.value)
+    .then((result) => {
       if (result.status === 200) {
         nodes.value = result.data.Data.map((s) =>
-          PuppetNodeWithEventCount.fromApi(s)
+          PuppetNodeWithEventCount.fromApi(s),
         );
       }
-    }
-  ).finally(() => {
-    isLoading.value = false;
-  });
+    })
+    .finally(() => {
+      isLoading.value = false;
+    });
 }
 
 const filteredNodes = computed(() => {
@@ -35,8 +35,8 @@ const filteredNodes = computed(() => {
 });
 
 watch(statusFilter, () => {
-  loadData()
-})
+  loadData();
+});
 watch(settings, () => {
   loadData();
 });
@@ -45,10 +45,15 @@ onMounted(() => {
   if (route.query.status) {
     statusFilter.value = [route.query.status as string];
   }
-  loadData();
+
+  watch(
+    () => settings.environment,
+    () => {
+      loadData();
+    },
+    { immediate: true },
+  );
 });
-
-
 </script>
 
 <template>

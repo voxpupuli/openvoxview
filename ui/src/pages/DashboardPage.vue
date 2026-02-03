@@ -3,7 +3,7 @@ import DashboardItem from 'components/DashboardItem.vue';
 import NodeTable from 'components/NodeTable.vue';
 import Backend from 'src/client/backend';
 import { PuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useSettingsStore } from 'stores/settings';
 import PqlQuery, { PqlEntity } from 'src/puppet/query-builder';
 import { useQuasar } from 'quasar';
@@ -82,10 +82,17 @@ function loadData() {
   });
 }
 
-onMounted(() => {
+function load() {
   loadPopulation();
   loadResources();
   loadData();
+}
+
+
+onMounted(() => {
+  watch(() => settings.environment, () => {
+    load();
+  }, { immediate: true });
 });
 </script>
 
