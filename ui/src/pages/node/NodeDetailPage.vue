@@ -70,22 +70,38 @@ const pagination = ref({
 });
 
 function loadFacts() {
-  const query = `facts {certname = '${node.value}' and environment = '${settings.environment}' }`;
+  const queryBuilder = new PqlQuery(PqlEntity.Facts);
+  queryBuilder.filter().and().equal('certname', node.value);
 
-  void Backend.getRawQueryResult<ApiPuppetFact[]>(query).then((result) => {
-    if (result.status === 200) {
-      node_facts.value = result.data.Data.Data.map((s) =>
-        PuppetFact.fromApi(s),
-      );
-    }
-  });
+  if (settings.hasEnvironment()) {
+    queryBuilder.filter().and().equal('environment', settings.environment);
+  }
+
+  void Backend.getRawQueryResult<ApiPuppetFact[]>(queryBuilder.build()).then(
+    (result) => {
+      if (result.status === 200) {
+        node_facts.value = result.data.Data.Data.map((s) =>
+          PuppetFact.fromApi(s),
+        );
+      }
+    },
+  );
 }
 
 function loadNodeInfo() {
-  const query = `nodes { certname = '${node.value}' and catalog_environment = '${settings.environment}' }`;
+  const queryBuilder = new PqlQuery(PqlEntity.Nodes);
+  queryBuilder.filter().and().equal('certname', node.value);
+
+  if (settings.hasEnvironment()) {
+    queryBuilder
+      .filter()
+      .and()
+      .equal('catalog_environment', settings.environment);
+  }
+
   isLoading.value = true;
 
-  void Backend.getRawQueryResult<ApiPuppetNode[]>(query)
+  void Backend.getRawQueryResult<ApiPuppetNode[]>(queryBuilder.build())
     .then((result) => {
       if (result.status === 200) {
         node_info.value = PuppetNode.fromApi(result.data.Data.Data[0]!);
