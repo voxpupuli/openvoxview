@@ -194,3 +194,24 @@ func (h *ViewHandler) PredefinedViewsResult(c *gin.Context) {
 
 	c.JSON(http.StatusOK, NewSuccessResponse(result))
 }
+
+func (h *ViewHandler) PredefinedViewsMeta(c *gin.Context) {
+	viewName := c.Param("viewName")
+
+	if viewName == "" {
+		c.AbortWithStatusJSON(http.StatusBadRequest, NewErrorResponse(errors.New("no view name")))
+		return
+	}
+
+	i := slices.IndexFunc(h.config.Views, func(n model.View) bool {
+		return n.Name == viewName
+	})
+
+	if i < 0 {
+		c.AbortWithStatusJSON(http.StatusNotFound, NewErrorResponse(errors.New("view does not exists")))
+		return
+	}
+
+	predefinedView := h.config.Views[i]
+	c.JSON(http.StatusOK, NewSuccessResponse(predefinedView))
+}

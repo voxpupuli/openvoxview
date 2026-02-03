@@ -30,10 +30,11 @@ but you can pass the -config parameter to define the location of the config file
 |             |        |                           |
 
 ### predefined Views
-| Option | Type   | Description                                       |
-|--------|--------|---------------------------------------------------|
-| name   | string | description of your query                         |
-| facts  | array  | facts that should be shown (see view facts table) |
+| Option                | Type   | Description                                       |
+|-----------------------|--------|---------------------------------------------------|
+| name                  | string | description of your query                         |
+| facts                 | array  | facts that should be shown (see view facts table) |
+| default_rows_per_page | number | how many rows should be default shown in ui       |
 
 
 ### predefined Views - Facts
