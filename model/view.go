@@ -1,8 +1,9 @@
 package model
 
 type View struct {
-	Name  string     `mapstructure:"name"`
-	Facts []ViewFact `mapstructure:"facts"`
+	Name               string     `mapstructure:"name"`
+	Facts              []ViewFact `mapstructure:"facts"`
+	DefaultRowsPerPage int        `mapstructure:"default_rows_per_page"`
 }
 
 type ViewFact struct {

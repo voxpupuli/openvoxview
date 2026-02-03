@@ -71,6 +71,7 @@ export interface ApiPredefinedViewFact {
 export interface ApiPredefinedView {
   Name: string;
   Facts: ApiPredefinedViewFact[];
+  RowsPerPage: number;
 }
 
 export class PredefinedView extends autoImplement<ApiPredefinedView>() {

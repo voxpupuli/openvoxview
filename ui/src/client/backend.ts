@@ -62,6 +62,10 @@ class Backend {
     return api.get(`/api/v1/view/predefined/${viewName}`)
   }
 
+  getPredefinedViewsMeta(viewName: string) : AxiosPromise<BaseResponse<ApiPredefinedView>> {
+    return api.get(`/api/v1/view/predefined/${viewName}/meta`)
+  }
+
   getVersion() : AxiosPromise<BaseResponse<ApiVersion>>{
     return api.get('/api/v1/version')
   }

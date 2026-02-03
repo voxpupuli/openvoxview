@@ -74,6 +74,7 @@ func main() {
 			view.GET("metrics", viewHandler.Metrics)
 			view.GET("predefined", viewHandler.PredefinedViews)
 			view.GET("predefined/:viewName", viewHandler.PredefinedViewsResult)
+			view.GET("predefined/:viewName/meta", viewHandler.PredefinedViewsMeta)
 		}
 
 		pdb := api.Group("pdb")
