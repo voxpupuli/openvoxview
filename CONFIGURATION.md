@@ -42,7 +42,7 @@ but you can pass the -config parameter to define the location of the config file
 |----------|--------|-------------------------------------------------------------------------------------|
 | name     | string | column name that should be shown                                                    |
 | fact     | string | which fact should be shown (can be . seperated for lower level (like networking.ip) |
-| renderer | string | (optional) there are some renderer like hostname or os_name                         |
+| renderer | string | (optional) there are some renderer like hostname, certname, or os_name              |
 
 ## YAML Example
 
