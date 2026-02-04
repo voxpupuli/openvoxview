@@ -1,6 +1,5 @@
 FROM alpine:3.21 AS build
 
-ENV GIN_MODE=release
 RUN apk add --no-cache go yarn make
 
 WORKDIR /build
@@ -12,6 +11,7 @@ ENV VUE_APP_COMMIT=${VUE_APP_COMMIT}
 RUN make backend
 
 FROM alpine:3.21
+ENV GIN_MODE=release
 ENV PORT=5000
 COPY --from=build /build/openvoxview /openvoxview
 
