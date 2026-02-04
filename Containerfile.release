@@ -1,4 +1,5 @@
 FROM scratch
+ENV GIN_MODE=release
 ENV PORT=5000
 EXPOSE 5000
 COPY linux/amd64/openvoxview /openvoxview
