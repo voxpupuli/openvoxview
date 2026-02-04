@@ -108,6 +108,9 @@ onMounted(() => {
                   :label="props.row.trusted.hostname"
                 />
               </div>
+              <div v-else-if="getColumnRenderer(col.name) == 'certname'">
+                <NodeLink :certname="props.row.trusted.certname" />
+              </div>
               <div v-else-if="getColumnRenderer(col.name) == 'os_name'">
                 {{ getOsNameFromOsFact(props.row.os) }}
               </div>
