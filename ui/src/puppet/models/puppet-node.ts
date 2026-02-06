@@ -3,22 +3,21 @@ import { type ApiPuppetEventCount, PuppetEventCount } from 'src/puppet/models/pu
 
 export interface ApiPuppetNode {
   cached_catalog_status: string;
-  catalog_environment: string | null;
-  catalog_timestamp: Date | null;
+  catalog_environment: string;
+  catalog_timestamp: Date;
   certname: string;
   deactivated: boolean | null;
-  expired: Date | null;
-  facts_environment: string | null;
-  facts_timestamp: Date | null;
+  expired: boolean | null;
+  facts_environment: string;
+  facts_timestamp: Date;
   latest_report_corrective_change: boolean | null;
   latest_report_hash: string;
-  latest_report_job_id: string | null;
+  latest_report_job_id: string;
   latest_report_noop: boolean;
   latest_report_noop_pending: boolean;
   latest_report_status: string;
-  report_environment: string | null;
-  report_timestamp: Date | null;
-  unreported: boolean;
+  report_environment: string;
+  report_timestamp: Date;
 }
 
 export class PuppetNode extends autoImplement<ApiPuppetNode>() {

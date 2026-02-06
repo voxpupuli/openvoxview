@@ -39,11 +39,18 @@ const pending = computed(() => {
 });
 
 const nodesNotEqualUnchanged = computed(() => {
-  return nodes.value.filter((s) => s.latest_report_status != 'unchanged' || s.unreported);
+  const unreportedDate = meta.value ? moment().subtract(meta.value.UnreportedHours, 'hours') : null;
+  return nodes.value.filter((s) =>
+    s.latest_report_status != 'unchanged' || !s.report_timestamp || (
+      unreportedDate && unreportedDate.isAfter(s.report_timestamp)
+    )
+  );
 });
 
 const unreported = computed(() => {
-  return nodes.value.filter((s) => s.unreported).length;
+  if (!meta.value) return 0;
+  const unreportedDate = moment().subtract(meta.value.UnreportedHours, 'hours');
+  return nodes.value.filter((s) => !s.report_timestamp || unreportedDate.isAfter(s.report_timestamp)).length;
 });
 
 const unreportedDuration = computed(() => {
