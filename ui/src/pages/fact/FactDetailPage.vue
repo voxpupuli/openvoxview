@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { PuppetFact, type ApiPuppetFact } from 'src/puppet/models';
 import Backend from 'src/client/backend';
 import { useI18n } from 'vue-i18n';
 import { type QTableColumn } from 'quasar';
 import JsonViewDialog from 'components/JsonViewDialog.vue';
+import { useSettingsStore } from 'stores/settings';
+import PqlQuery, { PqlEntity } from 'src/puppet/query-builder';
 
 const route = useRoute();
 const router = useRouter();
@@ -14,6 +16,7 @@ const needle = ref<string | null>(null);
 const { t } = useI18n();
 const showJsonView = ref(false);
 const selectedFact = ref<PuppetFact | null>();
+const settings = useSettingsStore();
 
 const fact = computed(() => {
   return route.params.fact as string;
@@ -36,7 +39,14 @@ const columns: QTableColumn<PuppetFact>[] = [
 ];
 
 function loadFacts() {
-  void Backend.getRawQueryResult<ApiPuppetFact[]>(`facts { name = '${fact.value}'}`).then(
+  const queryBuilder = new PqlQuery(PqlEntity.Facts);
+  queryBuilder.filter().and().equal('name', fact.value);
+
+  if (settings.hasEnvironment()) {
+    queryBuilder.filter().and().equal('environment', settings.environment);
+  }
+
+  void Backend.getRawQueryResult<ApiPuppetFact[]>(queryBuilder.build()).then(
     (result) => {
       if (result.status === 200) {
         facts.value = result.data.Data.Data.map((s) => PuppetFact.fromApi(s));
@@ -64,7 +74,13 @@ function showJson(fact: PuppetFact) {
 }
 
 onMounted(() => {
-  loadFacts();
+  watch(
+    () => settings.environment,
+    () => {
+      loadFacts();
+    },
+    { immediate: true },
+  );
 });
 </script>
 
