@@ -28,6 +28,11 @@ or for Docker
 docker build -t openvoxview -f Containerfile .
 ```
 
+## Running OpenVox view via systemd
+We provide an example systemd unit including sandboxing in [openvoxview.service.example](./openvoxview.service.example).
+
+Your overall environment will vary, so this is mainly thought as a starting point for your own unit file. Make sure to have a closer look at `ExecStart`, `ReadWritePaths` and `WorkingDirectory`.
+
 ## Configuration
 See [CONFIGURATION.md](./CONFIGURATION.md)
 
