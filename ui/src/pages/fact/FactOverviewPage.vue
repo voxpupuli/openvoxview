@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import Backend from 'src/client/backend';
 import {  onMounted, ref, watch } from 'vue';
+import { useSettingsStore } from 'stores/settings';
+import { type ApiPuppetFact } from 'src/puppet/models';
+import PqlQuery, { PqlEntity } from 'src/puppet/query-builder';
 
 interface IFactHash {
   [details: string]: string[]
@@ -9,19 +12,32 @@ interface IFactHash {
 const facts = ref<string[]>([]);
 const isLoading = ref(true);
 const needle = ref<string|null>(null);
+const settings = useSettingsStore();
 
 const filteredFacts = ref<string[]>([]);
 const groupedFilteredFacts = ref<IFactHash>({});
 
 function loadFacts() {
-  void Backend.getFactNames().then(result => {
-    if (result.status === 200) {
-      facts.value = result.data.Data;
-      refreshFilteredFacts();
-    }
-  }).finally(() => {
+  const queryBuilder = new PqlQuery(PqlEntity.Facts);
+  queryBuilder.addProjectionField('name');
+  queryBuilder.groupBy().add('name');
+
+  if (settings.hasEnvironment()) {
+    queryBuilder.filter().and().equal('environment', settings.environment);
+  }
+
+  void Backend.getRawQueryResult<ApiPuppetFact[]>(queryBuilder.build()).then(
+    (result) => {
+      if (result.status === 200) {
+        facts.value = result.data.Data.Data.map((s) =>
+          s.name,
+        );
+        refreshFilteredFacts();
+      }
+    },
+  ).finally(() => {
     isLoading.value = false;
-  })
+  });
 }
 
 function refreshFilteredFacts() {
@@ -33,7 +49,7 @@ function refreshFilteredFacts() {
     filteredFacts.value = facts.value;
   }
 
-  filteredFacts.value.forEach((fact) => {
+  filteredFacts.value.sort().forEach((fact) => {
     const letter = fact.charAt(0).toUpperCase();
 
     if (result[letter] === undefined) {
@@ -51,7 +67,13 @@ watch(needle, () => {
 })
 
 onMounted(() => {
-  loadFacts();
+  watch(
+    () => settings.environment,
+    () => {
+      loadFacts();
+    },
+    { immediate: true },
+  );
 })
 
 </script>

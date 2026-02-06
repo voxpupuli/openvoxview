@@ -38,10 +38,6 @@ class Backend {
     return api.post('/api/v1/pdb/query', payload);
   }
 
-  getFactNames() : AxiosPromise<BaseResponse<string[]>> {
-    return api.get('/api/v1/pdb/fact-names');
-  }
-
   getViewNodeOverview(environment?: string, status?: string[]) : AxiosPromise<BaseResponse<ApiPuppetNodeWithEventCount[]>> {
     const queryParams = new URLSearchParams();
     if (environment) {
