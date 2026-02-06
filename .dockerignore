@@ -1,0 +1,10 @@
+/.direnv/
+/.git/
+/.idea/
+/config.yaml
+/ui/.direnv/
+/ui/.quasar/
+/ui/dist/
+/ui/node_modules/
+openvoxview
+tmp/
