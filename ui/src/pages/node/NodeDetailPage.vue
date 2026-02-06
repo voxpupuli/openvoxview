@@ -116,7 +116,9 @@ function loadReports() {
   isReportsLoading.value = true;
   const query = new PqlQuery(PqlEntity.Reports);
   query.filter().and().equal('certname', node.value);
-  query.filter().and().equal('environment', settings.environment);
+  if (settings.hasEnvironment()) {
+    query.filter().and().equal('environment', settings.environment);
+  }
   query.sortBy().add('end_time', PqlSortOrder.Descending);
   query.limit(10);
 
