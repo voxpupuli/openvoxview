@@ -39,6 +39,11 @@ const nodesNotEqualUnchaged = computed(() => {
   return nodes.value.filter((s) => s.latest_report_status != 'unchanged');
 });
 
+const unreported = computed(() => {
+  const threshold = new Date(Date.now() - 3 * 60 * 60 * 1000);
+  return nodes.value.filter((s) => new Date(s.catalog_timestamp) < threshold ).length;
+});
+
 type CountResult = {
   count: number;
 };
@@ -135,7 +140,7 @@ onMounted(() => {
         :to="{ name: 'NodeOverview', query: { status: 'unchanged' } }"
       />
       <DashboardItem
-        :model-value="0"
+        :model-value="unreported"
         suffix="nodes"
         caption="unreported in last 3 hours"
         title_color="secondary"
