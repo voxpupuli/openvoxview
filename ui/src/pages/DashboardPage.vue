@@ -38,8 +38,8 @@ const pending = computed(() => {
   return nodes.value.filter((s) => s.latest_report_status == 'pending').length;
 });
 
-const nodesNotEqualUnchaged = computed(() => {
-  return nodes.value.filter((s) => s.latest_report_status != 'unchanged');
+const nodesNotEqualUnchanged = computed(() => {
+  return nodes.value.filter((s) => s.latest_report_status != 'unchanged' || s.unreported);
 });
 
 const unreported = computed(() => {
@@ -182,7 +182,7 @@ onMounted(() => {
     <div class="row">
       <NodeTable
         class="q-ma-md col"
-        v-model:nodes="nodesNotEqualUnchaged"
+        v-model:nodes="nodesNotEqualUnchanged"
         disable_pagination
       />
     </div>
