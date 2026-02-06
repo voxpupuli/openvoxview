@@ -57,6 +57,17 @@ func main() {
 
 	api := r.Group("/api/v1/")
 	{
+		api.GET("meta", func(c *gin.Context) {
+			type metaResponse struct {
+				UnreportedHours uint64
+			}
+
+			response := metaResponse{
+				UnreportedHours: cfg.UnreportedHours,
+			}
+
+			c.JSON(http.StatusOK, handler.NewSuccessResponse(response))
+		})
 		api.GET("version", func(c *gin.Context) {
 			type versionResponse struct {
 				Version string

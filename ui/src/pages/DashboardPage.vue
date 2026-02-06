@@ -7,12 +7,15 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useSettingsStore } from 'stores/settings';
 import PqlQuery, { PqlEntity } from 'src/puppet/query-builder';
 import { useQuasar } from 'quasar';
+import { type ApiMeta } from 'src/client/models';
+import moment from 'moment';
 
 const q = useQuasar();
 const nodes = ref<PuppetNodeWithEventCount[]>([]);
 const settings = useSettingsStore();
 const population = ref(0);
 const resources = ref(0);
+const meta = ref<ApiMeta>();
 
 const avg_resources_per_node = computed(() => {
   return resources.value / population.value;
@@ -40,8 +43,14 @@ const nodesNotEqualUnchaged = computed(() => {
 });
 
 const unreported = computed(() => {
-  const threshold = new Date(Date.now() - 3 * 60 * 60 * 1000);
-  return nodes.value.filter((s) => new Date(s.catalog_timestamp) < threshold ).length;
+  if (!meta.value) return 0;
+  const unreportedDate = moment().subtract(meta.value.UnreportedHours, 'hours');
+  return nodes.value.filter((s) => !s.report_timestamp || unreportedDate.isAfter(s.report_timestamp)).length;
+});
+
+const unreportedDuration = computed(() => {
+  if (!meta.value) return '...';
+  return moment.duration(meta.value.UnreportedHours, 'hours').humanize();
 });
 
 type CountResult = {
@@ -90,6 +99,14 @@ function loadData() {
   });
 }
 
+function loadMeta() {
+  void Backend.getMeta().then((result) => {
+    if (result.status === 200) {
+      meta.value = result.data.Data;
+    }
+  });
+}
+
 function load() {
   loadPopulation();
   loadResources();
@@ -97,6 +114,8 @@ function load() {
 }
 
 onMounted(() => {
+  loadMeta();
+
   watch(
     () => settings.environment,
     () => {
@@ -142,7 +161,7 @@ onMounted(() => {
       <DashboardItem
         :model-value="unreported"
         suffix="nodes"
-        caption="unreported in last 3 hours"
+        :caption="$t('LABEL_UNREPORTED', { dur: unreportedDuration })"
         title_color="secondary"
       />
       <DashboardItem

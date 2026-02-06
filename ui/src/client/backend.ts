@@ -1,6 +1,6 @@
 import { api } from 'boot/axios';
 import type { AxiosPromise } from 'axios';
-import type { ApiVersion, BaseResponse } from 'src/client/models';
+import type { ApiMeta, ApiVersion, BaseResponse } from 'src/client/models';
 import type PqlQuery from 'src/puppet/query-builder';
 import type {
   ApiPredefinedView,
@@ -62,6 +62,10 @@ class Backend {
 
   getPredefinedViewsMeta(viewName: string) : AxiosPromise<BaseResponse<ApiPredefinedView>> {
     return api.get(`/api/v1/view/predefined/${viewName}/meta`)
+  }
+
+  getMeta() : AxiosPromise<BaseResponse<ApiMeta>>{
+    return api.get('/api/v1/meta')
   }
 
   getVersion() : AxiosPromise<BaseResponse<ApiVersion>>{
