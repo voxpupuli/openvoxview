@@ -9,8 +9,8 @@ export function autoImplement<T extends object>(defaults: Partial<T> = {}) {
   } as new (data?: T) => T;
 }
 
-export function formatTimestamp(input: string|Date|null, withMs?: boolean) : string {
-  if (!input) return 'n/a';
+export function formatTimestamp(input: string|Date|null, withMs?: boolean) : string | null {
+  if (!input) return null;
   return moment(input).format(`DD. MMM. YYYY - HH:mm:ss${withMs ? '.SSS' : ''}`)
 }
 
