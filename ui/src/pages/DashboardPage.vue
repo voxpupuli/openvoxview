@@ -75,7 +75,8 @@ function loadResources() {
 
 function loadData() {
   if (!settings.environment) return;
-  void Backend.getViewNodeOverview(settings.environment).then((result) => {
+  const env = settings.hasEnvironment() ? settings.environment : undefined;
+  void Backend.getViewNodeOverview(env).then((result) => {
     if (result.status === 200) {
       nodes.value = result.data.Data.map((s) =>
         PuppetNodeWithEventCount.fromApi(s),

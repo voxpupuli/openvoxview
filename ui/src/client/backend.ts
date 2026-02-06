@@ -42,16 +42,18 @@ class Backend {
     return api.get('/api/v1/pdb/fact-names');
   }
 
-  getViewNodeOverview(environment: string, status?: string[]) : AxiosPromise<BaseResponse<ApiPuppetNodeWithEventCount[]>> {
-    let queryParams = ''
+  getViewNodeOverview(environment?: string, status?: string[]) : AxiosPromise<BaseResponse<ApiPuppetNodeWithEventCount[]>> {
+    const queryParams = new URLSearchParams();
+    if (environment) {
+      queryParams.append("environment", environment);
+    }
     if (status) {
       status.forEach(s => {
-        queryParams += `&status=${s}`
+        queryParams.append("status", s);
       })
     }
-    if (queryParams != '') queryParams = `${queryParams}`
 
-    return api.get(`/api/v1/view/node_overview?environment=${environment}${queryParams}`)
+    return api.get(`/api/v1/view/node_overview?${queryParams}`)
   }
 
   getPredefinedViews() : AxiosPromise<BaseResponse<ApiPredefinedView[]>> {

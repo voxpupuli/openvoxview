@@ -16,8 +16,9 @@ const statusOptions = ['failed', 'changed', 'unchanged', 'pending'];
 
 function loadData() {
   if (!settings.environment) return;
+  const env = settings.hasEnvironment() ? settings.environment : undefined;
   isLoading.value = true;
-  void Backend.getViewNodeOverview(settings.environment, statusFilter.value)
+  void Backend.getViewNodeOverview(env, statusFilter.value)
     .then((result) => {
       if (result.status === 200) {
         nodes.value = result.data.Data.map((s) =>
