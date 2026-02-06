@@ -61,5 +61,6 @@
   "LABEL_APPLY_FILTERS": "apply filters",
   "LABEL_SHOW_ONLY_LATEST_REPORTS": "show only latest reports",
   "LABEL_RENDERED_QUERY": "rendered query",
-  "LABEL_PARAMETER": "parameter|parameters"
+  "LABEL_PARAMETER": "parameter|parameters",
+  "LABEL_UNREPORTED": "unreported for {dur}"
 }

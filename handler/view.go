@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"slices"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sebastianrakel/openvoxview/config"
@@ -92,6 +93,9 @@ func (h *ViewHandler) NodesOverview(c *gin.Context) {
 		return
 	}
 
+	unreportedDuration := time.Duration(h.config.UnreportedHours) * time.Hour
+	unreportedTime := time.Now().Add(-unreportedDuration)
+
 	for i, node := range nodes {
 		eventIndex := slices.IndexFunc(eventCounts, func(n model.EventCount) bool {
 			return n.Subject.Title == node.Name
@@ -100,6 +104,8 @@ func (h *ViewHandler) NodesOverview(c *gin.Context) {
 		if eventIndex >= 0 {
 			nodes[i].Events = eventCounts[eventIndex]
 		}
+
+		nodes[i].Unreported = (node.ReportTimestamp == nil || node.ReportTimestamp.Before(unreportedTime))
 	}
 
 	c.JSON(http.StatusOK, NewSuccessResponse(nodes))

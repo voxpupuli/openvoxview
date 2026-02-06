@@ -34,8 +34,9 @@ type Config struct {
 		TLS_KEY   string `mapstructure:"tls_key"`
 		TLS_CERT  string `mapstructure:"tls_cert"`
 	} `mapstructure:"puppetdb"`
-	PqlQueries []ConfigPqlQuery `mapstructure:"queries"`
-	Views      []model.View     `mapstructure:"views"`
+	PqlQueries      []ConfigPqlQuery `mapstructure:"queries"`
+	Views           []model.View     `mapstructure:"views"`
+	UnreportedHours uint64           `mapstructure:"unreported_hours"`
 }
 
 func PrintVersion(version string) bool {
@@ -60,6 +61,7 @@ func GetConfig() (*Config, error) {
 	viper.SetDefault("puppetdb.host", "localhost")
 	viper.SetDefault("puppetdb.port", 8080)
 	viper.SetDefault("puppetdb.tls_ignore", false)
+	viper.SetDefault("unreported_hours", 3)
 
 	viper.AutomaticEnv()
 
@@ -73,6 +75,7 @@ func GetConfig() (*Config, error) {
 	viper.BindEnv("puppetdb.tls_ca", "PUPPETDB_TLS_CA")
 	viper.BindEnv("puppetdb.tls_key", "PUPPETDB_TLS_KEY")
 	viper.BindEnv("puppetdb.tls_cert", "PUPPETDB_TLS_CERT")
+	viper.BindEnv("unreported_hours", "UNREPORTED_HOURS")
 
 	viper.ReadInConfig()
 
