@@ -50,7 +50,7 @@ const historyColumns: QTableColumn[] = [
     field: (row) => row.Result.ExecutedOn,
     label: t('LABEL_TIMESTAMP'),
     align: 'left',
-    format: (value) => formatTimestamp(value),
+    format: (val: string) => formatTimestamp(val) ?? 'n/a',
     sortable: true,
   },
   {

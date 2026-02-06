@@ -27,14 +27,14 @@ const columns: QTableColumn[]  = [
     field: 'start_time',
     label: t('LABEL_START_TIME'),
     align: 'left',
-    format: val => formatTimestamp(val, true),
+    format: (val) => formatTimestamp(val, true) ?? 'n/a',
   },
   {
     name: 'end_time',
     field: 'end_time',
     label: t('LABEL_END_TIME'),
     align: 'left',
-    format: val => formatTimestamp(val, true),
+    format: (val: string) => formatTimestamp(val, true) ?? 'n/a',
   },
   {
     name: 'duration',
