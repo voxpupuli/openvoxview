@@ -1,0 +1,42 @@
+[Unit]
+Description=OpenVox View
+After=syslog.target network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/openvoxview
+User=openvoxview
+ExecStart=/opt/openvoxview/openvoxview -config /opt/openvoxview/configuration.yaml
+TimeoutStartSec=5
+KillMode=mixed
+
+ReadWritePaths=/opt/openvoxview
+MemoryDenyWriteExecute=true
+LockPersonality=true
+RestrictAddressFamilies=AF_INET AF_INET6
+NoNewPrivileges=true
+UMask=0027
+RemoveIPC=true
+ProcSubset=pid
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+RestrictRealtime=true
+PrivateDevices=true
+PrivateTmp=true
+PrivateUsers=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+ProtectHome=true
+ProtectSystem=strict
+ProtectClock=true
+ProtectControlGroups=true
+ProtectHostname=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@debug @clock @resources @module @raw-io @reboot @swap @privileged
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
