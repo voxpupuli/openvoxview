@@ -34,8 +34,7 @@ ProtectClock=true
 ProtectControlGroups=true
 ProtectHostname=true
 SystemCallArchitectures=native
-SystemCallFilter=@system-service
-SystemCallFilter=~@debug @clock @resources @module @raw-io @reboot @swap @privileged
+SystemCallFilter=@basic-io @default @file-system @network-io @signal @process @io-event setrlimit madvise uname ioctl
 CapabilityBoundingSet=
 
 [Install]
