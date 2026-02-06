@@ -38,8 +38,13 @@ const pending = computed(() => {
   return nodes.value.filter((s) => s.latest_report_status == 'pending').length;
 });
 
-const nodesNotEqualUnchaged = computed(() => {
-  return nodes.value.filter((s) => s.latest_report_status != 'unchanged');
+const nodesNotEqualUnchanged = computed(() => {
+  const unreportedDate = meta.value ? moment().subtract(meta.value.UnreportedHours, 'hours') : null;
+  return nodes.value.filter((s) =>
+    s.latest_report_status != 'unchanged' || !s.report_timestamp || (
+      unreportedDate && unreportedDate.isAfter(s.report_timestamp)
+    )
+  );
 });
 
 const unreported = computed(() => {
@@ -184,7 +189,7 @@ onMounted(() => {
     <div class="row">
       <NodeTable
         class="q-ma-md col"
-        v-model:nodes="nodesNotEqualUnchaged"
+        v-model:nodes="nodesNotEqualUnchanged"
         disable_pagination
       />
     </div>
