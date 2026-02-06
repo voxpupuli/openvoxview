@@ -62,5 +62,5 @@
   "LABEL_SHOW_ONLY_LATEST_REPORTS": "Nur die neuesten Reports anzeigen",
   "LABEL_RENDERED_QUERY": "Gerenderte Abfrage",
   "LABEL_PARAMETER": "Parameter|Parameter",
-  "LABEL_UNREPORTED": "nicht gemeldet für {dur}"
+  "LABEL_UNREPORTED": "unreported seit {dur}"
 }
