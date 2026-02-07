@@ -61,5 +61,6 @@
   "LABEL_APPLY_FILTERS": "Filter anwenden",
   "LABEL_SHOW_ONLY_LATEST_REPORTS": "Nur die neuesten Reports anzeigen",
   "LABEL_RENDERED_QUERY": "Gerenderte Abfrage",
-  "LABEL_PARAMETER": "Parameter|Parameter"
+  "LABEL_PARAMETER": "Parameter|Parameter",
+  "LABEL_UNREPORTED": "unreported seit {dur}"
 }
