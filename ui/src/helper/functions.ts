@@ -9,7 +9,10 @@ export function autoImplement<T extends object>(defaults: Partial<T> = {}) {
   } as new (data?: T) => T;
 }
 
-export function formatTimestamp(input: string|Date, withMs?: boolean) : string {
+export function formatTimestamp(input: null, withMs?: boolean): null;
+export function formatTimestamp(input: string | Date, withMs?: boolean): string;
+export function formatTimestamp(input: string | Date | null, withMs?: boolean): string | null {
+  if (!input) return null;
   return moment(input).format(`DD. MMM. YYYY - HH:mm:ss${withMs ? '.SSS' : ''}`)
 }
 
@@ -39,20 +42,20 @@ export function formatDuration(milliseconds: number): string {
 }
 
 export function msToTime(duration: number) {
-  const milliseconds = (duration%1000)/100
-    , seconds = parseInt(((duration/1000)%60).toString())
-    , minutes = parseInt(((duration/(1000*60))%60).toString())
-    , hours = parseInt(((duration/(1000*60*60))%24).toString());
+  const milliseconds = (duration % 1000) / 100
+    , seconds = parseInt(((duration / 1000) % 60).toString())
+    , minutes = parseInt(((duration / (1000 * 60)) % 60).toString())
+    , hours = parseInt(((duration / (1000 * 60 * 60)) % 24).toString());
 
   const hoursStr = (hours < 10) ? '0' + hours : hours.toString();
   const minutesStr = (minutes < 10) ? '0' + minutes : minutes.toString();
-  const secondsStr  = (seconds < 10) ? '0' + seconds : seconds.toString();
+  const secondsStr = (seconds < 10) ? '0' + seconds : seconds.toString();
 
-  return `${hoursStr}:${minutesStr}:${secondsStr}.${milliseconds.toString().replace('.','')}`;
+  return `${hoursStr}:${minutesStr}:${secondsStr}.${milliseconds.toString().replace('.', '')}`;
 }
 
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-export function getOsNameFromOsFact(os_fact: any) : string {
+export function getOsNameFromOsFact(os_fact: any): string {
   switch (os_fact['family']) {
     case 'windows':
       return os_fact['windows']['product_name']

@@ -2,6 +2,7 @@ import { autoImplement } from 'src/helper/functions';
 
 type PuppetEventCountSubject = {
   title: string;
+  type: string | null;
 };
 
 export interface ApiPuppetEventCount {
@@ -14,7 +15,7 @@ export interface ApiPuppetEventCount {
 }
 
 export class PuppetEventCount extends autoImplement<ApiPuppetEventCount>() {
-  static fromApi(apiItem: ApiPuppetEventCount) : PuppetEventCount {
+  static fromApi(apiItem: ApiPuppetEventCount): PuppetEventCount {
     return new PuppetEventCount(apiItem);
   }
 }
