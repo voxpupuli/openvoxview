@@ -50,7 +50,7 @@ const historyColumns: QTableColumn[] = [
     field: (row) => row.Result.ExecutedOn,
     label: t('LABEL_TIMESTAMP'),
     align: 'left',
-    format: (value) => formatTimestamp(value),
+    format: (value) => formatTimestamp(value) ?? '&mdash;',
     sortable: true,
   },
   {
@@ -103,32 +103,18 @@ onMounted(() => {
     </q-tabs>
     <q-tab-panels v-model="tab">
       <q-tab-panel name="query">
-        <q-btn
-          class="full-width"
-          color="primary"
-          :label="t('BTN_ADD_NEW_QUERY')"
-          @click="addNewQuery()"
-        />
+        <q-btn class="full-width" color="primary" :label="t('BTN_ADD_NEW_QUERY')" @click="addNewQuery()" />
         <div class="q-mt-md" v-for="(query, index) in queries" :key="index">
           <QueryExecuter :query="query">
             <template v-slot:header>
-              <q-btn
-                color="negative"
-                icon="delete"
-                @click="removeQuery(index)"
-              />
+              <q-btn color="negative" icon="delete" @click="removeQuery(index)" />
             </template>
           </QueryExecuter>
         </div>
       </q-tab-panel>
       <q-tab-panel name="history">
-        <q-btn
-          class="full-width q-mb-md"
-          color="primary"
-          icon="refresh"
-          @click="loadHistory"
-          :label="$t('BTN_REFRESH')"
-        />
+        <q-btn class="full-width q-mb-md" color="primary" icon="refresh" @click="loadHistory"
+          :label="$t('BTN_REFRESH')" />
         <q-table :rows="queryHistoryEntries" :columns="historyColumns">
           <template v-slot:body="props">
             <q-tr :props="props">
@@ -137,11 +123,7 @@ onMounted(() => {
                   <pre>{{ col.value }}</pre>
                 </div>
                 <div v-else-if="col.name == 'actions'">
-                  <q-btn
-                    icon="play_arrow"
-                    color="primary"
-                    @click="addNewQuery(props.row.Query.Query)"
-                  />
+                  <q-btn icon="play_arrow" color="primary" @click="addNewQuery(props.row.Query.Query)" />
                 </div>
                 <div v-else>{{ col.value }}</div>
               </q-td>
@@ -150,13 +132,8 @@ onMounted(() => {
         </q-table>
       </q-tab-panel>
       <q-tab-panel name="predefined">
-        <q-table
-          :rows="predefinedQueries"
-          :pagination="emptyPagination"
-          :columns="predefinedColumns"
-          hide-pagination
-          table-header-class="bg-primary text-white"
-        >
+        <q-table :rows="predefinedQueries" :pagination="emptyPagination" :columns="predefinedColumns" hide-pagination
+          table-header-class="bg-primary text-white">
           <template v-slot:body="props">
             <q-tr :props="props">
               <q-td v-for="col in props.cols" :key="col.name" :props="props">
@@ -164,11 +141,7 @@ onMounted(() => {
                   <pre>{{ col.value }}</pre>
                 </div>
                 <div v-else-if="col.name == 'actions'">
-                  <q-btn
-                    icon="play_arrow"
-                    color="primary"
-                    @click="addNewQuery(props.row.Query)"
-                  />
+                  <q-btn icon="play_arrow" color="primary" @click="addNewQuery(props.row.Query)" />
                 </div>
                 <div v-else>{{ col.value }}</div>
               </q-td>

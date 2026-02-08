@@ -7,6 +7,7 @@ type EventCount struct {
 	Noops       int    `json:"noops"`
 	SubjectType string `json:"subject_type"`
 	Subject     struct {
-		Title string `json:"title"`
+		Title string  `json:"title"`
+		Type  *string `json:"type"`
 	} `json:"subject"`
 }
