@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { PredefinedView, PredefinedViewResult } from 'src/puppet/models';
+import { type ApiPredefinedViewFact, PredefinedView, PredefinedViewResult } from 'src/puppet/models';
 import backend from 'src/client/backend';
 import NodeLink from 'components/NodeLink.vue';
 import { getOsNameFromOsFact } from 'src/helper/functions';
-import { type QTableColumn } from 'quasar';
+import { type QTableColumn, type QTableProps } from 'quasar';
 import { useSettingsStore } from 'stores/settings';
+
+type Pagination = Parameters<NonNullable<QTableProps['onUpdate:pagination']>>[0];
+
+const DEFAULT_ROWS_PER_PAGE = 20;
 
 const route = useRoute();
 const viewName = computed(() => {
@@ -14,8 +18,8 @@ const viewName = computed(() => {
 });
 const viewResult = ref<PredefinedViewResult>();
 const viewMeta = ref<PredefinedView>();
-const pagination = ref({
-  rowsPerPage: 20,
+const pagination = ref<NonNullable<QTableProps['pagination']>>({
+  rowsPerPage: DEFAULT_ROWS_PER_PAGE,
 });
 const settings = useSettingsStore();
 
@@ -27,6 +31,7 @@ const columns = computed((): QTableColumn[] => {
       label: s.Name,
       format: (val: string, row: never) => getProperty(row, s.Fact),
       sortable: true,
+      rawSort: (a: never, b: never, rowA: never, rowB: never) => sortColumn(s, a, b, rowA, rowB),
     } as QTableColumn;
   });
 });
@@ -42,6 +47,35 @@ function getProperty(obj: never, key: string): string | undefined {
   }
 
   return result;
+}
+
+function sortColumn(col: ApiPredefinedViewFact, _a: never, _b: never, rowA: never, rowB: never): number {
+  let valA: string | undefined;
+  let valB: string | undefined;
+
+  switch (col.Renderer) {
+    case 'hostname':
+      valA = getProperty(rowA, 'trusted.hostname');
+      valB = getProperty(rowB, 'trusted.hostname');
+      break;
+    case 'certname':
+      valA = getProperty(rowA, 'trusted.certname');
+      valB = getProperty(rowB, 'trusted.certname');
+      break;
+    case 'os_name':
+      valA = getOsNameFromOsFact(getProperty(rowA, 'os'));
+      valB = getOsNameFromOsFact(getProperty(rowB, 'os'));
+      break;
+    default:
+      valA = getProperty(rowA, col.Fact);
+      valB = getProperty(rowB, col.Fact);
+  }
+
+  if (valA === valB) return 0;
+  if (valA === undefined) return 1;
+  if (valB === undefined) return -1;
+
+  return String(valA).localeCompare(String(valB), undefined, { numeric: true });
 }
 
 function loadViewResult() {
@@ -70,15 +104,21 @@ function loadViewMeta() {
       } else if (viewMeta.value.RowsPerPage > 0) {
         pagination.value.rowsPerPage = viewMeta.value.RowsPerPage;
       }
+
+      // Set default sort column to the first one
+      const [firstFact] = viewMeta.value.Facts;
+      if (firstFact) {
+        pagination.value.sortBy = firstFact.Name;
+      }
     }
   });
 }
 
-function paginationUpdate(newPagination: typeof pagination.value) {
+function paginationUpdate(newPagination: Pagination) {
   pagination.value = newPagination;
 
   settings.viewUserSettings[viewName.value] = {
-    rowsPerPage: pagination.value.rowsPerPage,
+    rowsPerPage: newPagination.rowsPerPage,
   };
 }
 
