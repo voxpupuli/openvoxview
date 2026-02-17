@@ -56,34 +56,30 @@ func (h *ViewHandler) NodesOverview(c *gin.Context) {
 		return
 	}
 
-	nodesQuery := &puppetdb.PdbQuery{
-		Query: []any{},
-	}
+	nodesQuery := &puppetdb.PdbQuery{}
 
 	if nodesOverviewQuery.HasEnvironment() {
-		nodesQuery.Query = append(nodesQuery.Query,
-			"and",
-			[]any{
-				"=",
-				"catalog_environment",
-				nodesOverviewQuery.Environment,
-			})
+		nodesQuery.Query = []any{"=", "catalog_environment", nodesOverviewQuery.Environment}
 	}
 
 	if len(nodesOverviewQuery.Status) > 0 {
-		orQuery := []any{
-			"or",
-		}
+		statusQueries := []any(nil)
 
 		for _, status := range nodesOverviewQuery.Status {
-			orQuery = append(orQuery, []any{"=", "latest_report_status", status})
+			statusQuery := []any{"=", "latest_report_status", status}
+
+			if statusQueries == nil {
+				statusQueries = statusQuery
+			} else {
+				statusQueries = []any{"or", statusQueries, statusQuery}
+			}
 		}
 
-		nodesQuery.Query = append(nodesQuery.Query, orQuery)
-	}
-
-	if len(nodesQuery.Query) == 0 {
-		nodesQuery = nil
+		if nodesQuery.Query == nil {
+			nodesQuery.Query = statusQueries
+		} else {
+			nodesQuery.Query = []any{"and", nodesQuery.Query, statusQueries}
+		}
 	}
 
 	nodes, err := dbClient.GetNodes(nodesQuery)
