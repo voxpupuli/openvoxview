@@ -18,6 +18,20 @@ const disablePagination = defineModel('disable_pagination', {
   type: Boolean,
   default: false,
 });
+const unreportedDate = defineModel('unreported_date', {
+  type: Date as PropType<Date>,
+  required: false,
+});
+
+function getStatus(node: PuppetNodeWithEventCount) {
+  if (!node.report_timestamp) return 'unreported';
+
+  if (unreportedDate.value && unreportedDate.value > new Date(node.report_timestamp)) {
+    return 'unreported';
+  }
+
+  return node.latest_report_status;
+}
 
 const columns: QTableColumn[] = [
   {
@@ -68,12 +82,9 @@ const columns: QTableColumn[] = [
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in props.cols" :key="col.name" :props="props">
-          <div v-if="col.name == 'events'">
-            <StatusButton v-if="col.value.latest_report_status"
-              :status="col.value.latest_report_status"
-              :hash="col.value.latest_report_hash"
-              :certname="col.value.certname"
-            />
+          <div v-if="col.name == 'events'" class="row">
+            <StatusButton v-if="props.row.latest_report_status" :status="getStatus(props.row)"
+              :hash="props.row.latest_report_hash" :certname="props.row.certname" />
             <EventCountBlock :event_count="props.row.eventsMapped" />
           </div>
           <NodeLink v-else-if="col.name == 'certname'" :certname="col.value" />
