@@ -52,7 +52,7 @@ const filterOptions = ref([
 
 const pagination = ref<PaginationInterface>({
   sortBy: 'end_time',
-  descending: false,
+  descending: true,
   page: 1,
   rowsPerPage: 100,
   rowsNumber: 10,
