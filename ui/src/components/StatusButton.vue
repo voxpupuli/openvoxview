@@ -19,12 +19,14 @@ function getStatusColor(status: string) {
 </script>
 
 <template>
-  <q-btn :to="`/report/${certname}/${hash}`"
-             :color="getStatusColor(node_status)" :label="node_status">
-    <q-tooltip>{{node_status}}</q-tooltip>
+  <q-btn :to="`/report/${certname}/${hash}`" :color="getStatusColor(node_status)" :label="node_status"
+    class="col q-mr-sm status-btn">
+    <q-tooltip>{{ node_status }}</q-tooltip>
   </q-btn>
 </template>
 
 <style scoped>
-
+.status-btn {
+  max-width: 15em;
+}
 </style>

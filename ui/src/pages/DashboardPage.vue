@@ -16,6 +16,8 @@ const settings = useSettingsStore();
 const population = ref(0);
 const resources = ref(0);
 const meta = ref<ApiMeta>();
+const unreportedDuration = ref<moment.Duration>();
+const unreportedDate = ref<moment.Moment>();
 
 const avg_resources_per_node = computed(() => {
   return resources.value / population.value;
@@ -39,23 +41,16 @@ const pending = computed(() => {
 });
 
 const nodesNotEqualUnchanged = computed(() => {
-  const unreportedDate = meta.value ? moment().subtract(meta.value.UnreportedHours, 'hours') : null;
+  const ud = unreportedDate.value;
   return nodes.value.filter((s) =>
-    s.latest_report_status != 'unchanged' || !s.report_timestamp || (
-      unreportedDate && unreportedDate.isAfter(s.report_timestamp)
-    )
+    s.latest_report_status != 'unchanged' || !s.report_timestamp || ud?.isAfter(s.report_timestamp)
   );
 });
 
 const unreported = computed(() => {
-  if (!meta.value) return 0;
-  const unreportedDate = moment().subtract(meta.value.UnreportedHours, 'hours');
-  return nodes.value.filter((s) => !s.report_timestamp || unreportedDate.isAfter(s.report_timestamp)).length;
-});
-
-const unreportedDuration = computed(() => {
-  if (!meta.value) return '...';
-  return moment.duration(meta.value.UnreportedHours, 'hours').humanize();
+  const ud = unreportedDate.value;
+  if (!ud) return 0;
+  return nodes.value.filter((s) => !s.report_timestamp || ud.isAfter(s.report_timestamp)).length;
 });
 
 type CountResult = {
@@ -108,6 +103,11 @@ function loadMeta() {
   void Backend.getMeta().then((result) => {
     if (result.status === 200) {
       meta.value = result.data.Data;
+
+      if (meta.value.UnreportedHours) {
+        unreportedDuration.value = moment.duration(meta.value.UnreportedHours, 'hours');
+        unreportedDate.value = moment().subtract(unreportedDuration.value);
+      }
     }
   });
 }
@@ -166,7 +166,7 @@ onMounted(() => {
       <DashboardItem
         :model-value="unreported"
         suffix="nodes"
-        :caption="$t('LABEL_UNREPORTED', { dur: unreportedDuration })"
+        :caption="$t('LABEL_UNREPORTED', { dur: unreportedDuration?.humanize() })"
         title_color="secondary"
       />
       <DashboardItem
@@ -187,11 +187,8 @@ onMounted(() => {
       />
     </div>
     <div class="row">
-      <NodeTable
-        class="q-ma-md col"
-        v-model:nodes="nodesNotEqualUnchanged"
-        disable_pagination
-      />
+      <NodeTable class="q-ma-md col" v-model:nodes="nodesNotEqualUnchanged" :unreported_date="unreportedDate?.toDate()"
+        disable_pagination />
     </div>
   </q-page>
 </template>
