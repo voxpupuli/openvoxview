@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/sebastianrakel/openvoxview/config"
 	"github.com/sebastianrakel/openvoxview/model"
@@ -168,4 +169,30 @@ func (c *client) GetMetricList() (model.MetricList, error) {
 	var resp model.MetricList
 	_, _, err := c.call(http.MethodGet, "metrics/v2/list", nil, nil, &resp)
 	return resp, err
+}
+
+func (c *client) DeactivateNode(certname string) (*model.CommandResponse, error) {
+	payload := model.DeactivateNodePayload{
+		Certname:          certname,
+		ProducerTimestamp: time.Now().UTC(),
+	}
+
+	query := url.Values{}
+	query.Set("command", "deactivate node")
+	query.Set("version", "3")
+	query.Set("certname", certname)
+
+	var resp model.CommandResponse
+
+	_, statusCode, err := c.call(http.MethodPost, "pdb/cmd/v1", payload, query, &resp)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if statusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", statusCode)
+	}
+
+	return &resp, nil
 }

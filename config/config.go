@@ -37,6 +37,17 @@ type Config struct {
 	PqlQueries      []ConfigPqlQuery `mapstructure:"queries"`
 	Views           []model.View     `mapstructure:"views"`
 	UnreportedHours uint64           `mapstructure:"unreported_hours"`
+	PuppetCA        struct {
+		Host            string `mapstructure:"host"`
+		Port            uint64 `mapstructure:"port"`
+		TLS             bool   `mapstructure:"tls"`
+		TLSIgnore       bool   `mapstructure:"tls_ignore"`
+		TLS_CA          string `mapstructure:"tls_ca"`
+		TLS_KEY         string `mapstructure:"tls_key"`
+		TLS_CERT        string `mapstructure:"tls_cert"`
+		ReadOnly        bool   `mapstructure:"readonly"`
+		DeactivateNodes bool   `mapstructure:"deactivate_nodes"`
+	} `mapstructure:"puppetca"`
 }
 
 func PrintVersion(version string) bool {
@@ -62,6 +73,11 @@ func GetConfig() (*Config, error) {
 	viper.SetDefault("puppetdb.port", 8080)
 	viper.SetDefault("puppetdb.tls_ignore", false)
 	viper.SetDefault("unreported_hours", 3)
+	viper.SetDefault("puppetca.port", 8140)
+	viper.SetDefault("puppetca.tls", true)
+	viper.SetDefault("puppetca.tls_ignore", false)
+	viper.SetDefault("puppetca.readonly", true)
+	viper.SetDefault("puppetca.deactivate_nodes", false)
 
 	viper.AutomaticEnv()
 
@@ -76,6 +92,15 @@ func GetConfig() (*Config, error) {
 	viper.BindEnv("puppetdb.tls_key", "PUPPETDB_TLS_KEY")
 	viper.BindEnv("puppetdb.tls_cert", "PUPPETDB_TLS_CERT")
 	viper.BindEnv("unreported_hours", "UNREPORTED_HOURS")
+	viper.BindEnv("puppetca.host", "PUPPETCA_HOST")
+	viper.BindEnv("puppetca.port", "PUPPETCA_PORT")
+	viper.BindEnv("puppetca.tls", "PUPPETCA_TLS")
+	viper.BindEnv("puppetca.tls_ignore", "PUPPETCA_TLS_IGNORE")
+	viper.BindEnv("puppetca.tls_ca", "PUPPETCA_TLS_CA")
+	viper.BindEnv("puppetca.tls_key", "PUPPETCA_TLS_KEY")
+	viper.BindEnv("puppetca.tls_cert", "PUPPETCA_TLS_CERT")
+	viper.BindEnv("puppetca.readonly", "PUPPETCA_READONLY")
+	viper.BindEnv("puppetca.deactivate_nodes", "PUPPETCA_DEACTIVATE_NODES")
 
 	viper.ReadInConfig()
 
@@ -95,4 +120,13 @@ func (c *Config) GetPuppetDbAddress() string {
 	}
 
 	return fmt.Sprintf("%s://%s:%d", scheme, c.PuppetDB.Host, c.PuppetDB.Port)
+}
+
+func (c *Config) GetPuppetCAAddress() string {
+	scheme := "http"
+	if c.PuppetCA.TLS {
+		scheme = "https"
+	}
+
+	return fmt.Sprintf("%s://%s:%d", scheme, c.PuppetCA.Host, c.PuppetCA.Port)
 }

@@ -97,6 +97,16 @@
             <q-item-label>{{ $t('MENU_QUERY') }}</q-item-label>
           </q-item-section>
         </q-item>
+
+        <q-item clickable :to="{ name: 'CA' }" v-if="caEnabled">
+          <q-item-section avatar>
+            <q-icon name="verified" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>{{ $t('MENU_CA') }}</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
@@ -115,11 +125,14 @@ import Backend from 'src/client/backend';
 import { PredefinedView } from 'src/puppet/models';
 import { getBrowserLocale } from 'boot/i18n';
 import { useI18n } from 'vue-i18n';
+import { type ApiMeta } from 'src/client/models';
 
 const leftDrawerOpen = ref(false);
 const settings = useSettingsStore();
 const version = ref('dirty');
 const predefinedViews = ref<PredefinedView[]>([]);
+const meta = ref<ApiMeta>();
+const caEnabled = ref(false);
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -143,6 +156,15 @@ function loadPredefinedViews() {
   });
 }
 
+function loadMeta() {
+  void Backend.getMeta().then((result) => {
+    if (result.status === 200) {
+      meta.value = result.data.Data;
+      caEnabled.value = meta.value.CaEnabled;
+    }
+  });
+}
+
 const q = useQuasar();
 const i18n = useI18n();
 
@@ -161,6 +183,7 @@ onMounted(() => {
   q.dark.set(settings.darkMode);
   loadVersion();
   loadPredefinedViews();
+  loadMeta();
   addLanguageChangeListener();
 });
 </script>

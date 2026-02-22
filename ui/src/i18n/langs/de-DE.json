@@ -13,6 +13,7 @@
   "MENU_NODES": "Nodes",
   "MENU_REPORTS": "Reports",
   "MENU_QUERY": "Abfragen",
+  "MENU_CA": "Zertifikate",
   "LABEL_CERTNAME": "Zertifikatsname",
   "LABEL_VALUE": "Wert|Werte",
   "LABEL_SEARCH": "Suche",
@@ -62,5 +63,14 @@
   "LABEL_SHOW_ONLY_LATEST_REPORTS": "Nur die neuesten Reports anzeigen",
   "LABEL_RENDERED_QUERY": "Gerenderte Abfrage",
   "LABEL_PARAMETER": "Parameter|Parameter",
-  "LABEL_UNREPORTED": "unreported seit {dur}"
+  "LABEL_UNREPORTED": "unreported seit {dur}",
+  "LABEL_STATE": "stand",
+  "LABEL_REQUESTED": "angefordert",
+  "LABEL_SIGNED": "signiert",
+  "LABEL_REVOKED": "widerrufen",
+  "LABEL_NAME": "name",
+  "LABEL_CERTIFICATES": "zertifikate",
+  "LABEL_ALT_NAMES": "alt. namen",
+  "LABEL_FINGERPRINT": "fingerabdruck",
+  "LABEL_EXPIRES": "läuft ab"
 }

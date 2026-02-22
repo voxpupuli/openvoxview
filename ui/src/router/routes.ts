@@ -51,6 +51,11 @@ const routes: RouteRecordRaw[] = [
         path: 'view/:viewName',
         component: () => import('pages/views/PredefinedViewResultPage.vue'),
       },
+      {
+        name: 'CA',
+        path: 'ca',
+        component: () => import('pages/ca/CAOverviewPage.vue'),
+      },
     ],
   },
 ];

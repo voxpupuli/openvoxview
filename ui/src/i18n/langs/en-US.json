@@ -13,6 +13,7 @@
   "MENU_NODES": "Nodes",
   "MENU_REPORTS": "Reports",
   "MENU_QUERY": "Query",
+  "MENU_CA": "Certificates",
   "LABEL_CERTNAME": "certname",
   "LABEL_VALUE": "value|values",
   "LABEL_SEARCH": "search",
@@ -62,5 +63,14 @@
   "LABEL_SHOW_ONLY_LATEST_REPORTS": "show only latest reports",
   "LABEL_RENDERED_QUERY": "rendered query",
   "LABEL_PARAMETER": "parameter|parameters",
-  "LABEL_UNREPORTED": "unreported for {dur}"
+  "LABEL_UNREPORTED": "unreported for {dur}",
+  "LABEL_STATE": "state",
+  "LABEL_REQUESTED": "requested",
+  "LABEL_SIGNED": "signed",
+  "LABEL_REVOKED": "revoked",
+  "LABEL_NAME": "name",
+  "LABEL_CERTIFICATES": "certificates",
+  "LABEL_ALT_NAMES": "alt. names",
+  "LABEL_FINGERPRINT": "fingerprint",
+  "LABEL_EXPIRES": "expires"
 }
