@@ -107,7 +107,13 @@ func main() {
 	if caEnabled {
 		caHandler := handler.NewCaHandler(cfg)
 		ca := api.Group("ca")
-		caHandler.RegisterRoutes(ca)
+
+		ca.POST("status", caHandler.QueryCertificateStatuses)
+		if !cfg.PuppetCA.ReadOnly {
+			ca.POST("status/:name/sign", caHandler.SignCertificate)
+			ca.POST("status/:name/revoke", caHandler.RevokeCertificate)
+			ca.DELETE("status/:name", caHandler.CleanCertificate)
+		}
 	}
 
 	r.Run(fmt.Sprintf("%s:%d", cfg.Listen, cfg.Port))

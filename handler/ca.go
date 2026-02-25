@@ -25,15 +25,6 @@ func NewCaHandler(config *config.Config) *CaHandler {
 	}
 }
 
-func (h *CaHandler) RegisterRoutes(group *gin.RouterGroup) {
-	group.POST("status", h.QueryCertificateStatuses)
-	if !h.config.PuppetCA.ReadOnly {
-		group.POST("status/:name/sign", h.SignCertificate)
-		group.POST("status/:name/revoke", h.RevokeCertificate)
-		group.DELETE("status/:name", h.CleanCertificate)
-	}
-}
-
 func (h *CaHandler) QueryCertificateStatuses(c *gin.Context) {
 	var query model.CertificateStatusQuery
 
