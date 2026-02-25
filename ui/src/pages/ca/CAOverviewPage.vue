@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { copyToClipboard, Notify, type QTableColumn, type QTableProps } from 'quasar';
+import { copyToClipboard, Notify, useQuasar, type QTableColumn, type QTableProps } from 'quasar';
 import { CertificateState, type CertificateStatus, CertificateStatusResponse } from 'src/puppet/models/certificate-status';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -9,6 +9,7 @@ import type { ApiMeta } from 'src/client/models';
 
 const DEBOUNCE = 300;
 
+const q = useQuasar();
 const { t } = useI18n();
 const meta = ref<ApiMeta>();
 const certificates = ref<CertificateStatus[]>([]);
@@ -117,26 +118,56 @@ function loadMeta() {
 }
 
 function signCertificate(name: string) {
-  void Backend.signCertificate(name).then((result) => {
-    if (result.status === 200) {
-      setTimeout(() => loadCertificates(), DEBOUNCE);
-    }
+  q.dialog({
+    title: t('LABEL_CONFIRM_SIGN_TITLE'),
+    message: t('LABEL_CONFIRM_SIGN_MESSAGE', { certname: name }),
+    cancel: true,
+    ok: {
+      label: t('LABEL_SIGN'),
+      color: 'positive',
+    },
+  }).onOk(() => {
+    void Backend.signCertificate(name).then((result) => {
+      if (result.status === 200) {
+        setTimeout(() => loadCertificates(), DEBOUNCE);
+      }
+    });
   });
 }
 
 function revokeCertificate(name: string) {
-  void Backend.revokeCertificate(name).then((result) => {
-    if (result.status === 200) {
-      setTimeout(() => loadCertificates(), DEBOUNCE);
-    }
+  q.dialog({
+    title: t('LABEL_CONFIRM_REVOKE_TITLE'),
+    message: t('LABEL_CONFIRM_REVOKE_MESSAGE', { certname: name }),
+    cancel: true,
+    ok: {
+      label: t('LABEL_REVOKE'),
+      color: 'negative',
+    },
+  }).onOk(() => {
+    void Backend.revokeCertificate(name).then((result) => {
+      if (result.status === 200) {
+        setTimeout(() => loadCertificates(), DEBOUNCE);
+      }
+    });
   });
 }
 
 function cleanCertificate(name: string) {
-  void Backend.cleanCertificate(name).then((result) => {
-    if (result.status === 200) {
-      setTimeout(() => loadCertificates(), DEBOUNCE);
-    }
+  q.dialog({
+    title: t('LABEL_CONFIRM_CLEAN_TITLE'),
+    message: t('LABEL_CONFIRM_CLEAN_MESSAGE', { certname: name }),
+    cancel: true,
+    ok: {
+      label: t('LABEL_CLEAN'),
+      color: 'negative',
+    },
+  }).onOk(() => {
+    void Backend.cleanCertificate(name).then((result) => {
+      if (result.status === 200) {
+        setTimeout(() => loadCertificates(), DEBOUNCE);
+      }
+    });
   });
 }
 

@@ -72,5 +72,14 @@
   "LABEL_CERTIFICATES": "certificates",
   "LABEL_ALT_NAMES": "alt. names",
   "LABEL_FINGERPRINT": "fingerprint",
-  "LABEL_EXPIRES": "expires"
+  "LABEL_EXPIRES": "expires",
+  "LABEL_SIGN": "Sign",
+  "LABEL_CONFIRM_SIGN_TITLE": "Sign certificate?",
+  "LABEL_CONFIRM_SIGN_MESSAGE": "Are you sure you want to sign the certificate for {certname}?",
+  "LABEL_REVOKE": "Revoke",
+  "LABEL_CONFIRM_REVOKE_TITLE": "Revoke certificate?",
+  "LABEL_CONFIRM_REVOKE_MESSAGE": "Are you sure you want to revoke the certificate for {certname}?",
+  "LABEL_CLEAN": "Clean",
+  "LABEL_CONFIRM_CLEAN_TITLE": "Clean certificate?",
+  "LABEL_CONFIRM_CLEAN_MESSAGE": "Are you sure you want to clean (delete) the certificate for {certname}?"
 }
