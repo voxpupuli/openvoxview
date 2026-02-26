@@ -52,6 +52,8 @@ func main() {
 		r.SetTrustedProxies(cfg.TrustedProxies)
 	}
 
+	caEnabled := cfg.PuppetCA.Host != ""
+
 	pdbHandler := handler.NewPdbHandler(cfg)
 	viewHandler := handler.NewViewHandler(cfg)
 
@@ -59,10 +61,14 @@ func main() {
 	{
 		api.GET("meta", func(c *gin.Context) {
 			type metaResponse struct {
+				CaEnabled       bool
+				CaReadOnly      bool
 				UnreportedHours uint64
 			}
 
 			response := metaResponse{
+				CaEnabled:       caEnabled,
+				CaReadOnly:      cfg.PuppetCA.ReadOnly,
 				UnreportedHours: cfg.UnreportedHours,
 			}
 
@@ -95,6 +101,18 @@ func main() {
 			pdb.GET("query/predefined", pdbHandler.PdbQueryPredefined)
 			pdb.GET("fact-names", pdbHandler.PdbGetFactNames)
 			pdb.POST("event-counts", pdbHandler.PdbGetEventCounts)
+		}
+	}
+
+	if caEnabled {
+		caHandler := handler.NewCaHandler(cfg)
+		ca := api.Group("ca")
+
+		ca.POST("status", caHandler.QueryCertificateStatuses)
+		if !cfg.PuppetCA.ReadOnly {
+			ca.POST("status/:name/sign", caHandler.SignCertificate)
+			ca.POST("status/:name/revoke", caHandler.RevokeCertificate)
+			ca.DELETE("status/:name", caHandler.CleanCertificate)
 		}
 	}
 
