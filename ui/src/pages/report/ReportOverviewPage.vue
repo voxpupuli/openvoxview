@@ -11,6 +11,7 @@ import {
   PuppetReport,
 } from 'src/puppet/models/puppet-report';
 import { useSettingsStore } from 'stores/settings';
+import { useRoute, useRouter } from 'vue-router';
 
 interface PaginationInterface {
   sortBy?: string | null;
@@ -30,7 +31,9 @@ const filterOnlyLatest = ref(false);
 const filterExpanded = ref(true);
 const settings = useSettingsStore();
 
-const filterStatus = ref(['failed', 'changed', 'unchanged', 'noop']);
+const route = useRoute();
+const router = useRouter();
+const filterStatus = ref<string[]>(['failed', 'changed', 'unchanged', 'noop']);
 const filterOptions = ref([
   {
     label: t('LABEL_FAILED'),
@@ -99,6 +102,8 @@ const columns: QTableColumn[] = [
 function loadReports() {
   isLoading.value = true;
 
+  updateRoute();
+
   const { page, rowsPerPage, sortBy, descending } = pagination.value;
   const query = new PqlQuery(PqlEntity.Reports);
   if (filter.value && filter.value != '') {
@@ -164,6 +169,19 @@ function loadReports() {
     });
 }
 
+function updateRoute() {
+  void router.replace({
+    name: route.name,
+    query: {
+      filter: filter.value,
+      status: filterStatus.value,
+      endTimeStart: filterEndTimeStart.value,
+      endTimeEnd: filterEndTimeEnd.value,
+      onlyLatest: filterOnlyLatest.value ? 'true' : 'false',
+    },
+  });
+}
+
 function onRequest(props: { pagination: PaginationInterface }) {
   pagination.value = props.pagination;
   loadReports();
@@ -182,6 +200,36 @@ watch(filterEndTimeEnd, () => {
 });
 
 onMounted(() => {
+  let hasFilter = false;
+  if (route.query.status) {
+    filterStatus.value = route.query.status as string[];
+    hasFilter = true;
+  }
+
+  if (route.query.filter) {
+    filter.value = route.query.filter as string;
+    hasFilter = true;
+  }
+
+  if (route.query.endTimeStart) {
+    filterEndTimeStart.value = route.query.endTimeStart as string;
+    hasFilter = true;
+  }
+
+  if (route.query.endTimeEnd) {
+    filterEndTimeEnd.value = route.query.endTimeEnd as string;
+    hasFilter = true;
+  }
+
+  if (route.query.onlyLatest) {
+    filterOnlyLatest.value = route.query.onlyLatest === 'true';
+    hasFilter = true;
+  }
+
+  if (hasFilter) {
+    loadReports();
+  }
+
   watch(
     () => settings.environment,
     () => {
