@@ -4,9 +4,10 @@ import Backend from 'src/client/backend';
 import { useSettingsStore } from 'stores/settings';
 import { PuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
 import NodeTable from 'components/NodeTable.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 const filter = ref('');
 const nodes = ref<PuppetNodeWithEventCount[]>([]);
 const settings = useSettingsStore();
@@ -35,16 +36,36 @@ const filteredNodes = computed(() => {
   return nodes.value.filter((s) => s.certname.includes(filter.value));
 });
 
+function updateRoute() {
+  void router.replace({
+    name: route.name,
+    query: {
+      filter: filter.value,
+      status: statusFilter.value,
+    },
+  });
+}
+
+watch(filter, () => {
+  updateRoute();
+});
+
 watch(statusFilter, () => {
   loadData();
+  updateRoute();
 });
+
 watch(settings, () => {
   loadData();
 });
 
 onMounted(() => {
   if (route.query.status) {
-    statusFilter.value = [route.query.status as string];
+    statusFilter.value = route.query.status as string[];
+  }
+
+  if (route.query.filter) {
+    filter.value = route.query.filter as string;
   }
 
   watch(
