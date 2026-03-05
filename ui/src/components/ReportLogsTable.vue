@@ -29,6 +29,7 @@ const columns: QTableColumn[] = [
     field: 'message',
     label: t('LABEL_MESSAGE'),
     align: 'left',
+    style: 'white-space: pre;',
   },
   {
     name: 'location',
