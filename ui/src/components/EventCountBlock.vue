@@ -8,7 +8,7 @@ const eventCount = defineModel('event_count', {
 </script>
 
 <template>
-  <div class="row">
+  <div class="row no-wrap">
     <div class="col q-mr-sm event bg-negative rounded-borders text-center content-center">
       {{ eventCount.failures }}
       <q-tooltip>{{ $t('LABEL_FAILURE', 2) }}</q-tooltip>

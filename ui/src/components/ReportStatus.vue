@@ -11,7 +11,7 @@ const report = defineModel('report', {
 </script>
 
 <template>
-  <div class="row">
+  <div class="row no-wrap">
     <StatusButton
       class="col-auto q-mr-sm"
       :status="report.status"
