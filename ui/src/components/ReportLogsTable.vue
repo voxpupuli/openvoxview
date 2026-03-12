@@ -36,7 +36,7 @@ const columns: QTableColumn[] = [
   },
   {
     name: 'location',
-    field: (row) => (row.location ? ` ${row.location}:${row.line}` : ''),
+    field: (row) => (row.file ? `${row.file}:${row.line}` : ''),
     label: t('LABEL_LOCATION_SHORT'),
     align: 'left',
   },
