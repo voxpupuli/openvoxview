@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"sync"
 
 	"github.com/sebastianrakel/openvoxview/model"
 	"github.com/spf13/viper"
@@ -58,59 +59,66 @@ func PrintVersion(version string) bool {
 	return false
 }
 
+var (
+	cachedConfig *Config
+	cachedErr    error
+	configOnce   sync.Once
+)
+
 func GetConfig() (*Config, error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	configOnce.Do(func() {
+		viper.SetConfigName("config")
+		viper.SetConfigType("yaml")
+		viper.AddConfigPath(".")
 
-	if configPath != nil {
-		log.Printf("Using config: %s", *configPath)
-		viper.SetConfigFile(*configPath)
-	}
+		if configPath != nil {
+			log.Printf("Using config: %s", *configPath)
+			viper.SetConfigFile(*configPath)
+		}
 
-	viper.SetDefault("port", 5000)
-	viper.SetDefault("puppetdb.host", "localhost")
-	viper.SetDefault("puppetdb.port", 8080)
-	viper.SetDefault("puppetdb.tls_ignore", false)
-	viper.SetDefault("unreported_hours", 3)
-	viper.SetDefault("puppetca.port", 8140)
-	viper.SetDefault("puppetca.tls", true)
-	viper.SetDefault("puppetca.tls_ignore", false)
-	viper.SetDefault("puppetca.readonly", true)
-	viper.SetDefault("puppetca.deactivate_nodes", false)
+		viper.SetDefault("port", 5000)
+		viper.SetDefault("puppetdb.host", "localhost")
+		viper.SetDefault("puppetdb.port", 8080)
+		viper.SetDefault("puppetdb.tls_ignore", false)
+		viper.SetDefault("unreported_hours", 3)
+		viper.SetDefault("puppetca.port", 8140)
+		viper.SetDefault("puppetca.tls", true)
+		viper.SetDefault("puppetca.tls_ignore", false)
+		viper.SetDefault("puppetca.readonly", true)
+		viper.SetDefault("puppetca.deactivate_nodes", false)
 
-	viper.AutomaticEnv()
+		viper.AutomaticEnv()
 
-	viper.BindEnv("port", "PORT")
-	viper.BindEnv("listen", "LISTEN")
-	viper.BindEnv("trusted_proxies", "TRUSTED_PROXIES")
-	viper.BindEnv("puppetdb.port", "PUPPETDB_PORT")
-	viper.BindEnv("puppetdb.host", "PUPPETDB_HOST")
-	viper.BindEnv("puppetdb.tls", "PUPPETDB_TLS")
-	viper.BindEnv("puppetdb.tls_ignore", "PUPPETDB_TLS_IGNORE")
-	viper.BindEnv("puppetdb.tls_ca", "PUPPETDB_TLS_CA")
-	viper.BindEnv("puppetdb.tls_key", "PUPPETDB_TLS_KEY")
-	viper.BindEnv("puppetdb.tls_cert", "PUPPETDB_TLS_CERT")
-	viper.BindEnv("unreported_hours", "UNREPORTED_HOURS")
-	viper.BindEnv("puppetca.host", "PUPPETCA_HOST")
-	viper.BindEnv("puppetca.port", "PUPPETCA_PORT")
-	viper.BindEnv("puppetca.tls", "PUPPETCA_TLS")
-	viper.BindEnv("puppetca.tls_ignore", "PUPPETCA_TLS_IGNORE")
-	viper.BindEnv("puppetca.tls_ca", "PUPPETCA_TLS_CA")
-	viper.BindEnv("puppetca.tls_key", "PUPPETCA_TLS_KEY")
-	viper.BindEnv("puppetca.tls_cert", "PUPPETCA_TLS_CERT")
-	viper.BindEnv("puppetca.readonly", "PUPPETCA_READONLY")
-	viper.BindEnv("puppetca.deactivate_nodes", "PUPPETCA_DEACTIVATE_NODES")
+		viper.BindEnv("port", "PORT")
+		viper.BindEnv("listen", "LISTEN")
+		viper.BindEnv("trusted_proxies", "TRUSTED_PROXIES")
+		viper.BindEnv("puppetdb.port", "PUPPETDB_PORT")
+		viper.BindEnv("puppetdb.host", "PUPPETDB_HOST")
+		viper.BindEnv("puppetdb.tls", "PUPPETDB_TLS")
+		viper.BindEnv("puppetdb.tls_ignore", "PUPPETDB_TLS_IGNORE")
+		viper.BindEnv("puppetdb.tls_ca", "PUPPETDB_TLS_CA")
+		viper.BindEnv("puppetdb.tls_key", "PUPPETDB_TLS_KEY")
+		viper.BindEnv("puppetdb.tls_cert", "PUPPETDB_TLS_CERT")
+		viper.BindEnv("unreported_hours", "UNREPORTED_HOURS")
+		viper.BindEnv("puppetca.host", "PUPPETCA_HOST")
+		viper.BindEnv("puppetca.port", "PUPPETCA_PORT")
+		viper.BindEnv("puppetca.tls", "PUPPETCA_TLS")
+		viper.BindEnv("puppetca.tls_ignore", "PUPPETCA_TLS_IGNORE")
+		viper.BindEnv("puppetca.tls_ca", "PUPPETCA_TLS_CA")
+		viper.BindEnv("puppetca.tls_key", "PUPPETCA_TLS_KEY")
+		viper.BindEnv("puppetca.tls_cert", "PUPPETCA_TLS_CERT")
+		viper.BindEnv("puppetca.readonly", "PUPPETCA_READONLY")
+		viper.BindEnv("puppetca.deactivate_nodes", "PUPPETCA_DEACTIVATE_NODES")
 
-	viper.ReadInConfig()
+		viper.ReadInConfig()
 
-	var cfg Config
+		var cfg Config
+		cachedErr = viper.Unmarshal(&cfg)
+		cfg.TrustedProxies = viper.GetStringSlice("trusted_proxies")
+		cachedConfig = &cfg
+	})
 
-	err := viper.Unmarshal(&cfg)
-
-	cfg.TrustedProxies = viper.GetStringSlice("trusted_proxies")
-
-	return &cfg, err
+	return cachedConfig, cachedErr
 }
 
 func (c *Config) GetPuppetDbAddress() string {
