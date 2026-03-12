@@ -26,7 +26,10 @@ const columns: QTableColumn[] = [
   },
   {
     name: 'message',
-    field: 'message',
+    field: (row) =>
+      row.source?.startsWith('/')
+        ? `${row.source}: ${row.message}`
+        : row.message,
     label: t('LABEL_MESSAGE'),
     align: 'left',
     style: 'white-space: pre;',
