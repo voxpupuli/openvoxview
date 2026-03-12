@@ -11,7 +11,7 @@ const report = defineModel('report', {
 </script>
 
 <template>
-  <div class="row">
+  <div class="row no-wrap">
     <StatusButton
       class="col-auto q-mr-sm"
       :status="report.status"
@@ -19,20 +19,17 @@ const report = defineModel('report', {
       :certname="report.certname"
     />
     <div
-      class="q-mr-sm event bg-grey-7 rounded-borders text-center content-center"
+      class="col event bg-grey-7 rounded-borders text-center content-center"
     >
       {{ report.getMetricsValue('resources', 'total') }}
       <q-tooltip>{{ $t('LABEL_RESOURCE', 2) }}</q-tooltip>
     </div>
   </div>
-  <div class="row q-mt-sm">
-    <EventCountBlock :event_count="report.getEventCounts()" />
-  </div>
+  <EventCountBlock class="q-mt-sm" :event_count="report.getEventCounts()" />
 </template>
 
 <style scoped>
 .event {
   min-width: 32px;
-  text-align: center;
 }
 </style>

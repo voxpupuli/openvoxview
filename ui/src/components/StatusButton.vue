@@ -27,6 +27,7 @@ function getStatusColor(status: string) {
 
 <style scoped>
 .status-btn {
+  min-width: 9em;
   max-width: 15em;
 }
 </style>
