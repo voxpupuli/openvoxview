@@ -26,14 +26,17 @@ const columns: QTableColumn[] = [
   },
   {
     name: 'message',
-    field: 'message',
+    field: (row) =>
+      row.source?.startsWith('/')
+        ? `${row.source}: ${row.message}`
+        : row.message,
     label: t('LABEL_MESSAGE'),
     align: 'left',
     style: 'white-space: pre;',
   },
   {
     name: 'location',
-    field: (row) => (row.location ? ` ${row.location}:${row.line}` : ''),
+    field: (row) => (row.file ? `${row.file}:${row.line}` : ''),
     label: t('LABEL_LOCATION_SHORT'),
     align: 'left',
   },
