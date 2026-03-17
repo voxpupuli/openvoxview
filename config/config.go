@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var configPath = flag.String("config", "config.yml", "path to the config file ")
+var configPath = flag.String("config", "", "path to the config file")
 var printVersion = flag.Bool("version", false, "prints version")
 
 func init() {
@@ -71,7 +71,7 @@ func GetConfig() (*Config, error) {
 		viper.SetConfigType("yaml")
 		viper.AddConfigPath(".")
 
-		if configPath != nil {
+		if *configPath != "" {
 			log.Printf("Using config: %s", *configPath)
 			viper.SetConfigFile(*configPath)
 		}
