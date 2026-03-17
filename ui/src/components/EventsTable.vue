@@ -23,13 +23,13 @@ const columns: QTableColumn[]  = [
   },
   {
     name: 'changed_from',
-    field: 'changed_from',
+    field: 'old_value',
     label: t('LABEL_CHANGED_FROM'),
     align: 'left',
   },
   {
     name: 'changed_to',
-    field: 'changed_to',
+    field: 'new_value',
     label: t('LABEL_CHANGED_TO'),
     align: 'left',
   },
