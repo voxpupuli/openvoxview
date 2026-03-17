@@ -4,6 +4,7 @@ import { type PuppetReport } from 'src/puppet/models/puppet-report';
 import { useI18n } from 'vue-i18n';
 import { emptyPagination } from 'src/helper/objects';
 import { formatTimestamp } from 'src/helper/functions';
+import NodeLink from 'components/NodeLink.vue';
 
 const { t } = useI18n();
 const reports = defineModel('reports', { type: Array<PuppetReport>, required: true })
@@ -47,7 +48,13 @@ const columns: QTableColumn[] = [
 </script>
 
 <template>
-  <q-table :columns="columns" :rows="reports" :flat="flat" :pagination="emptyPagination" hide-pagination />
+  <q-table :columns="columns" :rows="reports" :flat="flat" :pagination="emptyPagination" hide-pagination>
+    <template #body-cell-certname="props">
+      <q-td :props="props">
+        <NodeLink :certname="props.row.certname" />
+      </q-td>
+    </template>
+  </q-table>
 </template>
 
 <style scoped></style>
