@@ -174,6 +174,7 @@ onMounted(() => {
         suffix="nodes"
         :caption="$t('LABEL_UNREPORTED', { dur: unreportedDuration?.humanize() })"
         title_color="secondary"
+        :to="{ name: 'NodeOverview', query: { status: 'unreported' } }"
       />
       <DashboardItem
         v-model="population"
