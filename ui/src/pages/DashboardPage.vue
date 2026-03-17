@@ -42,9 +42,15 @@ const pending = computed(() => {
 
 const nodesNotEqualUnchanged = computed(() => {
   const ud = unreportedDate.value;
-  return nodes.value.filter((s) =>
-    s.latest_report_status != 'unchanged' || !s.report_timestamp || ud?.isAfter(s.report_timestamp)
-  );
+  return nodes.value
+    .filter((s) =>
+      s.latest_report_status != 'unchanged' || !s.report_timestamp || ud?.isAfter(s.report_timestamp)
+    )
+    .sort((a, b) => {
+      if (!a.report_timestamp) return 1;
+      if (!b.report_timestamp) return -1;
+      return new Date(b.report_timestamp).getTime() - new Date(a.report_timestamp).getTime();
+    });
 });
 
 const unreported = computed(() => {
