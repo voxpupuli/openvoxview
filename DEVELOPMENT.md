@@ -3,7 +3,7 @@
 OpenVoxView has two components, a small golang backend and a Vue 3 (Quasar) frontend.
 
 ## Requirements
-- golang >= 1.23
+- golang >= 1.24
 - yarn
 - node >=20 <=24
 
