@@ -4,6 +4,7 @@ import PqlQuery, { PqlEntity } from 'src/puppet/query-builder';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import Backend from 'src/client/backend';
+import { type ApiMeta } from 'src/client/models';
 import { type ApiPuppetReport, PuppetReport } from 'src/puppet/models/puppet-report';
 import { type ApiPuppetEvent, PuppetEvent } from 'src/puppet/models/puppet-event';
 import EventsTable from 'components/EventsTable.vue';
@@ -13,6 +14,7 @@ import MetricsTable from 'components/MetricsTable.vue';
 const route = useRoute();
 const report = ref<PuppetReport>();
 const events = ref<PuppetEvent[]>();
+const meta = ref<ApiMeta>();
 
 const report_hash = computed(() => {
   return route.params.report_hash;
@@ -58,6 +60,11 @@ function loadEvents() {
 onMounted(() => {
   loadReport();
   loadEvents();
+  void Backend.getMeta().then((result) => {
+    if (result.status === 200) {
+      meta.value = result.data.Data;
+    }
+  });
 });
 </script>
 
@@ -77,7 +84,7 @@ onMounted(() => {
         {{ $t('LABEL_LOG', 2) }}
       </q-card-section>
       <q-card-section class="q-pa-none">
-        <ReportLogsTable :logs="report.logsMapped" flat />
+        <ReportLogsTable :logs="report.logsMapped" :strip-path-prefix="meta?.StripPathPrefix" flat />
       </q-card-section>
     </q-card>
 

@@ -64,12 +64,14 @@ func main() {
 				CaEnabled       bool
 				CaReadOnly      bool
 				UnreportedHours uint64
+				StripPathPrefix string
 			}
 
 			response := metaResponse{
 				CaEnabled:       caEnabled,
 				CaReadOnly:      cfg.PuppetCA.ReadOnly,
 				UnreportedHours: cfg.UnreportedHours,
+				StripPathPrefix: cfg.StripPathPrefix,
 			}
 
 			c.JSON(http.StatusOK, handler.NewSuccessResponse(response))
