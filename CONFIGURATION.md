@@ -20,6 +20,7 @@ but you can pass the -config parameter to define the location of the config file
 | queries                   |                           |           | array  | predefined queries (see query table)                 |
 | views                     |                           |           | array  | predefined views (see view table)                    |
 | trusted_proxies           | TRUSTED_PROXIES           |           | array  | List of trusted proxies (env var is space seperated) |
+| strip_path_prefix         | STRIP_PATH_PREFIX         |           | string | Strip base paths from Puppet code locations          |
 | puppetca.host             | PUPPETCA_HOST             |           | string | Address of Puppet CA server (optional)               |
 | puppetca.port             | PUPPETCA_PORT             | 8140      | int    | Port of Puppet CA server                             |
 | puppetca.tls              | PUPPETCA_TLS              | true      | bool   | Use TLS for Puppet CA communications                 |

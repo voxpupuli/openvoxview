@@ -38,6 +38,7 @@ type Config struct {
 	PqlQueries      []ConfigPqlQuery `mapstructure:"queries"`
 	Views           []model.View     `mapstructure:"views"`
 	UnreportedHours uint64           `mapstructure:"unreported_hours"`
+	StripPathPrefix string           `mapstructure:"strip_path_prefix"`
 	PuppetCA        struct {
 		Host            string `mapstructure:"host"`
 		Port            uint64 `mapstructure:"port"`
@@ -81,6 +82,7 @@ func GetConfig() (*Config, error) {
 		viper.SetDefault("puppetdb.port", 8080)
 		viper.SetDefault("puppetdb.tls_ignore", false)
 		viper.SetDefault("unreported_hours", 3)
+		viper.SetDefault("strip_path_prefix", `/etc/puppetlabs/code/environments(/.*?/modules)?`)
 		viper.SetDefault("puppetca.port", 8140)
 		viper.SetDefault("puppetca.tls", true)
 		viper.SetDefault("puppetca.tls_ignore", false)
@@ -100,6 +102,7 @@ func GetConfig() (*Config, error) {
 		viper.BindEnv("puppetdb.tls_key", "PUPPETDB_TLS_KEY")
 		viper.BindEnv("puppetdb.tls_cert", "PUPPETDB_TLS_CERT")
 		viper.BindEnv("unreported_hours", "UNREPORTED_HOURS")
+		viper.BindEnv("strip_path_prefix", "STRIP_PATH_PREFIX")
 		viper.BindEnv("puppetca.host", "PUPPETCA_HOST")
 		viper.BindEnv("puppetca.port", "PUPPETCA_PORT")
 		viper.BindEnv("puppetca.tls", "PUPPETCA_TLS")
