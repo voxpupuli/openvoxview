@@ -1,6 +1,6 @@
 # ADR-002: SAML Authentication (EntraID / ADFS)
 
-**Status:** Proposed  
+**Status:** Implemented  
 **Date:** 2026-04-03  
 **Deciders:** OpenVox View maintainers  
 **Depends on:** ADR-001 (shares SQLite DB, JWT issuance, refresh token mechanism, auth middleware, and frontend auth store)

@@ -2,13 +2,20 @@ package main
 
 import (
 	"bufio"
+	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/hex"
+	"encoding/pem"
 	"fmt"
 	"io/fs"
 	"log"
+	"math/big"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -40,6 +47,12 @@ func main() {
 		return
 	}
 
+	// Handle --generate-saml-cert
+	if config.GenerateSamlCert() {
+		runGenerateSamlCert()
+		return
+	}
+
 	log.Printf("LISTEN: %s", cfg.Listen)
 	log.Printf("PORT: %d", cfg.Port)
 	log.Printf("PUPPETDB_ADDRESS: %s", cfg.GetPuppetDbAddress())
@@ -47,6 +60,7 @@ func main() {
 
 	// Initialize auth database if auth is enabled
 	var database *db.Database
+	var samlSP *middleware.SamlSP
 	if cfg.Auth.Enabled {
 		if cfg.Auth.JwtSecret == "" {
 			cfg.Auth.JwtSecret = generateRandomSecret()
@@ -75,6 +89,16 @@ func main() {
 				database.CleanupExpiredTokens()
 			}
 		}()
+
+		// Initialize SAML SP if SAML is enabled
+		if cfg.Auth.Saml.Enabled {
+			sp, samlErr := middleware.NewSamlServiceProvider(&cfg.Auth.Saml)
+			if samlErr != nil {
+				log.Fatalf("Failed to initialize SAML SP: %v", samlErr)
+			}
+			samlSP = sp
+			log.Printf("AUTH: SAML enabled (entity: %s)", cfg.Auth.Saml.SpEntityID)
+		}
 
 		log.Printf("AUTH: enabled (db: %s)", cfg.Auth.DbPath)
 	} else {
@@ -105,9 +129,21 @@ func main() {
 
 	// Public auth endpoints (no JWT required)
 	if cfg.Auth.Enabled {
-		authHandler := handler.NewAuthHandler(cfg, database)
+		var authHandler *handler.AuthHandler
+		if samlSP != nil {
+			authHandler = handler.NewAuthHandlerWithSAML(cfg, database, samlSP)
+		} else {
+			authHandler = handler.NewAuthHandler(cfg, database)
+		}
 		r.POST("/api/v1/auth/login", authHandler.Login)
 		r.POST("/api/v1/auth/refresh", authHandler.Refresh)
+
+		// SAML public endpoints (browser redirects, no token available)
+		if cfg.Auth.Saml.Enabled {
+			r.GET("/api/v1/auth/saml/metadata", authHandler.SamlMetadata)
+			r.GET("/api/v1/auth/saml/login", authHandler.SamlLogin)
+			r.POST("/api/v1/auth/saml/acs", authHandler.SamlACS)
+		}
 	}
 
 	// Public endpoints (no JWT required)
@@ -125,6 +161,7 @@ func main() {
 			UnreportedHours uint64
 			StripPathPrefix string
 			AuthEnabled     bool
+			SamlEnabled     bool
 		}
 
 		response := metaResponse{
@@ -133,6 +170,7 @@ func main() {
 			UnreportedHours: cfg.UnreportedHours,
 			StripPathPrefix: cfg.StripPathPrefix,
 			AuthEnabled:     cfg.Auth.Enabled,
+			SamlEnabled:     cfg.Auth.Saml.Enabled,
 		}
 
 		c.JSON(http.StatusOK, handler.NewSuccessResponse(response))
@@ -165,15 +203,20 @@ func main() {
 
 		// Auth management endpoints (require auth)
 		if cfg.Auth.Enabled {
-			authHandler := handler.NewAuthHandler(cfg, database)
+			var protectedAuthHandler *handler.AuthHandler
+			if samlSP != nil {
+				protectedAuthHandler = handler.NewAuthHandlerWithSAML(cfg, database, samlSP)
+			} else {
+				protectedAuthHandler = handler.NewAuthHandler(cfg, database)
+			}
 			auth := api.Group("auth")
 			{
-				auth.POST("logout", authHandler.Logout)
-				auth.GET("me", authHandler.Me)
-				auth.GET("users", authHandler.ListUsers)
-				auth.POST("users", authHandler.CreateUser)
-				auth.PUT("users/:id", authHandler.UpdateUser)
-				auth.DELETE("users/:id", authHandler.DeleteUser)
+				auth.POST("logout", protectedAuthHandler.Logout)
+				auth.GET("me", protectedAuthHandler.Me)
+				auth.GET("users", protectedAuthHandler.ListUsers)
+				auth.POST("users", protectedAuthHandler.CreateUser)
+				auth.PUT("users/:id", protectedAuthHandler.UpdateUser)
+				auth.DELETE("users/:id", protectedAuthHandler.DeleteUser)
 			}
 		}
 	}
@@ -256,4 +299,58 @@ func generateRandomSecret() string {
 	b := make([]byte, 32)
 	rand.Read(b)
 	return hex.EncodeToString(b)
+}
+
+func runGenerateSamlCert() {
+	outputDir := "."
+	if len(os.Args) > 2 {
+		for i, arg := range os.Args {
+			if arg == "--output-dir" && i+1 < len(os.Args) {
+				outputDir = os.Args[i+1]
+			}
+		}
+	}
+
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	if err != nil {
+		log.Fatalf("Failed to generate private key: %v", err)
+	}
+
+	template := &x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			CommonName: "OpenVox View SAML SP",
+		},
+		NotBefore: time.Now(),
+		NotAfter:  time.Now().Add(10 * 365 * 24 * time.Hour), // 10 years
+		KeyUsage:  x509.KeyUsageDigitalSignature,
+	}
+
+	certDER, err := x509.CreateCertificate(rand.Reader, template, template, &key.PublicKey, key)
+	if err != nil {
+		log.Fatalf("Failed to create certificate: %v", err)
+	}
+
+	certPath := filepath.Join(outputDir, "saml-sp.crt")
+	certFile, err := os.Create(certPath)
+	if err != nil {
+		log.Fatalf("Failed to create cert file: %v", err)
+	}
+	pem.Encode(certFile, &pem.Block{Type: "CERTIFICATE", Bytes: certDER})
+	certFile.Close()
+
+	keyPath := filepath.Join(outputDir, "saml-sp.key")
+	keyFile, err := os.OpenFile(keyPath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600)
+	if err != nil {
+		log.Fatalf("Failed to create key file: %v", err)
+	}
+	keyDER, err := x509.MarshalECPrivateKey(key)
+	if err != nil {
+		log.Fatalf("Failed to marshal private key: %v", err)
+	}
+	pem.Encode(keyFile, &pem.Block{Type: "EC PRIVATE KEY", Bytes: keyDER})
+	keyFile.Close()
+
+	fmt.Printf("Generated: %s\n", certPath)
+	fmt.Printf("Generated: %s\n", keyPath)
 }

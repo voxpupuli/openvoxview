@@ -1,13 +1,16 @@
 package handler
 
 import (
+	"encoding/xml"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"sync"
 	"time"
 
+	"github.com/crewjam/saml"
 	"github.com/gin-gonic/gin"
 	"github.com/sebastianrakel/openvoxview/config"
 	"github.com/sebastianrakel/openvoxview/db"
@@ -18,6 +21,7 @@ type AuthHandler struct {
 	config      *config.Config
 	database    *db.Database
 	rateLimiter *rateLimiter
+	samlSP      *middleware.SamlSP
 }
 
 func NewAuthHandler(config *config.Config, database *db.Database) *AuthHandler {
@@ -25,6 +29,15 @@ func NewAuthHandler(config *config.Config, database *db.Database) *AuthHandler {
 		config:      config,
 		database:    database,
 		rateLimiter: newRateLimiter(),
+	}
+}
+
+func NewAuthHandlerWithSAML(config *config.Config, database *db.Database, samlSP *middleware.SamlSP) *AuthHandler {
+	return &AuthHandler{
+		config:      config,
+		database:    database,
+		rateLimiter: newRateLimiter(),
+		samlSP:      samlSP,
 	}
 }
 
@@ -269,6 +282,105 @@ func (h *AuthHandler) issueTokenPair(user *db.User) (*loginResponse, error) {
 		RefreshToken: rawRefresh,
 		ExpiresIn:    expiresIn,
 	}, nil
+}
+
+// SamlMetadata returns the SP metadata XML for IdP registration.
+func (h *AuthHandler) SamlMetadata(c *gin.Context) {
+	if h.samlSP == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, NewErrorResponse(errors.New("SAML not configured")))
+		return
+	}
+	sp := h.samlSP.SP()
+	metadata := sp.Metadata()
+	data, err := xml.MarshalIndent(metadata, "", "  ")
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(err))
+		return
+	}
+	c.Data(http.StatusOK, "application/xml", data)
+}
+
+// SamlLogin initiates SAML SSO by redirecting to the IdP.
+func (h *AuthHandler) SamlLogin(c *gin.Context) {
+	if h.samlSP == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, NewErrorResponse(errors.New("SAML not configured")))
+		return
+	}
+	sp := h.samlSP.SP()
+
+	authnRequest, err := sp.MakeAuthenticationRequest(
+		sp.GetSSOBindingLocation(saml.HTTPRedirectBinding),
+		saml.HTTPRedirectBinding,
+		saml.HTTPPostBinding,
+	)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(fmt.Errorf("failed to create SAML AuthnRequest: %w", err)))
+		return
+	}
+
+	redirectURL, err := authnRequest.Redirect("", &sp)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(fmt.Errorf("failed to build SAML redirect URL: %w", err)))
+		return
+	}
+
+	c.Redirect(http.StatusFound, redirectURL.String())
+}
+
+// SamlACS handles the SAML Assertion Consumer Service callback.
+func (h *AuthHandler) SamlACS(c *gin.Context) {
+	if h.samlSP == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, NewErrorResponse(errors.New("SAML not configured")))
+		return
+	}
+
+	sp := h.samlSP.SP()
+
+	err := c.Request.ParseForm()
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, NewErrorResponse(fmt.Errorf("failed to parse form: %w", err)))
+		return
+	}
+
+	assertion, err := sp.ParseResponse(c.Request, []string{""})
+	if err != nil {
+		log.Printf("[SAML] ACS assertion validation failed: %v", err)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, NewErrorResponse(fmt.Errorf("SAML assertion validation failed: %w", err)))
+		return
+	}
+
+	// Extract attributes
+	email := middleware.GetAttribute(assertion, h.config.Auth.Saml.AttrEmail)
+	givenName := middleware.GetAttribute(assertion, h.config.Auth.Saml.AttrGivenName)
+	surname := middleware.GetAttribute(assertion, h.config.Auth.Saml.AttrSurname)
+	displayName := middleware.GetAttribute(assertion, h.config.Auth.Saml.AttrDisplayName)
+
+	if email == "" {
+		log.Printf("[SAML] ACS: no email attribute in assertion")
+		c.AbortWithStatusJSON(http.StatusBadRequest, NewErrorResponse(errors.New("SAML assertion missing required email attribute")))
+		return
+	}
+
+	// Upsert user in database
+	user, err := h.database.UpsertSamlUser(email, givenName, surname, displayName)
+	if err != nil {
+		log.Printf("[SAML] ACS: failed to upsert user %s: %v", email, err)
+		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(err))
+		return
+	}
+
+	// Issue token pair (same as local login)
+	tokens, err := h.issueTokenPair(user)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(err))
+		return
+	}
+
+	log.Printf("[AUDIT] SAML user logged in: %s", user.Username)
+
+	// Redirect to frontend with tokens in query params
+	redirectURL := fmt.Sprintf("/ui/?#/login?token=%s&refresh=%s", tokens.AccessToken, tokens.RefreshToken)
+	c.Redirect(http.StatusFound, redirectURL)
 }
 
 // Simple in-memory rate limiter: 5 attempts per IP per minute

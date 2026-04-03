@@ -12,6 +12,7 @@ export interface ApiMeta {
   UnreportedHours: number
   StripPathPrefix: string
   AuthEnabled: boolean
+  SamlEnabled: boolean
 }
 
 export interface ApiVersion {

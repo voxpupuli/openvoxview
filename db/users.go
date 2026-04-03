@@ -186,6 +186,39 @@ func (d *Database) DeleteUser(id int64) error {
 	return nil
 }
 
+func (d *Database) UpsertSamlUser(email, givenName, surname, displayName string) (*User, error) {
+	// Use email as the username for SAML users
+	username := email
+
+	var existingID int64
+	err := d.db.QueryRow(`SELECT id FROM users WHERE username = ? AND auth_source = 'saml'`, username).Scan(&existingID)
+	if err == nil {
+		// User exists — update profile attributes from IdP
+		_, err = d.db.Exec(
+			`UPDATE users SET email = ?, given_name = ?, surname = ?, display_name = ?, updated_at = CURRENT_TIMESTAMP
+			 WHERE id = ?`,
+			email, givenName, surname, displayName, existingID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to update SAML user: %w", err)
+		}
+		return d.GetUserByID(existingID)
+	}
+
+	// New SAML user — insert
+	result, err := d.db.Exec(
+		`INSERT INTO users (username, email, given_name, surname, display_name, password_hash, auth_source)
+		 VALUES (?, ?, ?, ?, ?, NULL, 'saml')`,
+		username, email, givenName, surname, displayName,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create SAML user: %w", err)
+	}
+
+	id, _ := result.LastInsertId()
+	return d.GetUserByID(id)
+}
+
 func (d *Database) UserCount() (int64, error) {
 	var count int64
 	err := d.db.QueryRow(`SELECT COUNT(*) FROM users`).Scan(&count)

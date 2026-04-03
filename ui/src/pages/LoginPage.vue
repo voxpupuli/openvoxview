@@ -49,6 +49,17 @@
             :loading="loading"
           />
         </q-form>
+
+        <template v-if="samlEnabled">
+          <q-separator class="q-my-md" :label="$t('LABEL_LOGIN_OR')" />
+          <q-btn
+            :label="$t('BTN_LOGIN_SSO')"
+            icon="corporate_fare"
+            color="secondary"
+            class="full-width"
+            @click="samlLogin"
+          />
+        </template>
       </q-card-section>
     </q-card>
   </q-page>
@@ -68,9 +79,10 @@ const username = ref('');
 const password = ref('');
 const loading = ref(false);
 const errorMessage = ref('');
+const samlEnabled = ref(false);
 
 onMounted(async () => {
-  // Handle token from SAML redirect (ADR-002 future)
+  // Handle token from SAML redirect (ADR-002)
   if (route.query.token) {
     auth.setAuth({
       access_token: route.query.token as string,
@@ -81,10 +93,11 @@ onMounted(async () => {
     return;
   }
 
-  // Check if auth is even enabled
+  // Check if auth is even enabled and if SAML is available
   try {
     const meta = await Backend.getMeta();
     auth.setAuthEnabled(meta.data.Data.AuthEnabled);
+    samlEnabled.value = meta.data.Data.SamlEnabled;
     if (!meta.data.Data.AuthEnabled) {
       void router.replace({ name: 'Dashboard' });
       return;
@@ -98,6 +111,10 @@ onMounted(async () => {
     void router.replace({ name: 'Dashboard' });
   }
 });
+
+function samlLogin() {
+  window.location.href = '/api/v1/auth/saml/login';
+}
 
 async function onLogin() {
   if (!username.value || !password.value) {

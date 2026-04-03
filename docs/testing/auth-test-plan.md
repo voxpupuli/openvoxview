@@ -58,7 +58,7 @@ Manual test plan for local user authentication.
 ## User Management UI (ADR-003)
 
 ### Visibility
-- [ ] **"Users" menu item visible** in sidebar when auth is enabled
+- [x] **"Users" menu item visible** in sidebar when auth is enabled
 - [ ] **"Users" menu item hidden** when auth is disabled
 
 ### User Table
@@ -66,21 +66,21 @@ Manual test plan for local user authentication.
 - [ ] **Refresh button** — reloads the user list
 
 ### Create User
-- [ ] **Click "Add User"** — opens create dialog with empty fields
-- [ ] **Submit with valid data** — user created, success notification, table refreshes
-- [ ] **Submit with missing username** — shows "Username is required" error
-- [ ] **Submit with short password** (< 8 chars) — shows "Password must be at least 8 characters"
-- [ ] **Submit with mismatched passwords** — shows "Passwords do not match"
-- [ ] **Submit with duplicate username** — shows "Username already exists"
-- [ ] **Cancel button** — closes dialog without creating
+- [x] **Click "Add User"** — opens create dialog with empty fields
+- [x] **Submit with valid data** — user created, success notification, table refreshes
+- [x] **Submit with missing username** — shows "Username is required" error
+- [x] **Submit with short password** (< 8 chars) — shows "Password must be at least 8 characters"
+- [x] **Submit with mismatched passwords** — shows "Passwords do not match"
+- [x] **Submit with duplicate username** — shows "Username already exists"
+- [x] **Cancel button** — closes dialog without creating
 
 ### Edit User
-- [ ] **Click edit icon on a user row** — opens dialog pre-populated with user data
-- [ ] **Username field is read-only** in edit mode
+- [x] **Click edit icon on a user row** — opens dialog pre-populated with user data
+- [x] **Username field is read-only** in edit mode
 - [ ] **Update display name / email** — saves, success notification, table refreshes
 - [ ] **Change password** — confirm password field appears, saves new password
-- [ ] **Leave password blank** — keeps existing password unchanged
-- [ ] **Cancel button** — closes dialog without saving
+- [x] **Leave password blank** — keeps existing password unchanged
+- [x] **Cancel button** — closes dialog without saving
 
 ### Delete User
 - [ ] **Click delete icon** — shows confirmation dialog with username

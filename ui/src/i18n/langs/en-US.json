@@ -109,5 +109,8 @@
   "BTN_CREATE": "Create",
   "NOTIFICATION_USER_CREATED": "User created successfully",
   "NOTIFICATION_USER_UPDATED": "User updated successfully",
-  "NOTIFICATION_USER_DELETED": "User deleted successfully"
+  "NOTIFICATION_USER_DELETED": "User deleted successfully",
+
+  "BTN_LOGIN_SSO": "Login with SSO",
+  "LABEL_LOGIN_OR": "or"
 }

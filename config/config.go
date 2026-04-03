@@ -13,6 +13,7 @@ import (
 var configPath = flag.String("config", "", "path to the config file")
 var printVersion = flag.Bool("version", false, "prints version")
 var createAdmin = flag.Bool("create-admin", false, "create an admin user interactively")
+var generateSamlCert = flag.Bool("generate-saml-cert", false, "generate a self-signed SAML SP certificate and key")
 
 func init() {
 	flag.Parse()
@@ -23,12 +24,27 @@ type ConfigPqlQuery struct {
 	Query       string `mapstructure:"query"`
 }
 
+type SamlConfig struct {
+	Enabled         bool   `mapstructure:"enabled"`
+	IdpMetadataURL  string `mapstructure:"idp_metadata_url"`
+	IdpMetadataFile string `mapstructure:"idp_metadata_file"`
+	SpEntityID      string `mapstructure:"sp_entity_id"`
+	SpAcsURL        string `mapstructure:"sp_acs_url"`
+	SpCertFile      string `mapstructure:"sp_cert_file"`
+	SpKeyFile       string `mapstructure:"sp_key_file"`
+	AttrEmail       string `mapstructure:"attr_email"`
+	AttrGivenName   string `mapstructure:"attr_given_name"`
+	AttrSurname     string `mapstructure:"attr_surname"`
+	AttrDisplayName string `mapstructure:"attr_display_name"`
+}
+
 type AuthConfig struct {
-	Enabled        bool   `mapstructure:"enabled"`
-	JwtSecret      string `mapstructure:"jwt_secret"`
-	AccessTokenTTL int    `mapstructure:"access_token_ttl_minutes"`
-	RefreshTokenTTL int   `mapstructure:"refresh_token_ttl_days"`
-	DbPath         string `mapstructure:"db_path"`
+	Enabled        bool       `mapstructure:"enabled"`
+	JwtSecret      string     `mapstructure:"jwt_secret"`
+	AccessTokenTTL int        `mapstructure:"access_token_ttl_minutes"`
+	RefreshTokenTTL int       `mapstructure:"refresh_token_ttl_days"`
+	DbPath         string     `mapstructure:"db_path"`
+	Saml           SamlConfig `mapstructure:"saml"`
 }
 
 type Config struct {
@@ -74,6 +90,10 @@ func CreateAdmin() bool {
 	return *createAdmin
 }
 
+func GenerateSamlCert() bool {
+	return *generateSamlCert
+}
+
 var (
 	cachedConfig *Config
 	cachedErr    error
@@ -101,6 +121,11 @@ func GetConfig() (*Config, error) {
 		viper.SetDefault("auth.access_token_ttl_minutes", 15)
 		viper.SetDefault("auth.refresh_token_ttl_days", 30)
 		viper.SetDefault("auth.db_path", "data/openvoxview.db")
+		viper.SetDefault("auth.saml.enabled", false)
+		viper.SetDefault("auth.saml.attr_email", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")
+		viper.SetDefault("auth.saml.attr_given_name", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname")
+		viper.SetDefault("auth.saml.attr_surname", "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname")
+		viper.SetDefault("auth.saml.attr_display_name", "http://schemas.microsoft.com/identity/claims/displayname")
 
 		viper.SetDefault("puppetca.port", 8140)
 		viper.SetDefault("puppetca.tls", true)
@@ -127,6 +152,13 @@ func GetConfig() (*Config, error) {
 		viper.BindEnv("auth.access_token_ttl_minutes", "OPENVOXVIEW_AUTH_ACCESS_TOKEN_TTL_MINUTES")
 		viper.BindEnv("auth.refresh_token_ttl_days", "OPENVOXVIEW_AUTH_REFRESH_TOKEN_TTL_DAYS")
 		viper.BindEnv("auth.db_path", "OPENVOXVIEW_AUTH_DB_PATH")
+		viper.BindEnv("auth.saml.enabled", "OPENVOXVIEW_AUTH_SAML_ENABLED")
+		viper.BindEnv("auth.saml.idp_metadata_url", "OPENVOXVIEW_AUTH_SAML_IDP_METADATA_URL")
+		viper.BindEnv("auth.saml.idp_metadata_file", "OPENVOXVIEW_AUTH_SAML_IDP_METADATA_FILE")
+		viper.BindEnv("auth.saml.sp_entity_id", "OPENVOXVIEW_AUTH_SAML_SP_ENTITY_ID")
+		viper.BindEnv("auth.saml.sp_acs_url", "OPENVOXVIEW_AUTH_SAML_SP_ACS_URL")
+		viper.BindEnv("auth.saml.sp_cert_file", "OPENVOXVIEW_AUTH_SAML_SP_CERT_FILE")
+		viper.BindEnv("auth.saml.sp_key_file", "OPENVOXVIEW_AUTH_SAML_SP_KEY_FILE")
 
 		viper.BindEnv("puppetca.host", "PUPPETCA_HOST")
 		viper.BindEnv("puppetca.port", "PUPPETCA_PORT")

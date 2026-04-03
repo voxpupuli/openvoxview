@@ -42,7 +42,7 @@ but you can pass the -config parameter to define the location of the config file
 | auth.refresh_token_ttl_days  | OPENVOXVIEW_AUTH_REFRESH_TOKEN_TTL_DAYS      | 30                    | int    | Refresh token lifetime in days                   |
 | auth.db_path                 | OPENVOXVIEW_AUTH_DB_PATH                     | data/openvoxview.db   | string | Path to SQLite database file                     |
 
-When `auth.enabled` is `true`, all API endpoints (except `/api/v1/auth/login`, `/api/v1/auth/refresh`, and `/api/v1/version`) require a valid JWT bearer token. If no `jwt_secret` is configured, a random one is generated at startup (tokens will not survive restarts).
+When `auth.enabled` is `true`, all API endpoints (except `/api/v1/auth/login`, `/api/v1/auth/refresh`, `/api/v1/version`, and `/api/v1/meta`) require a valid JWT bearer token. If no `jwt_secret` is configured, a random one is generated at startup (tokens will not survive restarts).
 
 To create the first admin user, run:
 
@@ -62,6 +62,59 @@ Users can also be managed via the API endpoints when authenticated:
 | POST   | /api/v1/auth/users          | Create user            |
 | PUT    | /api/v1/auth/users/:id      | Update user            |
 | DELETE | /api/v1/auth/users/:id      | Delete user            |
+
+### SAML Authentication (EntraID / ADFS)
+
+| Option                          | Environment Variable                         | Default                                                                    | Type   | Description                                     |
+|---------------------------------|----------------------------------------------|----------------------------------------------------------------------------|--------|-------------------------------------------------|
+| auth.saml.enabled               | OPENVOXVIEW_AUTH_SAML_ENABLED                | false                                                                      | bool   | Enable SAML 2.0 SSO authentication              |
+| auth.saml.idp_metadata_url      | OPENVOXVIEW_AUTH_SAML_IDP_METADATA_URL       |                                                                            | string | URL to IdP federation metadata XML              |
+| auth.saml.idp_metadata_file     | OPENVOXVIEW_AUTH_SAML_IDP_METADATA_FILE      |                                                                            | string | Path to local IdP metadata XML file (fallback)  |
+| auth.saml.sp_entity_id          | OPENVOXVIEW_AUTH_SAML_SP_ENTITY_ID           |                                                                            | string | SP Entity ID (e.g. https://openvoxview.example.com) |
+| auth.saml.sp_acs_url            | OPENVOXVIEW_AUTH_SAML_SP_ACS_URL             |                                                                            | string | Assertion Consumer Service URL                  |
+| auth.saml.sp_cert_file          | OPENVOXVIEW_AUTH_SAML_SP_CERT_FILE           |                                                                            | string | Path to SP X.509 certificate (PEM)              |
+| auth.saml.sp_key_file           | OPENVOXVIEW_AUTH_SAML_SP_KEY_FILE            |                                                                            | string | Path to SP private key (PEM)                    |
+| auth.saml.attr_email            |                                              | http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress         | string | SAML attribute URI for email                    |
+| auth.saml.attr_given_name       |                                              | http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname            | string | SAML attribute URI for given name               |
+| auth.saml.attr_surname          |                                              | http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname              | string | SAML attribute URI for surname                  |
+| auth.saml.attr_display_name     |                                              | http://schemas.microsoft.com/identity/claims/displayname                   | string | SAML attribute URI for display name             |
+
+SAML requires `auth.enabled: true` as a prerequisite. Both local login and SAML SSO can be active simultaneously (recommended for break-glass admin access).
+
+To generate a self-signed SP certificate for SAML:
+
+```
+openvoxview --generate-saml-cert
+```
+
+This creates `saml-sp.crt` and `saml-sp.key` in the current directory. Point `sp_cert_file` and `sp_key_file` to these files.
+
+SAML API endpoints (public, no auth required):
+
+| Method | Endpoint                         | Description                        |
+|--------|----------------------------------|------------------------------------|
+| GET    | /api/v1/auth/saml/metadata      | SP metadata XML (for IdP setup)    |
+| GET    | /api/v1/auth/saml/login         | Initiates SAML SSO redirect to IdP |
+| POST   | /api/v1/auth/saml/acs           | Assertion Consumer Service callback|
+
+After the IdP returns a valid assertion, the user is auto-provisioned in the local database (with `auth_source = 'saml'`) and redirected to the frontend with JWT tokens.
+
+#### EntraID Setup
+
+1. Azure Portal > Enterprise Applications > New Application > Create your own (non-gallery)
+2. Single Sign-On > SAML
+3. Basic SAML Configuration:
+   - Identifier (Entity ID): value of `sp_entity_id`
+   - Reply URL (ACS): value of `sp_acs_url`
+   - Sign on URL: `https://<host>/api/v1/auth/saml/login`
+4. Copy the **App Federation Metadata Url** and use it as `idp_metadata_url`
+5. Assign users/groups
+
+#### ADFS Setup
+
+1. ADFS Management > Relying Party Trusts > Add
+2. Import from URL: `https://<host>/api/v1/auth/saml/metadata`
+3. Add claim rules for email, given name, surname, and display name
 
 ### predefined Queries
 | Option      | Type   | Description               |
@@ -116,6 +169,14 @@ auth:
   access_token_ttl_minutes: 15
   refresh_token_ttl_days: 30
   db_path: "data/openvoxview.db"
+
+  saml:
+    enabled: true
+    idp_metadata_url: "https://login.microsoftonline.com/<tenant-id>/federationmetadata/2007-06/federationmetadata.xml"
+    sp_entity_id: "https://openvoxview.example.com"
+    sp_acs_url: "https://openvoxview.example.com/api/v1/auth/saml/acs"
+    sp_cert_file: "/etc/openvoxview/saml-sp.crt"
+    sp_key_file: "/etc/openvoxview/saml-sp.key"
 
 puppetdb:
   host: localhost
