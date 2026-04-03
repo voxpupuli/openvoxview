@@ -23,7 +23,35 @@
           v-model="settings.darkMode"
           color="positive"
         />
-        <div>{{ version }}</div>
+        <div class="q-mr-md">{{ version }}</div>
+
+        <q-btn
+          v-if="auth.authEnabled"
+          flat
+          round
+          dense
+          icon="account_circle"
+        >
+          <q-menu>
+            <q-list style="min-width: 200px">
+              <q-item-label header>
+                {{ auth.displayName || auth.username }}
+              </q-item-label>
+              <q-item v-if="auth.email" dense>
+                <q-item-section>
+                  <q-item-label caption>{{ auth.email }}</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup @click="onLogout">
+                <q-item-section avatar>
+                  <q-icon name="logout" />
+                </q-item-section>
+                <q-item-section>Logout</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -119,8 +147,10 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 import EnvironmentSelector from 'components/EnvironmentSelector.vue';
 import { useSettingsStore } from 'stores/settings';
+import { useAuthStore } from 'stores/auth';
 import Backend from 'src/client/backend';
 import { PredefinedView } from 'src/puppet/models';
 import { getBrowserLocale } from 'boot/i18n';
@@ -129,6 +159,8 @@ import { type ApiMeta } from 'src/client/models';
 
 const leftDrawerOpen = ref(false);
 const settings = useSettingsStore();
+const auth = useAuthStore();
+const router = useRouter();
 const version = ref('dirty');
 const predefinedViews = ref<PredefinedView[]>([]);
 const meta = ref<ApiMeta>();
@@ -161,8 +193,21 @@ function loadMeta() {
     if (result.status === 200) {
       meta.value = result.data.Data;
       caEnabled.value = meta.value.CaEnabled;
+      auth.setAuthEnabled(meta.value.AuthEnabled);
     }
   });
+}
+
+async function onLogout() {
+  try {
+    if (auth.refreshToken) {
+      await Backend.logout(auth.refreshToken);
+    }
+  } catch {
+    // Logout API call may fail if token is already expired, that's fine
+  }
+  auth.clearAuth();
+  void router.push({ name: 'Login' });
 }
 
 const q = useQuasar();

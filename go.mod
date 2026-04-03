@@ -2,7 +2,11 @@ module github.com/sebastianrakel/openvoxview
 
 go 1.24
 
-require github.com/gin-gonic/gin v1.11.0
+require (
+	github.com/gin-gonic/gin v1.11.0
+	github.com/golang-jwt/jwt/v5 v5.2.2
+	modernc.org/sqlite v1.37.1
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect

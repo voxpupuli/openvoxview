@@ -32,6 +32,37 @@ but you can pass the -config parameter to define the location of the config file
 | puppetca.deactivate_nodes | PUPPETCA_DEACTIVATE_NODES | false     | bool   | Also deactivate node in PuppetDB with revoke / clean |
 
 
+### Authentication
+
+| Option                       | Environment Variable                         | Default               | Type   | Description                                      |
+|------------------------------|----------------------------------------------|-----------------------|--------|--------------------------------------------------|
+| auth.enabled                 | OPENVOXVIEW_AUTH_ENABLED                     | false                 | bool   | Enable local user authentication                 |
+| auth.jwt_secret              | OPENVOXVIEW_AUTH_JWT_SECRET                  |                       | string | Secret for signing JWT tokens (min 32 chars)     |
+| auth.access_token_ttl_minutes| OPENVOXVIEW_AUTH_ACCESS_TOKEN_TTL_MINUTES    | 15                    | int    | Access token lifetime in minutes                 |
+| auth.refresh_token_ttl_days  | OPENVOXVIEW_AUTH_REFRESH_TOKEN_TTL_DAYS      | 30                    | int    | Refresh token lifetime in days                   |
+| auth.db_path                 | OPENVOXVIEW_AUTH_DB_PATH                     | data/openvoxview.db   | string | Path to SQLite database file                     |
+
+When `auth.enabled` is `true`, all API endpoints (except `/api/v1/auth/login`, `/api/v1/auth/refresh`, and `/api/v1/version`) require a valid JWT bearer token. If no `jwt_secret` is configured, a random one is generated at startup (tokens will not survive restarts).
+
+To create the first admin user, run:
+
+```
+openvoxview --create-admin
+```
+
+Users can also be managed via the API endpoints when authenticated:
+
+| Method | Endpoint                    | Description            |
+|--------|-----------------------------|------------------------|
+| POST   | /api/v1/auth/login          | Login (returns tokens) |
+| POST   | /api/v1/auth/refresh        | Refresh access token   |
+| POST   | /api/v1/auth/logout         | Revoke refresh token   |
+| GET    | /api/v1/auth/me             | Current user profile   |
+| GET    | /api/v1/auth/users          | List all users         |
+| POST   | /api/v1/auth/users          | Create user            |
+| PUT    | /api/v1/auth/users/:id      | Update user            |
+| DELETE | /api/v1/auth/users/:id      | Delete user            |
+
 ### predefined Queries
 | Option      | Type   | Description               |
 |-------------|--------|---------------------------|
@@ -78,6 +109,13 @@ listen: 127.0.0.1
 port: 5000
 trusted_proxies:
  - 127.0.0.1
+
+auth:
+  enabled: true
+  jwt_secret: "change-me-to-a-long-random-string-min-32-chars"
+  access_token_ttl_minutes: 15
+  refresh_token_ttl_days: 30
+  db_path: "data/openvoxview.db"
 
 puppetdb:
   host: localhost

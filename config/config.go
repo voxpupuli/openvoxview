@@ -12,6 +12,7 @@ import (
 
 var configPath = flag.String("config", "", "path to the config file")
 var printVersion = flag.Bool("version", false, "prints version")
+var createAdmin = flag.Bool("create-admin", false, "create an admin user interactively")
 
 func init() {
 	flag.Parse()
@@ -20,6 +21,14 @@ func init() {
 type ConfigPqlQuery struct {
 	Description string `mapstructure:"description"`
 	Query       string `mapstructure:"query"`
+}
+
+type AuthConfig struct {
+	Enabled        bool   `mapstructure:"enabled"`
+	JwtSecret      string `mapstructure:"jwt_secret"`
+	AccessTokenTTL int    `mapstructure:"access_token_ttl_minutes"`
+	RefreshTokenTTL int   `mapstructure:"refresh_token_ttl_days"`
+	DbPath         string `mapstructure:"db_path"`
 }
 
 type Config struct {
@@ -39,6 +48,7 @@ type Config struct {
 	Views           []model.View     `mapstructure:"views"`
 	UnreportedHours uint64           `mapstructure:"unreported_hours"`
 	StripPathPrefix string           `mapstructure:"strip_path_prefix"`
+	Auth            AuthConfig `mapstructure:"auth"`
 	PuppetCA        struct {
 		Host            string `mapstructure:"host"`
 		Port            uint64 `mapstructure:"port"`
@@ -58,6 +68,10 @@ func PrintVersion(version string) bool {
 		return true
 	}
 	return false
+}
+
+func CreateAdmin() bool {
+	return *createAdmin
 }
 
 var (
@@ -83,6 +97,11 @@ func GetConfig() (*Config, error) {
 		viper.SetDefault("puppetdb.tls_ignore", false)
 		viper.SetDefault("unreported_hours", 3)
 		viper.SetDefault("strip_path_prefix", `/etc/puppetlabs/code/environments(/.*?/modules)?`)
+		viper.SetDefault("auth.enabled", false)
+		viper.SetDefault("auth.access_token_ttl_minutes", 15)
+		viper.SetDefault("auth.refresh_token_ttl_days", 30)
+		viper.SetDefault("auth.db_path", "data/openvoxview.db")
+
 		viper.SetDefault("puppetca.port", 8140)
 		viper.SetDefault("puppetca.tls", true)
 		viper.SetDefault("puppetca.tls_ignore", false)
@@ -103,6 +122,12 @@ func GetConfig() (*Config, error) {
 		viper.BindEnv("puppetdb.tls_cert", "PUPPETDB_TLS_CERT")
 		viper.BindEnv("unreported_hours", "UNREPORTED_HOURS")
 		viper.BindEnv("strip_path_prefix", "STRIP_PATH_PREFIX")
+		viper.BindEnv("auth.enabled", "OPENVOXVIEW_AUTH_ENABLED")
+		viper.BindEnv("auth.jwt_secret", "OPENVOXVIEW_AUTH_JWT_SECRET")
+		viper.BindEnv("auth.access_token_ttl_minutes", "OPENVOXVIEW_AUTH_ACCESS_TOKEN_TTL_MINUTES")
+		viper.BindEnv("auth.refresh_token_ttl_days", "OPENVOXVIEW_AUTH_REFRESH_TOKEN_TTL_DAYS")
+		viper.BindEnv("auth.db_path", "OPENVOXVIEW_AUTH_DB_PATH")
+
 		viper.BindEnv("puppetca.host", "PUPPETCA_HOST")
 		viper.BindEnv("puppetca.port", "PUPPETCA_PORT")
 		viper.BindEnv("puppetca.tls", "PUPPETCA_TLS")
