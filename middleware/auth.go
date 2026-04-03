@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/sebastianrakel/openvoxview/config"
-	"github.com/sebastianrakel/openvoxview/handler"
 )
 
 type UserClaims struct {
@@ -54,19 +53,26 @@ func JWTAuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 
 		tokenString := extractBearerToken(c)
 		if tokenString == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, handler.NewErrorResponse(errors.New("authorization required")))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse("authorization required"))
 			return
 		}
 
 		claims, err := validateToken(tokenString, cfg.Auth.JwtSecret)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, handler.NewErrorResponse(errors.New("invalid or expired token")))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse("invalid or expired token"))
 			return
 		}
 
 		c.Set("user_id", claims.Subject)
 		c.Set("username", claims.Username)
 		c.Next()
+	}
+}
+
+func errorResponse(msg string) gin.H {
+	return gin.H{
+		"Timestamp": time.Now().Unix(),
+		"Error":     msg,
 	}
 }
 
