@@ -135,6 +135,16 @@
             <q-item-label>{{ $t('MENU_CA') }}</q-item-label>
           </q-item-section>
         </q-item>
+
+        <q-item clickable :to="{ name: 'UserManagement' }" v-if="auth.authEnabled">
+          <q-item-section avatar>
+            <q-icon name="manage_accounts" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>{{ $t('MENU_USERS') }}</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 

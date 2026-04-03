@@ -54,3 +54,39 @@ Manual test plan for local user authentication.
 - [x] **User menu visible** in top-right toolbar when logged in (account icon)
 - [x] **User menu shows username/display name and email**
 - [x] **All existing pages still work** after login: Dashboard, Nodes, Facts, Reports, Query, CA (if enabled), predefined views
+
+## User Management UI (ADR-003)
+
+### Visibility
+- [ ] **"Users" menu item visible** in sidebar when auth is enabled
+- [ ] **"Users" menu item hidden** when auth is disabled
+
+### User Table
+- [ ] **Users page loads** — shows table with all users, columns: Username, Display Name, Email, Auth Source, Created, Actions
+- [ ] **Refresh button** — reloads the user list
+
+### Create User
+- [ ] **Click "Add User"** — opens create dialog with empty fields
+- [ ] **Submit with valid data** — user created, success notification, table refreshes
+- [ ] **Submit with missing username** — shows "Username is required" error
+- [ ] **Submit with short password** (< 8 chars) — shows "Password must be at least 8 characters"
+- [ ] **Submit with mismatched passwords** — shows "Passwords do not match"
+- [ ] **Submit with duplicate username** — shows "Username already exists"
+- [ ] **Cancel button** — closes dialog without creating
+
+### Edit User
+- [ ] **Click edit icon on a user row** — opens dialog pre-populated with user data
+- [ ] **Username field is read-only** in edit mode
+- [ ] **Update display name / email** — saves, success notification, table refreshes
+- [ ] **Change password** — confirm password field appears, saves new password
+- [ ] **Leave password blank** — keeps existing password unchanged
+- [ ] **Cancel button** — closes dialog without saving
+
+### Delete User
+- [ ] **Click delete icon** — shows confirmation dialog with username
+- [ ] **Confirm delete** — user removed, success notification, table refreshes
+- [ ] **Cancel delete** — dialog closes, user not deleted
+- [ ] **Delete button disabled on own row** — tooltip shows "Cannot delete your own account"
+
+### i18n
+- [ ] **German locale** — all labels, buttons, and messages display in German
