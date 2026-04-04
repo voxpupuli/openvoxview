@@ -318,6 +318,9 @@ func (h *AuthHandler) SamlLogin(c *gin.Context) {
 		return
 	}
 
+	// Store the request ID in a cookie so ACS can validate InResponseTo
+	c.SetCookie("saml_request_id", authnRequest.ID, 300, "/", "", false, true)
+
 	redirectURL, err := authnRequest.Redirect("", &sp)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(fmt.Errorf("failed to build SAML redirect URL: %w", err)))
@@ -342,7 +345,16 @@ func (h *AuthHandler) SamlACS(c *gin.Context) {
 		return
 	}
 
-	assertion, err := sp.ParseResponse(c.Request, []string{""})
+	// Retrieve the request ID from the cookie set during SamlLogin
+	var possibleRequestIDs []string
+	if requestID, err := c.Cookie("saml_request_id"); err == nil && requestID != "" {
+		possibleRequestIDs = append(possibleRequestIDs, requestID)
+	}
+
+	// Clear the cookie
+	c.SetCookie("saml_request_id", "", -1, "/", "", false, true)
+
+	assertion, err := sp.ParseResponse(c.Request, possibleRequestIDs)
 	if err != nil {
 		log.Printf("[SAML] ACS assertion validation failed: %v", err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, NewErrorResponse(fmt.Errorf("SAML assertion validation failed: %w", err)))

@@ -51,11 +51,16 @@
         </q-form>
 
         <template v-if="samlEnabled">
-          <q-separator class="q-my-md" :label="$t('LABEL_LOGIN_OR')" />
+          <div class="row items-center q-my-md">
+            <q-separator class="col" />
+            <span class="q-mx-sm text-grey">{{ $t('LABEL_LOGIN_OR') }}</span>
+            <q-separator class="col" />
+          </div>
           <q-btn
             :label="$t('BTN_LOGIN_SSO')"
             icon="corporate_fare"
-            color="secondary"
+            color="primary"
+            outline
             class="full-width"
             @click="samlLogin"
           />
