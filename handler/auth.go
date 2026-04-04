@@ -356,7 +356,13 @@ func (h *AuthHandler) SamlACS(c *gin.Context) {
 
 	assertion, err := sp.ParseResponse(c.Request, possibleRequestIDs)
 	if err != nil {
-		log.Printf("[SAML] ACS assertion validation failed: %v", err)
+		// crewjam/saml hides the real error in InvalidResponseError.PrivateErr
+		var ire *saml.InvalidResponseError
+		if errors.As(err, &ire) {
+			log.Printf("[SAML] ACS validation failed: %v (detail: %v)", err, ire.PrivateErr)
+		} else {
+			log.Printf("[SAML] ACS validation failed: %v", err)
+		}
 		c.AbortWithStatusJSON(http.StatusUnauthorized, NewErrorResponse(fmt.Errorf("SAML assertion validation failed: %w", err)))
 		return
 	}
