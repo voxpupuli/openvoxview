@@ -1,6 +1,6 @@
 # ADR-004: Configurable CORS Policy
 
-**Status:** Proposed  
+**Status:** Implemented  
 **Date:** 2026-04-04  
 **Deciders:** OpenVox View maintainers  
 **Depends on:** ADR-001 (authentication, JWT Bearer tokens)
@@ -139,8 +139,8 @@ Key changes:
 
 ## Implementation Checklist
 
-- [ ] Add `CorsOrigin` field to `Config` struct in `config/config.go`
-- [ ] Add Viper default and `OPENVOXVIEW_CORS_ORIGIN` env binding
-- [ ] Replace `AllowCORS` function with `CORSMiddleware` in `main.go`
-- [ ] Update `CONFIGURATION.md` with `cors_origin` setting
-- [ ] Build and verify (`go vet`, `go build`)
+- [x] Add `CorsOrigin` field to `Config` struct in `config/config.go`
+- [x] Add Viper default and `OPENVOXVIEW_CORS_ORIGIN` env binding
+- [x] Replace `AllowCORS` function with `CORSMiddleware` in `main.go`
+- [x] Update `CONFIGURATION.md` with `cors_origin` setting
+- [x] Build and verify (`go vet`, `go build`)

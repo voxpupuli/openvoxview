@@ -66,7 +66,7 @@ On 409: show "Username already exists" error.
 
 Same q-dialog, pre-populated with existing values. Username is read-only (not editable after creation). Password fields are optional — leave blank to keep current password. Admin toggle available — but disabled when editing your own account (self-demote guard to prevent lockout).
 
-For SAML users (`auth_source = 'saml'`): email, display name, and password fields are disabled (managed by IdP). Only the admin toggle is editable.
+For SAML users (`auth_source = 'saml'`): email, display name, and password fields are disabled (managed by IdP). Only the admin toggle is editable. The save button remains visible so admin role changes can be saved.
 
 On submit: `Backend.updateUser(id, data)` → success notification → reload table.
 

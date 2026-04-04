@@ -283,13 +283,14 @@ function samlLogin() {
 </template>
 ```
 
-### User Management UI — SAML users are read-only
+### User Management UI — SAML user profiles are IdP-managed
 
 The IdP is the source of truth for SAML user profiles. When editing a SAML user (`auth_source = 'saml'`) in the User Management page:
 
 - **Email** and **Display Name** fields are disabled (managed by IdP)
 - **Password** fields are hidden (SAML users have no local password)
-- **Save** button is hidden (no editable fields)
+- **Admin toggle** is editable (admin role is managed locally, not by the IdP)
+- **Save** button is visible (to allow admin toggle changes)
 - An info banner explains that the profile is managed by the identity provider and updated on each login
 
 No other frontend files need changes — the auth store, axios interceptors, router guard, and token refresh logic from ADR-001 all work unchanged for SAML-authenticated users.
@@ -377,8 +378,10 @@ auth:
 ## Security Considerations
 
 - **Assertion validation**: `crewjam/saml` validates signature, issuer, audience restriction, `NotBefore`/`NotOnOrAfter`, and `InResponseTo` (replay prevention) by default — do not bypass these checks
+- **IDP-initiated SSO disabled**: `AllowIDPInitiated` is set to `false`. All SAML logins must originate from the "Login with SSO" button (SP-initiated). This prevents assertion replay attacks where a captured SAMLResponse is POSTed directly to the ACS endpoint.
+- **SAML cookie Secure flag**: The `saml_request_id` cookie (used for `InResponseTo` validation) is set with `Secure: true` and `HttpOnly: true`, ensuring it is only transmitted over HTTPS.
 - **ACS URL must be HTTPS**: EntraID and ADFS reject HTTP ACS URLs; document this as a hard requirement
-- **Token query params**: `?token=` and `?refresh=` are short-lived (access token TTL) and cleared from the URL immediately by the SPA. They will appear in browser history — a known trade-off of this approach
+- **Token handoff via hash fragment**: The redirect URL uses a hash fragment (`/ui/?#/login?token=...&refresh=...`) so tokens are not sent to the server in logs, proxies, or Referer headers. They will appear in browser history — a known trade-off of this approach.
 - **RelayState**: Managed by `crewjam/saml` to prevent CSRF on the ACS endpoint
 - **SAML + local coexistence**: Operators can have both enabled simultaneously. A "break-glass" local admin account is recommended so access is not lost if the IdP is unreachable
 - **IdP metadata refresh**: Re-fetch metadata hourly to automatically handle IdP signing certificate rotations without a restart
