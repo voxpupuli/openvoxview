@@ -343,7 +343,6 @@ onMounted(() => {
             <div class="row justify-end q-gutter-sm q-mt-md">
               <q-btn flat :label="$t('BTN_CLOSE')" v-close-popup />
               <q-btn
-                v-if="!isSamlUser"
                 type="submit"
                 color="primary"
                 :label="isEditing ? $t('BTN_SAVE') : $t('BTN_CREATE')"
