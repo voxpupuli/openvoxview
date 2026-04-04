@@ -215,6 +215,12 @@ func (h *AuthHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// Validate password minimum length when provided
+	if req.Password != nil && len(*req.Password) < 8 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, NewErrorResponse(errors.New("password must be at least 8 characters")))
+		return
+	}
+
 	// Self-demote guard: prevent admin from removing their own admin flag
 	currentUserIDStr, _ := c.Get("user_id")
 	currentUserID, _ := strconv.ParseInt(currentUserIDStr.(string), 10, 64)
@@ -329,7 +335,7 @@ func (h *AuthHandler) SamlLogin(c *gin.Context) {
 	}
 
 	// Store the request ID in a cookie so ACS can validate InResponseTo
-	c.SetCookie("saml_request_id", authnRequest.ID, 300, "/", "", false, true)
+	c.SetCookie("saml_request_id", authnRequest.ID, 300, "/", "", true, true)
 
 	redirectURL, err := authnRequest.Redirect("", &sp)
 	if err != nil {
@@ -362,7 +368,7 @@ func (h *AuthHandler) SamlACS(c *gin.Context) {
 	}
 
 	// Clear the cookie
-	c.SetCookie("saml_request_id", "", -1, "/", "", false, true)
+	c.SetCookie("saml_request_id", "", -1, "/", "", true, true)
 
 	assertion, err := sp.ParseResponse(c.Request, possibleRequestIDs)
 	if err != nil {

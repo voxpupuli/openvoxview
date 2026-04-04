@@ -78,7 +78,7 @@ func NewSamlServiceProvider(cfg *config.SamlConfig) (*SamlSP, error) {
 		Certificate:       leaf,
 		AcsURL:            *acsURL,
 		IDPMetadata:       idpMetadata,
-		AllowIDPInitiated: true,
+		AllowIDPInitiated: false,
 	}
 
 	ssp := &SamlSP{sp: sp}
