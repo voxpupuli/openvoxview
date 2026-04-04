@@ -107,7 +107,7 @@ After the IdP returns a valid assertion, the user is auto-provisioned in the loc
    - Identifier (Entity ID): value of `sp_entity_id`
    - Reply URL (ACS): value of `sp_acs_url`
    - Sign on URL: `https://<host>/api/v1/auth/saml/login`
-4. Copy the **App Federation Metadata Url** and use it as `idp_metadata_url`
+4. Copy the **App Federation Metadata Url** (must include `?appid=`) from Section 3 (SAML Certificates) and use it as `idp_metadata_url`. Do NOT use the generic tenant metadata URL — it contains the wrong signing certificate.
 5. Assign users/groups
 
 #### ADFS Setup
@@ -172,7 +172,7 @@ auth:
 
   saml:
     enabled: true
-    idp_metadata_url: "https://login.microsoftonline.com/<tenant-id>/federationmetadata/2007-06/federationmetadata.xml"
+    idp_metadata_url: "https://login.microsoftonline.com/<tenant-id>/federationmetadata/2007-06/federationmetadata.xml?appid=<app-id>"
     sp_entity_id: "https://openvoxview.example.com"
     sp_acs_url: "https://openvoxview.example.com/api/v1/auth/saml/acs"
     sp_cert_file: "/etc/openvoxview/saml-sp.crt"

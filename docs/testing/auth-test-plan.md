@@ -110,7 +110,7 @@ Manual test plan for local user authentication.
 - [ ] **SAML user cannot local login** — attempting local login with SAML user's email should fail
 
 ### Session Behavior
-- [ ] **Token refresh works for SAML users** — after access token expires, silent refresh works
+- [x] **Token refresh works for SAML users** — after access token expires, silent refresh works
 - [x] **Logout works for SAML users** — click Logout, redirected to login page
 - [x] **After SAML logout, press back button** — should not access protected content
 
@@ -120,7 +120,7 @@ Manual test plan for local user authentication.
 - [x] **Break-glass admin** — local admin account works even if IdP is unreachable
 
 ### SP Metadata
-- [ ] **`GET /api/v1/auth/saml/metadata`** — returns valid XML with SP entity ID, ACS URL, and certificate
+- [x] **`GET /api/v1/auth/saml/metadata`** — returns valid XML with SP entity ID, ACS URL, and certificate
 
 ### CLI
 - [x] **`--generate-saml-cert`** — creates `saml-sp.crt` and `saml-sp.key` in current directory

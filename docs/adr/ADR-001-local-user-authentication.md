@@ -1,6 +1,6 @@
 # ADR-001: Local User Authentication
 
-**Status:** Proposed  
+**Status:** Implemented  
 **Date:** 2026-04-03  
 **Deciders:** OpenVox View maintainers
 
@@ -59,7 +59,7 @@ CREATE TABLE users (
     username     TEXT    UNIQUE NOT NULL,
     email        TEXT,
     display_name TEXT,
-    password_hash TEXT NOT NULL,           -- bcrypt hash
+    password_hash TEXT,                    -- bcrypt hash (NULL for SAML users)
     auth_source  TEXT NOT NULL DEFAULT 'local',  -- 'local' | 'saml' (ADR-002)
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -200,12 +200,12 @@ func JWTAuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 r.POST("/api/v1/auth/login",   authHandler.Login)
 r.POST("/api/v1/auth/refresh", authHandler.Refresh)
 r.GET("/api/v1/version",       ...)
+r.GET("/api/v1/meta",          ...)  // public so frontend can detect auth state
 
 // Protected
 api := r.Group("/api/v1/")
 api.Use(middleware.JWTAuthMiddleware(cfg))
 {
-    api.GET("meta",    ...)
     api.GET("view/*",  ...)
     api.POST("pdb/*",  ...)
     api.POST("ca/*",   ...)
@@ -385,22 +385,22 @@ auth:
 ## Implementation Checklist
 
 **Backend**
-- [ ] Add `modernc.org/sqlite` to `go.mod`
-- [ ] Add `golang-jwt/jwt/v5` to `go.mod`
-- [ ] Create `db/` package: `db.go`, `users.go`, `tokens.go`
-- [ ] Add `AuthConfig` to `config/config.go` with Viper bindings and env vars
-- [ ] Create `middleware/auth.go` (JWT validation, auth-disabled passthrough)
-- [ ] Create `handler/auth.go` (login, refresh, logout, me, user CRUD)
-- [ ] Modify `main.go`: open DB, init handlers, register routes (public vs. protected)
-- [ ] Add `--create-admin` CLI flag
-- [ ] Update `CONFIGURATION.md`
+- [x] Add `modernc.org/sqlite` to `go.mod`
+- [x] Add `golang-jwt/jwt/v5` to `go.mod`
+- [x] Create `db/` package: `db.go`, `users.go`, `tokens.go`
+- [x] Add `AuthConfig` to `config/config.go` with Viper bindings and env vars
+- [x] Create `middleware/auth.go` (JWT validation, auth-disabled passthrough)
+- [x] Create `handler/auth.go` (login, refresh, logout, me, user CRUD)
+- [x] Modify `main.go`: open DB, init handlers, register routes (public vs. protected)
+- [x] Add `--create-admin` CLI flag
+- [x] Update `CONFIGURATION.md`
 
 **Frontend**
-- [ ] Create `ui/src/stores/auth.ts`
-- [ ] Create `ui/src/pages/LoginPage.vue`
-- [ ] Create `ui/src/layouts/AuthLayout.vue`
-- [ ] Update `ui/src/router/routes.ts` (login route + `beforeEach` guard)
-- [ ] Update `ui/src/boot/axios.ts` (request injector + 401 refresh interceptor)
-- [ ] Update `ui/src/client/backend.ts` (auth methods)
-- [ ] Update `ui/src/client/models.ts` (LoginResponse, UserProfile, etc.)
-- [ ] Update `ui/src/layouts/MainLayout.vue` (user menu + logout)
+- [x] Create `ui/src/stores/auth.ts`
+- [x] Create `ui/src/pages/LoginPage.vue`
+- [x] Create `ui/src/layouts/AuthLayout.vue`
+- [x] Update `ui/src/router/routes.ts` (login route + `beforeEach` guard)
+- [x] Update `ui/src/boot/axios.ts` (request injector + 401 refresh interceptor)
+- [x] Update `ui/src/client/backend.ts` (auth methods)
+- [x] Update `ui/src/client/models.ts` (LoginResponse, UserProfile, etc.)
+- [x] Update `ui/src/layouts/MainLayout.vue` (user menu + logout)

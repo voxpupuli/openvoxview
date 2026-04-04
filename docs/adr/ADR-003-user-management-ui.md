@@ -1,6 +1,6 @@
 # ADR-003: User Management UI
 
-**Status:** Proposed  
+**Status:** Implemented  
 **Date:** 2026-04-03  
 **Deciders:** OpenVox View maintainers  
 **Depends on:** ADR-001 (backend user CRUD API, auth store, auth-enabled detection)
@@ -137,8 +137,9 @@ Placed after the CA menu item in the sidebar.
 
 ## Implementation Checklist
 
-- [ ] Create `ui/src/pages/admin/UserManagementPage.vue`
-- [ ] Add `UserManagement` route to `ui/src/router/routes.ts`
-- [ ] Add "Users" menu item to `ui/src/layouts/MainLayout.vue` sidebar (conditional on `auth.authEnabled`)
-- [ ] Build and verify (`yarn build`, `yarn lint`)
-- [ ] Add test cases to `docs/testing/auth-test-plan.md`
+- [x] Create `ui/src/pages/admin/UserManagementPage.vue`
+- [x] Add `UserManagement` route to `ui/src/router/routes.ts`
+- [x] Add "Users" menu item to `ui/src/layouts/MainLayout.vue` sidebar (conditional on `auth.authEnabled`)
+- [x] Build and verify (`yarn build`, `yarn lint`)
+- [x] Add test cases to `docs/testing/auth-test-plan.md`
+- [x] Add i18n keys for all labels, buttons, and messages (en-US, de-DE)

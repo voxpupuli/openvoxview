@@ -165,23 +165,29 @@ func (h *AuthHandler) SamlACS(c *gin.Context)
 
 ```go
 func (h *AuthHandler) SamlACS(c *gin.Context) {
-    // 1. Parse and validate SAML response (crewjam/saml handles sig, audience, timing)
-    assertion, err := h.sp.ParseResponse(c.Request, []string{relayState})
+    // 1. Retrieve AuthnRequest ID from cookie (set during SamlLogin)
+    var possibleRequestIDs []string
+    if requestID, err := c.Cookie("saml_request_id"); err == nil {
+        possibleRequestIDs = append(possibleRequestIDs, requestID)
+    }
 
-    // 2. Extract attributes
+    // 2. Parse and validate SAML response (crewjam/saml handles sig, audience, timing)
+    assertion, err := h.sp.ParseResponse(c.Request, possibleRequestIDs)
+
+    // 3. Extract attributes
     email       := getAttr(assertion, h.cfg.Auth.Saml.AttrEmail)
     givenName   := getAttr(assertion, h.cfg.Auth.Saml.AttrGivenName)
     surname     := getAttr(assertion, h.cfg.Auth.Saml.AttrSurname)
     displayName := getAttr(assertion, h.cfg.Auth.Saml.AttrDisplayName)
 
-    // 3. Upsert user in SQLite
+    // 4. Upsert user in SQLite
     user, err := h.db.UpsertSamlUser(email, givenName, surname, displayName)
 
-    // 4. Issue access + refresh tokens (same function as local login)
+    // 5. Issue access + refresh tokens (same function as local login)
     tokens, err := h.issueTokenPair(user)
 
-    // 5. Redirect frontend with tokens
-    redirectURL := fmt.Sprintf("/login?token=%s&refresh=%s", tokens.AccessToken, tokens.RefreshToken)
+    // 6. Redirect frontend with tokens
+    redirectURL := fmt.Sprintf("/ui/?#/login?token=%s&refresh=%s", tokens.AccessToken, tokens.RefreshToken)
     c.Redirect(http.StatusFound, redirectURL)
 }
 ```
@@ -319,7 +325,7 @@ The `.crt` content is embedded in the SP metadata XML that the IdP reads. Copy-p
    - `givenname` → `user.givenname`
    - `surname` → `user.surname`
    - `displayname` → `user.displayname`
-5. **SAML Certificates** → copy the **App Federation Metadata Url** → use as `idp_metadata_url`
+5. **SAML Certificates** → copy the **App Federation Metadata Url** (must include `?appid=`) → use as `idp_metadata_url`. Do NOT use the generic tenant metadata URL — it contains the wrong signing certificate.
 6. **Users and Groups** → assign the users/groups who should have access
 
 ### ADFS
@@ -348,11 +354,11 @@ auth:
   db_path: "data/openvoxview.db"
 
   # Local users still work alongside SAML — useful for a break-glass admin
-  users: []  # managed via API
 
   saml:
     enabled: true
-    idp_metadata_url: "https://login.microsoftonline.com/<tenant-id>/federationmetadata/2007-06/federationmetadata.xml"
+    # IMPORTANT: For EntraID, use the App Federation Metadata URL (with ?appid=)
+    idp_metadata_url: "https://login.microsoftonline.com/<tenant-id>/federationmetadata/2007-06/federationmetadata.xml?appid=<app-id>"
     sp_entity_id: "https://openvoxview.example.com"
     sp_acs_url:   "https://openvoxview.example.com/api/v1/auth/saml/acs"
     sp_cert_file: "/etc/openvoxview/saml-sp.crt"
@@ -404,18 +410,19 @@ auth:
 ## Implementation Checklist
 
 **Backend**
-- [ ] Add `github.com/crewjam/saml` to `go.mod`
-- [ ] Add `SamlConfig` struct to `config/config.go` with Viper bindings
-- [ ] Add `given_name` / `surname` columns to `users` table migration in `db/users.go`
-- [ ] Add `UpsertSamlUser()` to `db/users.go`
-- [ ] Create `middleware/saml.go` — `NewSamlServiceProvider()`, hourly metadata refresh goroutine
-- [ ] Add `SamlMetadata`, `SamlLogin`, `SamlACS` to `handler/auth.go`
-- [ ] Add `SamlEnabled` to `MetaResponse` in `handler/core.go` (or `handler/view.go`)
-- [ ] Register SAML routes in `main.go` (public, conditional on `cfg.Auth.Saml.Enabled`)
-- [ ] Add `--generate-saml-cert` CLI flag
-- [ ] Update `CONFIGURATION.md` with SAML config options and IdP setup guides
+- [x] Add `github.com/crewjam/saml` to `go.mod`
+- [x] Add `SamlConfig` struct to `config/config.go` with Viper bindings
+- [x] Add `given_name` / `surname` columns to `users` table migration in `db/db.go`
+- [x] Add `UpsertSamlUser()` to `db/users.go`
+- [x] Create `middleware/saml.go` — `NewSamlServiceProvider()`, hourly metadata refresh goroutine
+- [x] Add `SamlMetadata`, `SamlLogin`, `SamlACS` to `handler/auth.go`
+- [x] Add `SamlEnabled` to meta response in `main.go`
+- [x] Register SAML routes in `main.go` (public, conditional on `cfg.Auth.Saml.Enabled`)
+- [x] Add `--generate-saml-cert` CLI flag
+- [x] Update `CONFIGURATION.md` with SAML config options and IdP setup guides
 
 **Frontend**
-- [ ] Add `SamlEnabled` to `ApiMeta` in `ui/src/client/models.ts`
-- [ ] Add SAML token extraction + SSO button to `ui/src/pages/LoginPage.vue`
-- [ ] No other frontend changes needed (auth store, interceptors, and router guard from ADR-001 are protocol-agnostic)
+- [x] Add `SamlEnabled` to `ApiMeta` in `ui/src/client/models.ts`
+- [x] Add SAML token extraction + SSO button to `ui/src/pages/LoginPage.vue`
+- [x] Make SAML user profiles read-only in `UserManagementPage.vue`
+- [x] Add i18n keys for SSO button and SAML user banner (en-US, de-DE)
