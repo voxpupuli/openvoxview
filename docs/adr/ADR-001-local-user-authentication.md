@@ -23,7 +23,7 @@ The application is a single Go binary that embeds the Vue 3 frontend. Adding aut
 |---|---|---|
 | User storage | **SQLite** | Enables user management API/UI; single-file DB fits the single-binary model |
 | Token strategy | **Short-lived access JWT + long-lived refresh token** | Avoids frequent re-logins while keeping access tokens small and revocable |
-| Authorization model | **Single admin role** (authenticated = full access) | No RBAC needed at this stage |
+| Authorization model | **Admin flag** (`is_admin` boolean on user) | User management restricted to admins; all other endpoints available to any authenticated user. `--create-admin` sets `is_admin = true`, SAML auto-provisioned users default to `false`. |
 | Auth optional | **Config toggle** (`auth.enabled`) | Trusted-network deployments should not be forced to manage users |
 
 ---
@@ -61,6 +61,7 @@ CREATE TABLE users (
     display_name TEXT,
     password_hash TEXT,                    -- bcrypt hash (NULL for SAML users)
     auth_source  TEXT NOT NULL DEFAULT 'local',  -- 'local' | 'saml' (ADR-002)
+    is_admin     BOOLEAN NOT NULL DEFAULT FALSE, -- only admins can manage users
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -137,13 +138,13 @@ POST   /api/v1/auth/logout   – revoke current refresh token
 GET    /api/v1/auth/me       – return current user profile from token claims
 ```
 
-**User management endpoints** (also in `handler/auth.go`, require auth):
+**User management endpoints** (also in `handler/auth.go`, require auth + admin):
 
 ```
-GET    /api/v1/auth/users        – list all users
-POST   /api/v1/auth/users        – create user
-PUT    /api/v1/auth/users/:id    – update user (email, display_name, password)
-DELETE /api/v1/auth/users/:id    – delete user
+GET    /api/v1/auth/users        – list all users (admin only)
+POST   /api/v1/auth/users        – create user (admin only)
+PUT    /api/v1/auth/users/:id    – update user (admin only)
+DELETE /api/v1/auth/users/:id    – delete user (admin only)
 ```
 
 Login response body:
@@ -188,6 +189,7 @@ func JWTAuthMiddleware(cfg *config.Config) gin.HandlerFunc {
   "username": "alice",
   "email": "alice@example.com",
   "display_name": "Alice Smith",
+  "is_admin": true,
   "iat": 1234567890,
   "exp": 1234568790
 }
@@ -358,6 +360,8 @@ auth:
 - **HTTPS**: Access and refresh tokens in `localStorage` are only safe over HTTPS; document this requirement
 - **DB file permissions**: The SQLite file contains password hashes; restrict to `0600`
 - **Self-delete guard**: Prevent a user from deleting their own account via the management API
+- **Self-demote guard**: Prevent an admin from removing their own admin flag (avoids lockout)
+- **Admin-only user management**: Only users with `is_admin = true` can access user management endpoints (list, create, update, delete). The `is_admin` flag is included in JWT claims so the check doesn't require a DB call.
 
 ---
 
@@ -375,7 +379,6 @@ auth:
 - In-memory rate limiter resets on restart (acceptable for v1)
 
 ### Future upgrade path
-- Add a user management page in the Vue frontend
 - Add TOTP/MFA per user
 - Replace in-memory rate limiter with persistent counter in SQLite
 - Add audit log table for login/logout/user-change events

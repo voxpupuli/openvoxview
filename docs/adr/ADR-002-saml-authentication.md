@@ -90,6 +90,8 @@ ALTER TABLE users ADD COLUMN surname    TEXT;
 
 On each SAML login, the user record is **upserted** (insert or update on `email` conflict) so that profile changes in the IdP propagate automatically.
 
+SAML auto-provisioned users are created with `is_admin = false`. An existing admin must promote them via the User Management UI if they should have admin access. This prevents privilege escalation through SAML auto-provisioning.
+
 ---
 
 ## Architecture Changes

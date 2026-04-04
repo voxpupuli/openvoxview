@@ -17,9 +17,9 @@ Currently, user management is only possible via CLI (`--create-admin`) or direct
 
 ## Decision
 
-Add a **User Management page** at route `/users` within the existing `MainLayout`, following the same patterns used by the CA Overview page (q-table, q-dialog for confirmations, Notify for feedback). The page is only visible in the sidebar when `auth.enabled` is `true`.
+Add a **User Management page** at route `/users` within the existing `MainLayout`, following the same patterns used by the CA Overview page (q-table, q-dialog for confirmations, Notify for feedback). The page is only visible in the sidebar when `auth.enabled` is `true` **and the current user is an admin** (`is_admin = true`).
 
-No backend changes are required — all API endpoints already exist.
+User management API endpoints are restricted to admin users — the backend returns 403 for non-admin requests.
 
 ---
 
@@ -41,7 +41,8 @@ A single page with:
 | Username | `username` | Yes | Primary identifier |
 | Display Name | `display_name` | Yes | |
 | Email | `email` | Yes | |
-| Auth Source | `auth_source` | Yes | "local" or "saml" (future ADR-002) |
+| Auth Source | `auth_source` | Yes | "local" or "saml" |
+| Admin | `is_admin` | Yes | Checkbox/badge indicating admin status |
 | Created | `created_at` | Yes | Formatted date |
 | Actions | — | No | Edit / Delete buttons |
 
@@ -54,6 +55,7 @@ Quasar `q-dialog` with a form:
 | Username | q-input, text | Required |
 | Email | q-input, email | Optional |
 | Display Name | q-input, text | Optional |
+| Admin | q-toggle | Default: false |
 | Password | q-input, password | Required, min 8 chars |
 | Confirm Password | q-input, password | Must match Password |
 
@@ -62,7 +64,9 @@ On 409: show "Username already exists" error.
 
 ### Edit User Dialog
 
-Same q-dialog, pre-populated with existing values. Username is read-only (not editable after creation). Password fields are optional — leave blank to keep current password.
+Same q-dialog, pre-populated with existing values. Username is read-only (not editable after creation). Password fields are optional — leave blank to keep current password. Admin toggle available — but disabled when editing your own account (self-demote guard to prevent lockout).
+
+For SAML users (`auth_source = 'saml'`): email, display name, and password fields are disabled (managed by IdP). Only the admin toggle is editable.
 
 On submit: `Backend.updateUser(id, data)` → success notification → reload table.
 
@@ -106,10 +110,10 @@ Add route under the existing MainLayout children:
 
 #### Update: `ui/src/layouts/MainLayout.vue`
 
-Add sidebar menu item, conditionally shown when `auth.authEnabled` is true:
+Add sidebar menu item, conditionally shown when `auth.authEnabled` is true **and the user is an admin**:
 
 ```vue
-<q-item clickable :to="{ name: 'UserManagement' }" v-if="auth.authEnabled">
+<q-item clickable :to="{ name: 'UserManagement' }" v-if="auth.authEnabled && auth.isAdmin">
   <q-item-section avatar>
     <q-icon name="manage_accounts" />
   </q-item-section>
