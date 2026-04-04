@@ -64,6 +64,7 @@ type Config struct {
 	Views           []model.View     `mapstructure:"views"`
 	UnreportedHours uint64           `mapstructure:"unreported_hours"`
 	StripPathPrefix string           `mapstructure:"strip_path_prefix"`
+	CorsOrigin      string           `mapstructure:"cors_origin"`
 	Auth            AuthConfig `mapstructure:"auth"`
 	PuppetCA        struct {
 		Host            string `mapstructure:"host"`
@@ -117,6 +118,7 @@ func GetConfig() (*Config, error) {
 		viper.SetDefault("puppetdb.tls_ignore", false)
 		viper.SetDefault("unreported_hours", 3)
 		viper.SetDefault("strip_path_prefix", `/etc/puppetlabs/code/environments(/.*?/modules)?`)
+		viper.SetDefault("cors_origin", "")
 		viper.SetDefault("auth.enabled", false)
 		viper.SetDefault("auth.access_token_ttl_minutes", 15)
 		viper.SetDefault("auth.refresh_token_ttl_days", 30)
@@ -147,6 +149,7 @@ func GetConfig() (*Config, error) {
 		viper.BindEnv("puppetdb.tls_cert", "PUPPETDB_TLS_CERT")
 		viper.BindEnv("unreported_hours", "UNREPORTED_HOURS")
 		viper.BindEnv("strip_path_prefix", "STRIP_PATH_PREFIX")
+		viper.BindEnv("cors_origin", "OPENVOXVIEW_CORS_ORIGIN")
 		viper.BindEnv("auth.enabled", "OPENVOXVIEW_AUTH_ENABLED")
 		viper.BindEnv("auth.jwt_secret", "OPENVOXVIEW_AUTH_JWT_SECRET")
 		viper.BindEnv("auth.access_token_ttl_minutes", "OPENVOXVIEW_AUTH_ACCESS_TOKEN_TTL_MINUTES")

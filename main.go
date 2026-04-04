@@ -57,6 +57,9 @@ func main() {
 	log.Printf("PORT: %d", cfg.Port)
 	log.Printf("PUPPETDB_ADDRESS: %s", cfg.GetPuppetDbAddress())
 	log.Printf("TRUSTED_PROXIES: %#v", cfg.TrustedProxies)
+	if cfg.CorsOrigin != "" {
+		log.Printf("CORS: allowing origin %s", cfg.CorsOrigin)
+	}
 
 	// Initialize auth database if auth is enabled
 	var database *db.Database
@@ -119,7 +122,7 @@ func main() {
 	uiFSSub, _ := fs.Sub(uiFS, "ui/dist/spa")
 	r.StaticFS("ui", http.FS(uiFSSub))
 
-	r.Use(AllowCORS)
+	r.Use(CORSMiddleware(cfg.CorsOrigin))
 
 	if len(cfg.TrustedProxies) > 0 {
 		r.SetTrustedProxies(cfg.TrustedProxies)
@@ -242,17 +245,21 @@ func main() {
 	r.Run(fmt.Sprintf("%s:%d", cfg.Listen, cfg.Port))
 }
 
-func AllowCORS(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
-	c.Header("Access-Control-Allow-Headers", "Authorization, *")
-
-	if c.Request.Method == http.MethodOptions {
-		c.Status(http.StatusNoContent)
-		return
+func CORSMiddleware(allowedOrigin string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if allowedOrigin == "" {
+			c.Next()
+			return
+		}
+		c.Header("Access-Control-Allow-Origin", allowedOrigin)
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+		c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+		if c.Request.Method == http.MethodOptions {
+			c.Status(http.StatusNoContent)
+			return
+		}
+		c.Next()
 	}
-
-	c.Next()
 }
 
 func runCreateAdmin(cfg *config.Config) {
