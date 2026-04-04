@@ -112,5 +112,6 @@
   "NOTIFICATION_USER_DELETED": "User deleted successfully",
 
   "BTN_LOGIN_SSO": "Login with SSO",
-  "LABEL_LOGIN_OR": "or"
+  "LABEL_LOGIN_OR": "or",
+  "LABEL_SAML_USER_MANAGED_BY_IDP": "This user is managed by the identity provider. Profile details are updated automatically on each login."
 }

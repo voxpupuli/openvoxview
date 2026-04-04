@@ -33,6 +33,7 @@ const currentUserId = computed(() => {
 });
 
 const isEditing = computed(() => editingUser.value !== null);
+const isSamlUser = computed(() => editingUser.value?.auth_source === 'saml');
 
 const dialogTitle = computed(() =>
   isEditing.value ? t('LABEL_EDIT_USER') : t('LABEL_CREATE_USER'),
@@ -253,6 +254,13 @@ onMounted(() => {
 
         <q-card-section>
           <q-form @submit="onSubmit" class="q-gutter-sm">
+            <q-banner v-if="isSamlUser" dense rounded class="bg-info text-white q-mb-sm">
+              <template v-slot:avatar>
+                <q-icon name="info" />
+              </template>
+              {{ $t('LABEL_SAML_USER_MANAGED_BY_IDP') }}
+            </q-banner>
+
             <q-input
               v-model="formUsername"
               :label="$t('LABEL_USERNAME')"
@@ -268,6 +276,8 @@ onMounted(() => {
               type="email"
               outlined
               dense
+              :readonly="isSamlUser"
+              :disable="isSamlUser"
             />
 
             <q-input
@@ -275,25 +285,29 @@ onMounted(() => {
               :label="$t('LABEL_DISPLAY_NAME')"
               outlined
               dense
+              :readonly="isSamlUser"
+              :disable="isSamlUser"
             />
 
-            <q-input
-              v-model="formPassword"
-              :label="isEditing ? $t('LABEL_NEW_PASSWORD') : $t('LABEL_PASSWORD')"
-              type="password"
-              outlined
-              dense
-              :hint="isEditing ? $t('LABEL_PASSWORD_HINT_EDIT') : ''"
-            />
+            <template v-if="!isSamlUser">
+              <q-input
+                v-model="formPassword"
+                :label="isEditing ? $t('LABEL_NEW_PASSWORD') : $t('LABEL_PASSWORD')"
+                type="password"
+                outlined
+                dense
+                :hint="isEditing ? $t('LABEL_PASSWORD_HINT_EDIT') : ''"
+              />
 
-            <q-input
-              v-model="formPasswordConfirm"
-              :label="$t('LABEL_CONFIRM_PASSWORD')"
-              type="password"
-              outlined
-              dense
-              v-if="formPassword"
-            />
+              <q-input
+                v-model="formPasswordConfirm"
+                :label="$t('LABEL_CONFIRM_PASSWORD')"
+                type="password"
+                outlined
+                dense
+                v-if="formPassword"
+              />
+            </template>
 
             <q-banner v-if="formError" dense rounded class="bg-negative text-white q-mt-sm">
               {{ formError }}
@@ -302,6 +316,7 @@ onMounted(() => {
             <div class="row justify-end q-gutter-sm q-mt-md">
               <q-btn flat :label="$t('BTN_CLOSE')" v-close-popup />
               <q-btn
+                v-if="!isSamlUser"
                 type="submit"
                 color="primary"
                 :label="isEditing ? $t('BTN_SAVE') : $t('BTN_CREATE')"
