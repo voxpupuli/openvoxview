@@ -59,11 +59,11 @@ Manual test plan for local user authentication.
 
 ### Visibility
 - [x] **"Users" menu item visible** in sidebar when auth is enabled
-- [ ] **"Users" menu item hidden** when auth is disabled
+- [x] **"Users" menu item hidden** when auth is disabled
 
 ### User Table
-- [ ] **Users page loads** — shows table with all users, columns: Username, Display Name, Email, Auth Source, Created, Actions
-- [ ] **Refresh button** — reloads the user list
+- [x] **Users page loads** — shows table with all users, columns: Username, Display Name, Email, Auth Source, Created, Actions
+- [x] **Refresh button** — reloads the user list
 
 ### Create User
 - [x] **Click "Add User"** — opens create dialog with empty fields
@@ -77,16 +77,58 @@ Manual test plan for local user authentication.
 ### Edit User
 - [x] **Click edit icon on a user row** — opens dialog pre-populated with user data
 - [x] **Username field is read-only** in edit mode
-- [ ] **Update display name / email** — saves, success notification, table refreshes
-- [ ] **Change password** — confirm password field appears, saves new password
+- [x] **Update display name / email** — saves, success notification, table refreshes
+- [x] **Change password** — confirm password field appears, saves new password
 - [x] **Leave password blank** — keeps existing password unchanged
 - [x] **Cancel button** — closes dialog without saving
 
 ### Delete User
-- [ ] **Click delete icon** — shows confirmation dialog with username
-- [ ] **Confirm delete** — user removed, success notification, table refreshes
-- [ ] **Cancel delete** — dialog closes, user not deleted
-- [ ] **Delete button disabled on own row** — tooltip shows "Cannot delete your own account"
+- [x] **Click delete icon** — shows confirmation dialog with username
+- [x] **Confirm delete** — user removed, success notification, table refreshes
+- [x] **Cancel delete** — dialog closes, user not deleted
+- [x] **Delete button disabled on own row** — tooltip shows "Cannot delete your own account"
 
 ### i18n
-- [ ] **German locale** — all labels, buttons, and messages display in German
+- [x] **German locale** — all labels, buttons, and messages display in German
+
+## SAML Authentication (ADR-002)
+
+### Configuration
+- [x] **App Federation Metadata URL** — must use the app-specific URL with `?appid=` parameter
+- [x] **Missing SP cert files** — server should fail to start with clear error
+- [x] **Missing IdP metadata URL and file** — server should fail to start with clear error
+- [x] **Invalid IdP metadata URL** — server should fail to start with clear error
+
+### SSO Login Flow
+- [x] **SSO button visible** on login page when `auth.saml.enabled: true`
+- [x] **SSO button hidden** when `auth.saml.enabled: false`
+- [x] **Click "Login with SSO"** — redirects to EntraID login
+- [x] **Authenticate at EntraID** — redirected back to OpenVox View, logged in, lands on Dashboard
+- [x] **SAML user auto-provisioned** — user appears in `GET /api/v1/auth/users` with `auth_source: saml`
+- [x] **SAML user profile attributes** — email, display name, given name, surname populated from IdP claims
+- [x] **Repeat SAML login** — profile attributes updated (upsert), no duplicate user created
+- [ ] **SAML user cannot local login** — attempting local login with SAML user's email should fail
+
+### Session Behavior
+- [ ] **Token refresh works for SAML users** — after access token expires, silent refresh works
+- [x] **Logout works for SAML users** — click Logout, redirected to login page
+- [x] **After SAML logout, press back button** — should not access protected content
+
+### Coexistence with Local Auth
+- [x] **Local login still works** when SAML is enabled — both buttons on login page
+- [x] **Local user and SAML user can coexist** — different auth_source values
+- [x] **Break-glass admin** — local admin account works even if IdP is unreachable
+
+### SP Metadata
+- [ ] **`GET /api/v1/auth/saml/metadata`** — returns valid XML with SP entity ID, ACS URL, and certificate
+
+### CLI
+- [x] **`--generate-saml-cert`** — creates `saml-sp.crt` and `saml-sp.key` in current directory
+
+### User Management UI
+- [x] **SAML users visible** in Users table with auth source "saml"
+- [x] **SAML user edit dialog** — shows info banner "managed by identity provider"
+- [x] **SAML user email/display name disabled** — fields are greyed out, not editable
+- [x] **SAML user password fields hidden** — no password fields shown for SAML users
+- [x] **SAML user save button hidden** — only Close button available
+- [x] **SAML users deletable** — can delete a SAML-provisioned user

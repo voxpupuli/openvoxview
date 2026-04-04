@@ -170,7 +170,11 @@ func GetConfig() (*Config, error) {
 		viper.BindEnv("puppetca.readonly", "PUPPETCA_READONLY")
 		viper.BindEnv("puppetca.deactivate_nodes", "PUPPETCA_DEACTIVATE_NODES")
 
-		viper.ReadInConfig()
+		if err := viper.ReadInConfig(); err != nil {
+			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+				log.Printf("WARNING: Failed to read config file: %v", err)
+			}
+		}
 
 		var cfg Config
 		cachedErr = viper.Unmarshal(&cfg)
