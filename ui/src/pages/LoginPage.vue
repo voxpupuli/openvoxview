@@ -8,7 +8,7 @@
       </q-card-section>
 
       <q-card-section>
-        <q-form @submit="onLogin" class="q-gutter-md">
+        <q-form @submit="onLogin" class="q-gutter-y-md">
           <q-input
             v-model="username"
             label="Username"
