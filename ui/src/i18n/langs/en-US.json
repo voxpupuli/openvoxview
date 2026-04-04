@@ -111,6 +111,9 @@
   "NOTIFICATION_USER_UPDATED": "User updated successfully",
   "NOTIFICATION_USER_DELETED": "User deleted successfully",
 
+  "LABEL_ADMIN": "Admin",
+  "LABEL_CANNOT_DEMOTE_SELF": "You cannot remove your own admin role",
+
   "BTN_LOGIN_SSO": "Login with SSO",
   "LABEL_LOGIN_OR": "or",
   "LABEL_SAML_USER_MANAGED_BY_IDP": "This user is managed by the identity provider. Profile details are updated automatically on each login."

@@ -19,6 +19,7 @@ const formEmail = ref('');
 const formDisplayName = ref('');
 const formPassword = ref('');
 const formPasswordConfirm = ref('');
+const formIsAdmin = ref(false);
 const formError = ref('');
 const formLoading = ref(false);
 
@@ -74,6 +75,13 @@ const columns: QTableColumn[] = [
     sortable: true,
   },
   {
+    name: 'is_admin',
+    field: 'is_admin',
+    label: t('LABEL_ADMIN'),
+    align: 'center',
+    sortable: true,
+  },
+  {
     name: 'created_at',
     field: 'created_at',
     label: t('LABEL_CREATED'),
@@ -105,6 +113,7 @@ function openCreateDialog() {
   formDisplayName.value = '';
   formPassword.value = '';
   formPasswordConfirm.value = '';
+  formIsAdmin.value = false;
   formError.value = '';
   showDialog.value = true;
 }
@@ -116,6 +125,7 @@ function openEditDialog(user: UserProfile) {
   formDisplayName.value = user.display_name || '';
   formPassword.value = '';
   formPasswordConfirm.value = '';
+  formIsAdmin.value = user.is_admin;
   formError.value = '';
   showDialog.value = true;
 }
@@ -147,9 +157,10 @@ async function onSubmit() {
 
   try {
     if (isEditing.value && editingUser.value) {
-      const data: { email?: string; display_name?: string; password?: string } = {
+      const data: { email?: string; display_name?: string; password?: string; is_admin?: boolean } = {
         email: formEmail.value,
         display_name: formDisplayName.value,
+        is_admin: formIsAdmin.value,
       };
       if (formPassword.value) {
         data.password = formPassword.value;
@@ -157,9 +168,10 @@ async function onSubmit() {
       await Backend.updateUser(editingUser.value.id, data);
       Notify.create({ message: t('NOTIFICATION_USER_UPDATED'), color: 'positive' });
     } else {
-      const createData: { username: string; password: string; email?: string; display_name?: string } = {
+      const createData: { username: string; password: string; email?: string; display_name?: string; is_admin?: boolean } = {
         username: formUsername.value.trim(),
         password: formPassword.value,
+        is_admin: formIsAdmin.value,
       };
       if (formEmail.value) createData.email = formEmail.value;
       if (formDisplayName.value) createData.display_name = formDisplayName.value;
@@ -238,6 +250,9 @@ onMounted(() => {
                 </q-tooltip>
               </q-btn>
             </div>
+            <div v-else-if="col.name === 'is_admin'">
+              <q-icon v-if="props.row.is_admin" name="check_circle" color="positive" size="sm" />
+            </div>
             <div v-else>
               {{ col.value }}
             </div>
@@ -288,6 +303,18 @@ onMounted(() => {
               :readonly="isSamlUser"
               :disable="isSamlUser"
             />
+
+            <q-toggle
+              v-model="formIsAdmin"
+              :label="$t('LABEL_ADMIN')"
+              :disable="isEditing && editingUser?.id === currentUserId"
+            />
+            <q-banner v-if="isEditing && editingUser?.id === currentUserId" dense rounded class="bg-warning text-dark q-mb-sm">
+              <template v-slot:avatar>
+                <q-icon name="warning" />
+              </template>
+              {{ $t('LABEL_CANNOT_DEMOTE_SELF') }}
+            </q-banner>
 
             <template v-if="!isSamlUser">
               <q-input

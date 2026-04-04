@@ -33,6 +33,7 @@ export interface UserProfile {
   given_name: string
   surname: string
   auth_source: string
+  is_admin: boolean
   created_at: string
   updated_at: string
 }
@@ -42,10 +43,12 @@ export interface CreateUserRequest {
   password: string
   email?: string
   display_name?: string
+  is_admin?: boolean
 }
 
 export interface UpdateUserRequest {
   email?: string
   display_name?: string
   password?: string
+  is_admin?: boolean
 }

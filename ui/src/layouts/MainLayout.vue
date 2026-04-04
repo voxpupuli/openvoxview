@@ -136,7 +136,7 @@
           </q-item-section>
         </q-item>
 
-        <q-item clickable :to="{ name: 'UserManagement' }" v-if="auth.authEnabled">
+        <q-item clickable :to="{ name: 'UserManagement' }" v-if="auth.authEnabled && auth.isAdmin">
           <q-item-section avatar>
             <q-icon name="manage_accounts" />
           </q-item-section>

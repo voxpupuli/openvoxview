@@ -24,6 +24,7 @@ type User struct {
 	Surname      string    `json:"surname,omitempty"`
 	PasswordHash string    `json:"-"`
 	AuthSource   string    `json:"auth_source"`
+	IsAdmin      bool      `json:"is_admin"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
@@ -36,16 +37,16 @@ func HashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-func (d *Database) CreateUser(username, email, displayName, password string) (*User, error) {
+func (d *Database) CreateUser(username, email, displayName, password string, isAdmin bool) (*User, error) {
 	hash, err := HashPassword(password)
 	if err != nil {
 		return nil, err
 	}
 
 	result, err := d.db.Exec(
-		`INSERT INTO users (username, email, display_name, password_hash, auth_source)
-		 VALUES (?, ?, ?, ?, 'local')`,
-		username, email, displayName, hash,
+		`INSERT INTO users (username, email, display_name, password_hash, auth_source, is_admin)
+		 VALUES (?, ?, ?, ?, 'local', ?)`,
+		username, email, displayName, hash, isAdmin,
 	)
 	if err != nil {
 		if isUniqueConstraintError(err) {
@@ -63,11 +64,11 @@ func (d *Database) GetUserByID(id int64) (*User, error) {
 	err := d.db.QueryRow(
 		`SELECT id, username, COALESCE(email,''), COALESCE(display_name,''),
 		        COALESCE(given_name,''), COALESCE(surname,''),
-		        COALESCE(password_hash,''), auth_source, created_at, updated_at
+		        COALESCE(password_hash,''), auth_source, is_admin, created_at, updated_at
 		 FROM users WHERE id = ?`, id,
 	).Scan(&user.ID, &user.Username, &user.Email, &user.DisplayName,
 		&user.GivenName, &user.Surname, &user.PasswordHash,
-		&user.AuthSource, &user.CreatedAt, &user.UpdatedAt)
+		&user.AuthSource, &user.IsAdmin, &user.CreatedAt, &user.UpdatedAt)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrUserNotFound
@@ -83,11 +84,11 @@ func (d *Database) GetUserByUsername(username string) (*User, error) {
 	err := d.db.QueryRow(
 		`SELECT id, username, COALESCE(email,''), COALESCE(display_name,''),
 		        COALESCE(given_name,''), COALESCE(surname,''),
-		        COALESCE(password_hash,''), auth_source, created_at, updated_at
+		        COALESCE(password_hash,''), auth_source, is_admin, created_at, updated_at
 		 FROM users WHERE username = ?`, username,
 	).Scan(&user.ID, &user.Username, &user.Email, &user.DisplayName,
 		&user.GivenName, &user.Surname, &user.PasswordHash,
-		&user.AuthSource, &user.CreatedAt, &user.UpdatedAt)
+		&user.AuthSource, &user.IsAdmin, &user.CreatedAt, &user.UpdatedAt)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, ErrUserNotFound
@@ -122,7 +123,7 @@ func (d *Database) ListUsers() ([]User, error) {
 	rows, err := d.db.Query(
 		`SELECT id, username, COALESCE(email,''), COALESCE(display_name,''),
 		        COALESCE(given_name,''), COALESCE(surname,''),
-		        auth_source, created_at, updated_at
+		        auth_source, is_admin, created_at, updated_at
 		 FROM users ORDER BY username`,
 	)
 	if err != nil {
@@ -134,7 +135,7 @@ func (d *Database) ListUsers() ([]User, error) {
 	for rows.Next() {
 		var u User
 		if err := rows.Scan(&u.ID, &u.Username, &u.Email, &u.DisplayName,
-			&u.GivenName, &u.Surname, &u.AuthSource, &u.CreatedAt, &u.UpdatedAt); err != nil {
+			&u.GivenName, &u.Surname, &u.AuthSource, &u.IsAdmin, &u.CreatedAt, &u.UpdatedAt); err != nil {
 			return nil, fmt.Errorf("failed to scan user: %w", err)
 		}
 		users = append(users, u)
@@ -146,26 +147,43 @@ func (d *Database) ListUsers() ([]User, error) {
 	return users, rows.Err()
 }
 
-func (d *Database) UpdateUser(id int64, email, displayName *string, password *string) (*User, error) {
+func (d *Database) UpdateUser(id int64, email, displayName *string, password *string, isAdmin *bool) (*User, error) {
 	if password != nil {
 		hash, err := HashPassword(*password)
 		if err != nil {
 			return nil, err
 		}
-		_, err = d.db.Exec(
-			`UPDATE users SET email = COALESCE(?, email), display_name = COALESCE(?, display_name),
-			 password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-			email, displayName, hash, id,
-		)
+		if isAdmin != nil {
+			_, err = d.db.Exec(
+				`UPDATE users SET email = COALESCE(?, email), display_name = COALESCE(?, display_name),
+				 password_hash = ?, is_admin = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+				email, displayName, hash, *isAdmin, id,
+			)
+		} else {
+			_, err = d.db.Exec(
+				`UPDATE users SET email = COALESCE(?, email), display_name = COALESCE(?, display_name),
+				 password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+				email, displayName, hash, id,
+			)
+		}
 		if err != nil {
 			return nil, fmt.Errorf("failed to update user: %w", err)
 		}
 	} else {
-		_, err := d.db.Exec(
-			`UPDATE users SET email = COALESCE(?, email), display_name = COALESCE(?, display_name),
-			 updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-			email, displayName, id,
-		)
+		var err error
+		if isAdmin != nil {
+			_, err = d.db.Exec(
+				`UPDATE users SET email = COALESCE(?, email), display_name = COALESCE(?, display_name),
+				 is_admin = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+				email, displayName, *isAdmin, id,
+			)
+		} else {
+			_, err = d.db.Exec(
+				`UPDATE users SET email = COALESCE(?, email), display_name = COALESCE(?, display_name),
+				 updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+				email, displayName, id,
+			)
+		}
 		if err != nil {
 			return nil, fmt.Errorf("failed to update user: %w", err)
 		}

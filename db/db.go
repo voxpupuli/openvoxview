@@ -59,6 +59,7 @@ func (d *Database) migrate() error {
 			surname       TEXT,
 			password_hash TEXT,
 			auth_source   TEXT NOT NULL DEFAULT 'local',
+			is_admin      BOOLEAN NOT NULL DEFAULT FALSE,
 			created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 		)`,

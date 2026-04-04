@@ -12,6 +12,7 @@ export const useAuthStore = defineStore(
     const displayName = ref<string | null>(null);
     const expiresAt = ref<number | null>(null);
     const authEnabled = ref<boolean | null>(null);
+    const isAdmin = ref<boolean>(false);
 
     const isAuthenticated = computed(() => {
       if (authEnabled.value === false) return true;
@@ -40,6 +41,7 @@ export const useAuthStore = defineStore(
         username.value = payload.username || null;
         email.value = payload.email || null;
         displayName.value = payload.display_name || null;
+        isAdmin.value = payload.is_admin === true;
       } catch {
         // If decoding fails, keep existing values
       }
@@ -52,6 +54,7 @@ export const useAuthStore = defineStore(
       email.value = null;
       displayName.value = null;
       expiresAt.value = null;
+      isAdmin.value = false;
     }
 
     function setAuthEnabled(enabled: boolean) {
@@ -66,6 +69,7 @@ export const useAuthStore = defineStore(
       displayName,
       expiresAt,
       authEnabled,
+      isAdmin,
       isAuthenticated,
       needsRefresh,
       setAuth,

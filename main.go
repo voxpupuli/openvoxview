@@ -213,10 +213,16 @@ func main() {
 			{
 				auth.POST("logout", protectedAuthHandler.Logout)
 				auth.GET("me", protectedAuthHandler.Me)
-				auth.GET("users", protectedAuthHandler.ListUsers)
-				auth.POST("users", protectedAuthHandler.CreateUser)
-				auth.PUT("users/:id", protectedAuthHandler.UpdateUser)
-				auth.DELETE("users/:id", protectedAuthHandler.DeleteUser)
+
+				// Admin-only user management endpoints
+				admin := auth.Group("")
+				admin.Use(middleware.AdminRequiredMiddleware())
+				{
+					admin.GET("users", protectedAuthHandler.ListUsers)
+					admin.POST("users", protectedAuthHandler.CreateUser)
+					admin.PUT("users/:id", protectedAuthHandler.UpdateUser)
+					admin.DELETE("users/:id", protectedAuthHandler.DeleteUser)
+				}
 			}
 		}
 	}
@@ -287,12 +293,12 @@ func runCreateAdmin(cfg *config.Config) {
 		log.Fatal("Passwords do not match")
 	}
 
-	user, err := database.CreateUser(username, email, displayName, password)
+	user, err := database.CreateUser(username, email, displayName, password, true)
 	if err != nil {
 		log.Fatalf("Failed to create user: %v", err)
 	}
 
-	fmt.Printf("Admin user created: %s (id: %d)\n", user.Username, user.ID)
+	fmt.Printf("Admin user created: %s (id: %d, is_admin: true)\n", user.Username, user.ID)
 }
 
 func generateRandomSecret() string {

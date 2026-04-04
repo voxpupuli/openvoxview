@@ -65,12 +65,14 @@ type createUserRequest struct {
 	Password    string `json:"password" binding:"required,min=8"`
 	Email       string `json:"email"`
 	DisplayName string `json:"display_name"`
+	IsAdmin     bool   `json:"is_admin"`
 }
 
 type updateUserRequest struct {
 	Email       *string `json:"email"`
 	DisplayName *string `json:"display_name"`
 	Password    *string `json:"password"`
+	IsAdmin     *bool   `json:"is_admin"`
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -185,7 +187,7 @@ func (h *AuthHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.database.CreateUser(req.Username, req.Email, req.DisplayName, req.Password)
+	user, err := h.database.CreateUser(req.Username, req.Email, req.DisplayName, req.Password, req.IsAdmin)
 	if err != nil {
 		if errors.Is(err, db.ErrUsernameExists) {
 			c.AbortWithStatusJSON(http.StatusConflict, NewErrorResponse(err))
@@ -213,7 +215,15 @@ func (h *AuthHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := h.database.UpdateUser(id, req.Email, req.DisplayName, req.Password)
+	// Self-demote guard: prevent admin from removing their own admin flag
+	currentUserIDStr, _ := c.Get("user_id")
+	currentUserID, _ := strconv.ParseInt(currentUserIDStr.(string), 10, 64)
+	if id == currentUserID && req.IsAdmin != nil && !*req.IsAdmin {
+		c.AbortWithStatusJSON(http.StatusForbidden, NewErrorResponse(errors.New("cannot remove your own admin role")))
+		return
+	}
+
+	user, err := h.database.UpdateUser(id, req.Email, req.DisplayName, req.Password, req.IsAdmin)
 	if err != nil {
 		if errors.Is(err, db.ErrUserNotFound) {
 			c.AbortWithStatusJSON(http.StatusNotFound, NewErrorResponse(err))
@@ -258,7 +268,7 @@ func (h *AuthHandler) DeleteUser(c *gin.Context) {
 
 func (h *AuthHandler) issueTokenPair(user *db.User) (*loginResponse, error) {
 	accessToken, expiresAt, err := middleware.GenerateAccessToken(
-		user.ID, user.Username, user.Email, user.DisplayName,
+		user.ID, user.Username, user.Email, user.DisplayName, user.IsAdmin,
 		h.config.Auth.JwtSecret, h.config.Auth.AccessTokenTTL,
 	)
 	if err != nil {

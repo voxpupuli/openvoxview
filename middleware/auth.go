@@ -17,16 +17,18 @@ type UserClaims struct {
 	Username    string `json:"username"`
 	Email       string `json:"email,omitempty"`
 	DisplayName string `json:"display_name,omitempty"`
+	IsAdmin     bool   `json:"is_admin"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userID int64, username, email, displayName, secret string, ttlMinutes int) (string, int64, error) {
+func GenerateAccessToken(userID int64, username, email, displayName string, isAdmin bool, secret string, ttlMinutes int) (string, int64, error) {
 	expiresAt := time.Now().Add(time.Duration(ttlMinutes) * time.Minute)
 
 	claims := UserClaims{
 		Username:    username,
 		Email:       email,
 		DisplayName: displayName,
+		IsAdmin:     isAdmin,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   strconv.FormatInt(userID, 10),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -65,6 +67,18 @@ func JWTAuthMiddleware(cfg *config.Config) gin.HandlerFunc {
 
 		c.Set("user_id", claims.Subject)
 		c.Set("username", claims.Username)
+		c.Set("is_admin", claims.IsAdmin)
+		c.Next()
+	}
+}
+
+func AdminRequiredMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		isAdmin, exists := c.Get("is_admin")
+		if !exists || !isAdmin.(bool) {
+			c.AbortWithStatusJSON(http.StatusForbidden, errorResponse("admin access required"))
+			return
+		}
 		c.Next()
 	}
 }
