@@ -275,6 +275,15 @@ function samlLogin() {
 </template>
 ```
 
+### User Management UI — SAML users are read-only
+
+The IdP is the source of truth for SAML user profiles. When editing a SAML user (`auth_source = 'saml'`) in the User Management page:
+
+- **Email** and **Display Name** fields are disabled (managed by IdP)
+- **Password** fields are hidden (SAML users have no local password)
+- **Save** button is hidden (no editable fields)
+- An info banner explains that the profile is managed by the identity provider and updated on each login
+
 No other frontend files need changes — the auth store, axios interceptors, router guard, and token refresh logic from ADR-001 all work unchanged for SAML-authenticated users.
 
 ---
