@@ -1,6 +1,6 @@
-# Authentication Test Plan (ADR-001)
+# Authentication Test Plan (ADR-001, ADR-002, ADR-003, ADR-004)
 
-Manual test plan for local user authentication.
+Manual test plan for authentication, user management, and security hardening.
 
 ## Authentication Flow
 
@@ -38,6 +38,14 @@ Manual test plan for local user authentication.
 - [x] **Update user**: `PUT /api/v1/auth/users/2` with `{"display_name":"Test User"}` — should update
 - [x] **Delete user**: `DELETE /api/v1/auth/users/2` — should delete
 - [x] **Self-delete guard**: try deleting your own user ID — should return 403 "cannot delete your own account"
+- [x] **Admin-only guard**: as non-admin user, `GET /api/v1/auth/users` — should return 403 "admin access required"
+- [x] **Admin-only guard**: as non-admin user, `POST /api/v1/auth/users` — should return 403
+- [x] **Admin-only guard**: as non-admin user, `PUT /api/v1/auth/users/:id` — should return 403
+- [x] **Admin-only guard**: as non-admin user, `DELETE /api/v1/auth/users/:id` — should return 403
+- [x] **Create user with is_admin**: `POST /api/v1/auth/users` with `{"username":"adminuser","password":"test12345678","is_admin":true}` — should create admin user
+- [x] **Update user is_admin**: `PUT /api/v1/auth/users/:id` with `{"is_admin":true}` — should promote user to admin
+- [x] **Self-demote guard**: try setting your own `is_admin` to `false` — should return 403 "cannot remove your own admin role"
+- [x] **Password min length on update**: `PUT /api/v1/auth/users/:id` with `{"password":"short"}` — should return 400
 - [x] **Login as newly created user** — should work
 
 ## Auth Disabled Mode
@@ -47,6 +55,7 @@ Manual test plan for local user authentication.
 ## CLI
 
 - [x] **`--create-admin`** — creates user interactively, confirm it shows in `GET /api/v1/auth/users`
+- [x] **`--create-admin` sets is_admin** — created user should have `is_admin: true`
 - [x] **`--create-admin` with mismatched passwords** — should abort with error
 
 ## UI Elements
@@ -58,16 +67,20 @@ Manual test plan for local user authentication.
 ## User Management UI (ADR-003)
 
 ### Visibility
-- [x] **"Users" menu item visible** in sidebar when auth is enabled
+- [x] **"Users" menu item visible** in sidebar only when auth is enabled **and user is admin**
+- [x] **"Users" menu item hidden** for non-admin users
 - [x] **"Users" menu item hidden** when auth is disabled
 
 ### User Table
-- [x] **Users page loads** — shows table with all users, columns: Username, Display Name, Email, Auth Source, Created, Actions
+- [x] **Users page loads** — shows table with all users, columns: Username, Display Name, Email, Auth Source, Admin, Created, Actions
+- [x] **Admin column** — shows check icon for admin users, empty for non-admins
 - [x] **Refresh button** — reloads the user list
 
 ### Create User
 - [x] **Click "Add User"** — opens create dialog with empty fields
+- [x] **Admin toggle** — create dialog has admin toggle, defaults to off
 - [x] **Submit with valid data** — user created, success notification, table refreshes
+- [x] **Submit with admin toggle on** — user created with `is_admin: true`
 - [x] **Submit with missing username** — shows "Username is required" error
 - [x] **Submit with short password** (< 8 chars) — shows "Password must be at least 8 characters"
 - [x] **Submit with mismatched passwords** — shows "Passwords do not match"
@@ -77,6 +90,9 @@ Manual test plan for local user authentication.
 ### Edit User
 - [x] **Click edit icon on a user row** — opens dialog pre-populated with user data
 - [x] **Username field is read-only** in edit mode
+- [x] **Admin toggle pre-populated** — reflects current is_admin state
+- [x] **Admin toggle on own account disabled** — shows warning banner "Cannot remove your own admin role"
+- [x] **Change admin toggle on other user** — saves, user promoted/demoted
 - [x] **Update display name / email** — saves, success notification, table refreshes
 - [x] **Change password** — confirm password field appears, saves new password
 - [x] **Leave password blank** — keeps existing password unchanged
@@ -107,7 +123,7 @@ Manual test plan for local user authentication.
 - [x] **SAML user auto-provisioned** — user appears in `GET /api/v1/auth/users` with `auth_source: saml`
 - [x] **SAML user profile attributes** — email, display name, given name, surname populated from IdP claims
 - [x] **Repeat SAML login** — profile attributes updated (upsert), no duplicate user created
-- [ ] **SAML user cannot local login** — attempting local login with SAML user's email should fail
+- [x] **SAML user cannot local login** — attempting local login with SAML user's email should fail
 
 ### Session Behavior
 - [x] **Token refresh works for SAML users** — after access token expires, silent refresh works
@@ -130,5 +146,6 @@ Manual test plan for local user authentication.
 - [x] **SAML user edit dialog** — shows info banner "managed by identity provider"
 - [x] **SAML user email/display name disabled** — fields are greyed out, not editable
 - [x] **SAML user password fields hidden** — no password fields shown for SAML users
-- [x] **SAML user save button hidden** — only Close button available
+- [x] **SAML user admin toggle editable** — admin toggle works for SAML users
+- [x] **SAML user save button visible** — save button shown to allow admin toggle changes
 - [x] **SAML users deletable** — can delete a SAML-provisioned user
