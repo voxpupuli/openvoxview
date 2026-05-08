@@ -1,16 +1,14 @@
 package model
 
-import "time"
-
 type Node struct {
 	// Fields in OpenVoxDB nodes response format:
 	// https://github.com/OpenVoxProject/openvoxdb/blob/8.12.1/documentation/api/query/v4/nodes.markdown#response-format
-	Name                    string     `json:"certname"`
-	Deactivated             *time.Time `json:"deactivated"`
-	Expired                 *time.Time `json:"expired"`
-	CatalogTimestamp        *time.Time `json:"catalog_timestamp"`
-	FactsTimestamp          *time.Time `json:"facts_timestamp"`
-	ReportTimestamp         *time.Time `json:"report_timestamp"`
+	Name                    string      `json:"certname"`
+	Deactivated             *PuppetTime `json:"deactivated"`
+	Expired                 *PuppetTime `json:"expired"`
+	CatalogTimestamp        *PuppetTime `json:"catalog_timestamp"`
+	FactsTimestamp          *PuppetTime `json:"facts_timestamp"`
+	ReportTimestamp         *PuppetTime `json:"report_timestamp"`
 	CatalogEnvironment      *string    `json:"catalog_environment"`
 	FactsEnvironment        *string    `json:"facts_environment"`
 	ReportEnvironment       *string    `json:"report_environment"`
