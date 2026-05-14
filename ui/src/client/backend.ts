@@ -1,6 +1,6 @@
 import { api } from 'boot/axios';
 import type { AxiosPromise } from 'axios';
-import type { ApiMeta, ApiVersion, BaseResponse } from 'src/client/models';
+import type { ApiMeta, ApiVersion, BaseResponse, LoginResponse, UserProfile, CreateUserRequest, UpdateUserRequest } from 'src/client/models';
 import type PqlQuery from 'src/puppet/query-builder';
 import type {
   ApiPredefinedView,
@@ -90,6 +90,38 @@ class Backend {
 
   cleanCertificate(name: string): AxiosPromise<BaseResponse<null>> {
     return api.delete(`/api/v1/ca/status/${name}`);
+  }
+
+  login(username: string, password: string): AxiosPromise<BaseResponse<LoginResponse>> {
+    return api.post('/api/v1/auth/login', { username, password });
+  }
+
+  refreshToken(token: string): AxiosPromise<BaseResponse<LoginResponse>> {
+    return api.post('/api/v1/auth/refresh', { refresh_token: token });
+  }
+
+  logout(refreshToken: string): AxiosPromise<BaseResponse<null>> {
+    return api.post('/api/v1/auth/logout', { refresh_token: refreshToken });
+  }
+
+  getMe(): AxiosPromise<BaseResponse<UserProfile>> {
+    return api.get('/api/v1/auth/me');
+  }
+
+  getUsers(): AxiosPromise<BaseResponse<UserProfile[]>> {
+    return api.get('/api/v1/auth/users');
+  }
+
+  createUser(data: CreateUserRequest): AxiosPromise<BaseResponse<UserProfile>> {
+    return api.post('/api/v1/auth/users', data);
+  }
+
+  updateUser(id: number, data: UpdateUserRequest): AxiosPromise<BaseResponse<UserProfile>> {
+    return api.put(`/api/v1/auth/users/${id}`, data);
+  }
+
+  deleteUser(id: number): AxiosPromise<BaseResponse<null>> {
+    return api.delete(`/api/v1/auth/users/${id}`);
   }
 }
 

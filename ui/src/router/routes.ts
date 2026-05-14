@@ -2,6 +2,18 @@ import { type RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
   {
+    path: '/login',
+    component: () => import('layouts/AuthLayout.vue'),
+    children: [
+      {
+        name: 'Login',
+        path: '',
+        component: () => import('pages/LoginPage.vue'),
+        meta: { public: true },
+      },
+    ],
+  },
+  {
     path: '/',
     redirect: { name: 'Dashboard' },
     component: () => import('layouts/MainLayout.vue'),
@@ -55,6 +67,11 @@ const routes: RouteRecordRaw[] = [
         name: 'CA',
         path: 'ca',
         component: () => import('pages/ca/CAOverviewPage.vue'),
+      },
+      {
+        name: 'UserManagement',
+        path: 'users',
+        component: () => import('pages/admin/UserManagementPage.vue'),
       },
     ],
   },
