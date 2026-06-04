@@ -81,5 +81,12 @@
   "LABEL_CONFIRM_REVOKE_MESSAGE": "Are you sure you want to revoke the certificate for {certname}?",
   "LABEL_CLEAN": "Clean",
   "LABEL_CONFIRM_CLEAN_TITLE": "Clean certificate?",
-  "LABEL_CONFIRM_CLEAN_MESSAGE": "Are you sure you want to clean (delete) the certificate for {certname}?"
+  "LABEL_CONFIRM_CLEAN_MESSAGE": "Are you sure you want to clean (delete) the certificate for {certname}?",
+  "SECOND": "second|seconds",
+  "MINUTE": "minute|minutes",
+  "HOUR": "hour|hours",
+  "LABEL_OFF": "Off",
+  "LABEL_LAST_REFRESH": "Last refresh",
+  "LABEL_AUTO_REFRESH_OFF": "Auto refresh off",
+  "LABEL_REFRESH": "Refresh"
 }

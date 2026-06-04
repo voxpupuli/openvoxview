@@ -6,30 +6,32 @@ Default it will look for a config.yaml in the current directory,
 but you can pass the -config parameter to define the location of the config file
 
 ## Options
-| Option                    | Environment Variable      | Default   | Type   | Description                                          |
-|---------------------------|---------------------------|-----------|--------|------------------------------------------------------|
-| listen                    | LISTEN                    | localhost | string | Listen host/ip                                       |
-| port                      | PORT                      | 5000      | int    | Listen to port                                       |
-| puppetdb.host             | PUPPETDB_HOST             | localhost | string | Address of puppetdb                                  |
-| puppetdb.port             | PUPPETDB_PORT             | 8080      | int    | Port of puppetdb                                     |
-| puppetdb.tls              | PUPPETDB_TLS              | false     | bool   | Communicate over tls with puppetdb                   |
-| puppetdb.tls_ignore       | PUPPETDB_TLS_IGNORE       | false     | bool   | Ignore validation of tls certificate                 |
-| puppetdb.tls_ca           | PUPPETDB_TLS_CA           |           | string | Path to ca cert file for puppetdb                    |
-| puppetdb.tls_key          | PUPPETDB_TLS_KEY          |           | string | Path to client key file for puppetdb                 |
-| puppetdb.tls_crt          | PUPPETDB_TLS_CERT         |           | string | Path to client cert file for puppetdb                |
-| queries                   |                           |           | array  | predefined queries (see query table)                 |
-| views                     |                           |           | array  | predefined views (see view table)                    |
-| trusted_proxies           | TRUSTED_PROXIES           |           | array  | List of trusted proxies (env var is space seperated) |
-| strip_path_prefix         | STRIP_PATH_PREFIX         |           | string | Strip base paths from Puppet code locations          |
-| puppetca.host             | PUPPETCA_HOST             |           | string | Address of Puppet CA server (optional)               |
-| puppetca.port             | PUPPETCA_PORT             | 8140      | int    | Port of Puppet CA server                             |
-| puppetca.tls              | PUPPETCA_TLS              | true      | bool   | Use TLS for Puppet CA communications                 |
-| puppetca.tls_ignore       | PUPPETCA_TLS_IGNORE       | false     | bool   | Ignore validation of TLS certificate                 |
-| puppetca.tls_ca           | PUPPETCA_TLS_CA           |           | string | Path to CA cert file for Puppet CA                   |
-| puppetca.tls_key          | PUPPETCA_TLS_KEY          |           | string | Path to client key file for Puppet CA                |
-| puppetca.tls_crt          | PUPPETCA_TLS_CERT         |           | string | Path to client cert file for Puppet CA               |
-| puppetca.readonly         | PUPPETCA_READONLY         | true      | bool   | Whether to allow signing / revoking / cleaning certs |
-| puppetca.deactivate_nodes | PUPPETCA_DEACTIVATE_NODES | false     | bool   | Also deactivate node in PuppetDB with revoke / clean |
+| Option                                 | Environment Variable                   | Default   | Type   | Description                                                                                  |
+|----------------------------------------|----------------------------------------|-----------|--------|----------------------------------------------------------------------------------------------|
+| listen                                 | LISTEN                                 | localhost | string | Listen host/ip                                                                               |
+| port                                   | PORT                                   | 5000      | int    | Listen to port                                                                               |
+| puppetdb.host                          | PUPPETDB_HOST                          | localhost | string | Address of puppetdb                                                                          |
+| puppetdb.port                          | PUPPETDB_PORT                          | 8080      | int    | Port of puppetdb                                                                             |
+| puppetdb.tls                           | PUPPETDB_TLS                           | false     | bool   | Communicate over tls with puppetdb                                                           |
+| puppetdb.tls_ignore                    | PUPPETDB_TLS_IGNORE                    | false     | bool   | Ignore validation of tls certificate                                                         |
+| puppetdb.tls_ca                        | PUPPETDB_TLS_CA                        |           | string | Path to ca cert file for puppetdb                                                            |
+| puppetdb.tls_key                       | PUPPETDB_TLS_KEY                       |           | string | Path to client key file for puppetdb                                                         |
+| puppetdb.tls_crt                       | PUPPETDB_TLS_CERT                      |           | string | Path to client cert file for puppetdb                                                        |
+| queries                                |                                        |           | array  | predefined queries (see query table)                                                         |
+| views                                  |                                        |           | array  | predefined views (see view table)                                                            |
+| trusted_proxies                        | TRUSTED_PROXIES                        |           | array  | List of trusted proxies (env var is space seperated)                                         |
+| strip_path_prefix                      | STRIP_PATH_PREFIX                      |           | string | Strip base paths from Puppet code locations                                                  |
+| puppetca.host                          | PUPPETCA_HOST                          |           | string | Address of Puppet CA server (optional)                                                       |
+| puppetca.port                          | PUPPETCA_PORT                          | 8140      | int    | Port of Puppet CA server                                                                     |
+| puppetca.tls                           | PUPPETCA_TLS                           | true      | bool   | Use TLS for Puppet CA communications                                                         |
+| puppetca.tls_ignore                    | PUPPETCA_TLS_IGNORE                    | false     | bool   | Ignore validation of TLS certificate                                                         |
+| puppetca.tls_ca                        | PUPPETCA_TLS_CA                        |           | string | Path to CA cert file for Puppet CA                                                           |
+| puppetca.tls_key                       | PUPPETCA_TLS_KEY                       |           | string | Path to client key file for Puppet CA                                                        |
+| puppetca.tls_crt                       | PUPPETCA_TLS_CERT                      |           | string | Path to client cert file for Puppet CA                                                       |
+| puppetca.readonly                      | PUPPETCA_READONLY                      | true      | bool   | Whether to allow signing / revoking / cleaning certs                                         |
+| puppetca.deactivate_nodes              | PUPPETCA_DEACTIVATE_NODES              | false     | bool   | Also deactivate node in PuppetDB with revoke / clean                                         |
+| ui_default_refresh_interval_in_seconds | UI_DEFAULT_REFRESH_INTERVAL_IN_SECONDS | 300       | int    | Default Refresh Interval in the UI (shouldn't be to small, to prevent DDoSing the openvoxdb) |
+
 
 
 ### predefined Queries

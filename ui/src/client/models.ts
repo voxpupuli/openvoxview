@@ -7,10 +7,11 @@ export interface ErrorResponse {
 }
 
 export interface ApiMeta {
-  CaEnabled: boolean
-  CaReadOnly: boolean
-  UnreportedHours: number
-  StripPathPrefix: string
+  CaEnabled: boolean;
+  CaReadOnly: boolean;
+  UnreportedHours: number;
+  StripPathPrefix: string;
+  UiDefaultRefreshIntervalInSeconds: number;
 }
 
 export interface ApiVersion {

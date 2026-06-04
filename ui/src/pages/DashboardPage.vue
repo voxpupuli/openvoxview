@@ -9,6 +9,7 @@ import PqlQuery, { PqlEntity } from 'src/puppet/query-builder';
 import { useQuasar } from 'quasar';
 import { type ApiMeta } from 'src/client/models';
 import moment from 'moment';
+import RefreshIntervalSelect from 'components/RefreshIntervalSelect.vue';
 
 const q = useQuasar();
 const nodes = ref<PuppetNodeWithEventCount[]>([]);
@@ -139,6 +140,12 @@ onMounted(() => {
 
 <template>
   <q-page padding>
+    <div class="row q-pa-sm">
+      <q-space />
+      <div class="col-auto">
+        <RefreshIntervalSelect @refresh="load" />
+      </div>
+    </div>
     <div class="row q-pa-sm">
       <DashboardItem
         v-model="failed"
