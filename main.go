@@ -61,17 +61,19 @@ func main() {
 	{
 		api.GET("meta", func(c *gin.Context) {
 			type metaResponse struct {
-				CaEnabled       bool
-				CaReadOnly      bool
-				UnreportedHours uint64
-				StripPathPrefix string
+				CaEnabled                         bool
+				CaReadOnly                        bool
+				UnreportedHours                   uint64
+				StripPathPrefix                   string
+				UiDefaultRefreshIntervalInSeconds uint
 			}
 
 			response := metaResponse{
-				CaEnabled:       caEnabled,
-				CaReadOnly:      cfg.PuppetCA.ReadOnly,
-				UnreportedHours: cfg.UnreportedHours,
-				StripPathPrefix: cfg.StripPathPrefix,
+				CaEnabled:                         caEnabled,
+				CaReadOnly:                        cfg.PuppetCA.ReadOnly,
+				UnreportedHours:                   cfg.UnreportedHours,
+				StripPathPrefix:                   cfg.StripPathPrefix,
+				UiDefaultRefreshIntervalInSeconds: cfg.UiDefaultRefreshIntervalInSeconds,
 			}
 
 			c.JSON(http.StatusOK, handler.NewSuccessResponse(response))

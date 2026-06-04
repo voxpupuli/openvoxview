@@ -6,6 +6,7 @@ import { PuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
 import NodeTable from 'components/NodeTable.vue';
 import { useRoute, useRouter } from 'vue-router';
 import moment from 'moment';
+import RefreshIntervalSelect from 'components/RefreshIntervalSelect.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -121,6 +122,9 @@ onMounted(() => {
           multiple
           use-chips
         />
+      </div>
+      <div class="col-auto q-pl-sm">
+        <RefreshIntervalSelect @refresh="loadData" />
       </div>
     </div>
     <NodeTable v-model:nodes="filteredNodes" disable_pagination />

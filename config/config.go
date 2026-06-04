@@ -35,11 +35,12 @@ type Config struct {
 		TLS_KEY   string `mapstructure:"tls_key"`
 		TLS_CERT  string `mapstructure:"tls_cert"`
 	} `mapstructure:"puppetdb"`
-	PqlQueries      []ConfigPqlQuery `mapstructure:"queries"`
-	Views           []model.View     `mapstructure:"views"`
-	UnreportedHours uint64           `mapstructure:"unreported_hours"`
-	StripPathPrefix string           `mapstructure:"strip_path_prefix"`
-	PuppetCA        struct {
+	PqlQueries                        []ConfigPqlQuery `mapstructure:"queries"`
+	Views                             []model.View     `mapstructure:"views"`
+	UnreportedHours                   uint64           `mapstructure:"unreported_hours"`
+	StripPathPrefix                   string           `mapstructure:"strip_path_prefix"`
+	UiDefaultRefreshIntervalInSeconds uint             `mapstructure:"ui_default_refresh_interval_in_seconds"`
+	PuppetCA                          struct {
 		Host            string `mapstructure:"host"`
 		Port            uint64 `mapstructure:"port"`
 		TLS             bool   `mapstructure:"tls"`
@@ -88,6 +89,7 @@ func GetConfig() (*Config, error) {
 		viper.SetDefault("puppetca.tls_ignore", false)
 		viper.SetDefault("puppetca.readonly", true)
 		viper.SetDefault("puppetca.deactivate_nodes", false)
+		viper.SetDefault("ui_default_refresh_interval_in_seconds", 300)
 
 		viper.AutomaticEnv()
 
@@ -112,6 +114,7 @@ func GetConfig() (*Config, error) {
 		viper.BindEnv("puppetca.tls_cert", "PUPPETCA_TLS_CERT")
 		viper.BindEnv("puppetca.readonly", "PUPPETCA_READONLY")
 		viper.BindEnv("puppetca.deactivate_nodes", "PUPPETCA_DEACTIVATE_NODES")
+		viper.BindEnv("ui_default_refresh_interval_in_seconds", "UI_DEFAULT_REFRESH_INTERVAL_IN_SECONDS")
 
 		viper.ReadInConfig()
 

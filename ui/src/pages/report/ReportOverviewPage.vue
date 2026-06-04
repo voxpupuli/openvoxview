@@ -12,6 +12,7 @@ import {
 } from 'src/puppet/models/puppet-report';
 import { useSettingsStore } from 'stores/settings';
 import { useRoute, useRouter } from 'vue-router';
+import RefreshIntervalSelect from 'components/RefreshIntervalSelect.vue';
 
 interface PaginationInterface {
   sortBy?: string | null;
@@ -342,7 +343,10 @@ onMounted(() => {
       :title="$t('LABEL_REPORT', 2)"
     >
       <template v-slot:top-right>
-        <q-btn icon="refresh" color="secondary" @click="loadReports" />
+        <RefreshIntervalSelect @refresh="loadReports" class="q-mr-md" />
+        <q-btn icon="refresh" color="secondary" @click="loadReports">
+          <q-tooltip>{{ $t('LABEL_REFRESH') }}</q-tooltip>
+        </q-btn>
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">

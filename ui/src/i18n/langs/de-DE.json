@@ -81,5 +81,12 @@
   "LABEL_CONFIRM_REVOKE_MESSAGE": "Sind Sie sicher, dass Sie das Zertifikat für {certname} widerrufen möchten?",
   "LABEL_CLEAN": "Bereinigen",
   "LABEL_CONFIRM_CLEAN_TITLE": "Zertifikat bereinigen?",
-  "LABEL_CONFIRM_CLEAN_MESSAGE": "Sind Sie sicher, dass Sie das Zertifikat für {certname} bereinigen (löschen) möchten?"
+  "LABEL_CONFIRM_CLEAN_MESSAGE": "Sind Sie sicher, dass Sie das Zertifikat für {certname} bereinigen (löschen) möchten?",
+  "SECOND": "Sekunde|Sekunden",
+  "MINUTE": "Minute|Minuten",
+  "HOUR": "Stunde|Stunden",
+  "LABEL_OFF": "Aus",
+  "LABEL_LAST_REFRESH": "Letzte Aktualisierung",
+  "LABEL_AUTO_REFRESH_OFF": "Automatische Aktualisierung aus",
+  "LABEL_REFRESH": "Aktualisieren"
 }
