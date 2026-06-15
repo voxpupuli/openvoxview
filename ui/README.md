@@ -2,6 +2,8 @@
 
 UI for openvoxview
 
+To run it locally, follow the [Development](../DEVELOPMENT.md) instructions.
+
 ## Install the dependencies
 ```bash
 yarn
