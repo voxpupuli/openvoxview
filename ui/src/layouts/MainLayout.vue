@@ -113,11 +113,40 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <q-page-sticky
+      v-if="canScroll"
+      class="scroll-btn column"
+      position="bottom-right"
+      :offset="[12, 12]"
+    >
+      <q-btn
+        class="col"
+        color="primary"
+        icon="keyboard_arrow_up"
+        size="xs"
+        dense
+        unelevated
+        @click="scrollToTop"
+      >
+      </q-btn>
+      <q-separator />
+      <q-btn
+        class="col"
+        color="primary"
+        icon="keyboard_arrow_down"
+        size="xs"
+        dense
+        unelevated
+        @click="scrollToBottom"
+      >
+      </q-btn>
+    </q-page-sticky>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import EnvironmentSelector from 'components/EnvironmentSelector.vue';
 import { useSettingsStore } from 'stores/settings';
@@ -126,6 +155,7 @@ import { PredefinedView } from 'src/puppet/models';
 import { getBrowserLocale } from 'boot/i18n';
 import { useI18n } from 'vue-i18n';
 import { type ApiMeta } from 'src/client/models';
+import { useRoute } from 'vue-router';
 
 const leftDrawerOpen = ref(false);
 const settings = useSettingsStore();
@@ -133,6 +163,10 @@ const version = ref('dirty');
 const predefinedViews = ref<PredefinedView[]>([]);
 const meta = ref<ApiMeta>();
 const caEnabled = ref(false);
+const route = useRoute();
+const canScroll = ref(false);
+const q = useQuasar();
+const i18n = useI18n();
 
 function toggleLeftDrawer() {
   leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -150,7 +184,7 @@ function loadPredefinedViews() {
   void Backend.getPredefinedViews().then((result) => {
     if (result.status === 200) {
       predefinedViews.value = result.data.Data.map((s) =>
-        PredefinedView.fromApi(s)
+        PredefinedView.fromApi(s),
       );
     }
   });
@@ -165,13 +199,6 @@ function loadMeta() {
   });
 }
 
-const q = useQuasar();
-const i18n = useI18n();
-
-watch(settings, () => {
-  q.dark.set(settings.darkMode);
-});
-
 function addLanguageChangeListener() {
   window.addEventListener('languagechange', () => {
     const detectedLocale = getBrowserLocale();
@@ -179,11 +206,61 @@ function addLanguageChangeListener() {
   });
 }
 
+function updateScrollButtonVisibility() {
+  const doc = document.documentElement;
+  const maxScrollTop = doc.scrollHeight - window.innerHeight;
+  canScroll.value = maxScrollTop > 1;
+}
+
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+}
+
+function scrollToBottom() {
+  window.scrollTo({
+    top: document.documentElement.scrollHeight,
+    behavior: 'smooth',
+  });
+}
+
+watch(settings, () => {
+  q.dark.set(settings.darkMode);
+});
+
+watch(
+  () => route.fullPath,
+  async () => {
+    await nextTick();
+    updateScrollButtonVisibility();
+  },
+);
+
 onMounted(() => {
   q.dark.set(settings.darkMode);
   loadVersion();
   loadPredefinedViews();
   loadMeta();
   addLanguageChangeListener();
+
+  window.addEventListener('scroll', updateScrollButtonVisibility);
+  window.addEventListener('resize', updateScrollButtonVisibility);
+  void nextTick(updateScrollButtonVisibility);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', updateScrollButtonVisibility);
+  window.removeEventListener('resize', updateScrollButtonVisibility);
 });
 </script>
+
+<style scoped>
+.scroll-btn .col {
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
+  }
+}
+</style>
