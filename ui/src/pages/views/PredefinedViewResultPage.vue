@@ -7,11 +7,14 @@ import NodeLink from 'components/NodeLink.vue';
 import { getOsNameFromOsFact } from 'src/helper/functions';
 import { type QTableColumn, type QTableProps } from 'quasar';
 import { useSettingsStore } from 'stores/settings';
+import { exportQTableAsCsv } from 'src/helper/csv';
+import { useI18n } from 'vue-i18n';
 
 type Pagination = Parameters<NonNullable<QTableProps['onUpdate:pagination']>>[0];
 
 const DEFAULT_ROWS_PER_PAGE = 20;
 
+const { t } = useI18n();
 const route = useRoute();
 const viewName = computed(() => {
   return route.params.viewName as string;
@@ -23,11 +26,31 @@ const pagination = ref<NonNullable<QTableProps['pagination']>>({
 });
 const settings = useSettingsStore();
 
+type ViewResultQTableRow = {
+  os?: { name: string };
+  trusted?: { certname: string; };
+  networking?: { ip: string };
+  [key: string]: unknown;
+};
+
+const tryGetFieldFromFacts = (fact: string): ((row: ViewResultQTableRow) => string | undefined)|string => {
+  if (fact === 'os') {
+    return (row) => row?.os?.name;
+  }
+  if (fact === 'trusted') {
+    return (row) => row?.trusted?.certname;
+  }
+  if (fact === 'networking.ip') {
+    return (row) => row?.networking?.ip;
+  }
+  return fact;
+}
+
 const columns = computed((): QTableColumn[] => {
   return viewResult.value!.View.Facts.map((s) => {
     return {
       name: s.Name,
-      field: s.Fact,
+      field: tryGetFieldFromFacts(s.Fact),
       label: s.Name,
       format: (val: string, row: never) => getProperty(row, s.Fact),
       sortable: true,
@@ -139,6 +162,15 @@ onMounted(() => {
         :pagination="pagination"
         @update:pagination="paginationUpdate"
       >
+        <template v-slot:top-right>
+          <q-btn
+            color="primary"
+            icon-right="archive"
+            :label="$t('EXPORT_AS_CSV')"
+            no-caps
+            @click="() => exportQTableAsCsv((viewResult?.Data as object[] ?? []), columns, t)"
+          />
+        </template>
         <template v-slot:body="props">
           <q-tr :props="props">
             <q-td v-for="col in props.cols" :key="col.name" :props="props">

@@ -13,6 +13,7 @@ import {
 import { useSettingsStore } from 'stores/settings';
 import { useRoute, useRouter } from 'vue-router';
 import RefreshIntervalSelect from 'components/RefreshIntervalSelect.vue';
+import { exportQTableAsCsv } from 'src/helper/csv';
 
 interface PaginationInterface {
   sortBy?: string | null;
@@ -62,10 +63,11 @@ const pagination = ref<PaginationInterface>({
   rowsNumber: 10,
 });
 
+
 const columns: QTableColumn[] = [
   {
     name: 'end_time',
-    field: 'endTimeFormatted',
+    field: 'end_time',
     label: t('LABEL_END_TIME'),
     align: 'left',
     sortable: true,
@@ -343,10 +345,19 @@ onMounted(() => {
       :title="$t('LABEL_REPORT', 2)"
     >
       <template v-slot:top-right>
-        <RefreshIntervalSelect @refresh="loadReports" class="q-mr-md" />
-        <q-btn icon="refresh" color="secondary" @click="loadReports">
-          <q-tooltip>{{ $t('LABEL_REFRESH') }}</q-tooltip>
-        </q-btn>
+          <div class="row q-gutter-sm">
+            <RefreshIntervalSelect @refresh="loadReports" />
+            <q-btn icon="refresh" color="secondary" @click="loadReports">
+              <q-tooltip>{{ $t('LABEL_REFRESH') }}</q-tooltip>
+            </q-btn>
+            <q-btn
+              color="primary"
+              icon-right="archive"
+              :label="$t('EXPORT_AS_CSV')"
+              no-caps
+              @click="() => exportQTableAsCsv(reports, columns, t)"
+            />
+          </div>
       </template>
       <template v-slot:body="props">
         <q-tr :props="props">

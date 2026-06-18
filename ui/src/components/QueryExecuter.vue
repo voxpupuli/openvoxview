@@ -15,6 +15,7 @@ import {
 } from 'src/helper/functions';
 import { type AxiosError } from 'axios';
 import { type ErrorResponse } from 'src/client/models';
+import { exportQTableAsCsv } from 'src/helper/csv';
 
 interface SelectedItem {
   name: string;
@@ -22,7 +23,7 @@ interface SelectedItem {
 }
 
 const { t } = useI18n();
-const data = ref<PuppetQueryResult<unknown[]>>();
+const data = ref<PuppetQueryResult<object[]>>();
 const query = defineModel('query', { type: String });
 const isLoading = ref(false);
 const tab = ref('data');
@@ -68,7 +69,7 @@ function executeQuery() {
   console.log('executing: ', queryWithParams);
   if (!queryWithParams) return;
   isLoading.value = true;
-  void Backend.getRawQueryResult<unknown[]>(queryWithParams, true)
+  void Backend.getRawQueryResult<object[]>(queryWithParams, true)
     .then((result) => {
       if (result.status === 200) {
         data.value = result.data.Data;
@@ -111,6 +112,18 @@ function copyTimestampToClipboard(timestamp: Date) {
         message: t('NOTIFICATION_COPY_TO_CLIPBOARD_FAILED'),
       });
     });
+}
+
+function exportQueriedTableAsCsv(
+  data: PuppetQueryResult<object[]> | undefined,
+) {
+  if (!data) return;
+  const columns = Object.keys(data.Data[0] ?? {}).map((key) => ({
+    name: key,
+    label: key,
+    field: key,
+  }));
+  exportQTableAsCsv(data.Data, columns, t);
 }
 </script>
 
@@ -206,6 +219,15 @@ function copyTimestampToClipboard(timestamp: Date) {
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel v-if="data.Data" name="data" class="q-pa-none">
           <q-table :rows="data.Data" flat>
+            <template v-slot:top-right v-if="data.Data.length > 0">
+              <q-btn
+                color="primary"
+                icon-right="download"
+                :label="$t('EXPORT_AS_CSV')"
+                no-caps
+                @click="() => exportQueriedTableAsCsv(data)"
+              />
+            </template>
             <template v-slot:body="props">
               <q-tr :props="props">
                 <q-td v-for="col in props.cols" :key="col.name" :props="props">
