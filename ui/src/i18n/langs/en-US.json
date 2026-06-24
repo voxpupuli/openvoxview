@@ -88,5 +88,7 @@
   "LABEL_OFF": "Off",
   "LABEL_LAST_REFRESH": "Last refresh",
   "LABEL_AUTO_REFRESH_OFF": "Auto refresh off",
-  "LABEL_REFRESH": "Refresh"
+  "LABEL_REFRESH": "Refresh",
+  "EXPORT_AS_CSV": "Export as CSV",
+  "ERROR_CSV_EXPORT": "Error while exporting as CSV"
 }

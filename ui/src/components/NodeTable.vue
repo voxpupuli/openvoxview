@@ -7,6 +7,7 @@ import { type PropType } from 'vue';
 import { type PuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
 import { emptyPagination } from 'src/helper/objects';
 import StatusButton from 'components/StatusButton.vue';
+import { exportQTableAsCsv } from 'src/helper/csv';
 
 const { t } = useI18n();
 
@@ -23,20 +24,34 @@ const unreportedDate = defineModel('unreported_date', {
   required: false,
 });
 
-function getStatus(node: PuppetNodeWithEventCount) {
+function getStatus(node: PuppetNodeWithEventCount): string {
   if (!node.report_timestamp) return 'unreported';
 
-  if (unreportedDate.value && unreportedDate.value > new Date(node.report_timestamp)) {
+  if (
+    unreportedDate.value &&
+    unreportedDate.value > new Date(node.report_timestamp)
+  ) {
     return 'unreported';
   }
 
   return node.latest_report_status;
 }
 
+function getEventAsString(node: PuppetNodeWithEventCount): string {
+  const eventElements = [
+    getStatus(node),
+    `${node.events.failures} failures`,
+    `${node.events.successes} successes`,
+    `${node.events.skips} skips`,
+    `${node.events.noops} noops`,
+  ];
+  return eventElements.join(' | ');
+}
+
 const columns: QTableColumn[] = [
   {
     name: 'events',
-    field: 'events',
+    field: (row) => getEventAsString(row),
     label: t('LABEL_EVENT', 2),
     align: 'left',
   },
@@ -79,12 +94,26 @@ const columns: QTableColumn[] = [
       </q-tr>
     </template>
 
+    <template v-slot:top-right>
+      <q-btn
+        color="primary"
+        icon-right="archive"
+        :label="$t('EXPORT_AS_CSV')"
+        no-caps
+        @click="() => exportQTableAsCsv(nodes, columns, t)"
+      />
+    </template>
+
     <template v-slot:body="props">
       <q-tr :props="props">
         <q-td v-for="col in props.cols" :key="col.name" :props="props">
           <div v-if="col.name == 'events'" class="row">
-            <StatusButton v-if="props.row.latest_report_status" :status="getStatus(props.row)"
-              :hash="props.row.latest_report_hash" :certname="props.row.certname" />
+            <StatusButton
+              v-if="props.row.latest_report_status"
+              :status="getStatus(props.row)"
+              :hash="props.row.latest_report_hash"
+              :certname="props.row.certname"
+            />
             <EventCountBlock :event_count="props.row.eventsMapped" />
           </div>
           <NodeLink v-else-if="col.name == 'certname'" :certname="col.value" />
