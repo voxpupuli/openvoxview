@@ -2,7 +2,7 @@ package handler
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -47,7 +47,7 @@ func (h *PdbHandler) PdbExecuteQuery(c *gin.Context) {
 	c.BindJSON(&queryRequest)
 
 	dbClient := puppetdb.NewClient()
-	log.Printf("Executing Query: %s", queryRequest.Query)
+	slog.Debug("executing query", "query", queryRequest.Query)
 
 	historyEntry := PqlHistoryEntry{
 		Query: queryRequest,

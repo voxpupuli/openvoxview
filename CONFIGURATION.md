@@ -31,6 +31,9 @@ but you can pass the -config parameter to define the location of the config file
 | puppetca.readonly                      | PUPPETCA_READONLY                      | true      | bool   | Whether to allow signing / revoking / cleaning certs                                         |
 | puppetca.deactivate_nodes              | PUPPETCA_DEACTIVATE_NODES              | false     | bool   | Also deactivate node in PuppetDB with revoke / clean                                         |
 | ui_default_refresh_interval_in_seconds | UI_DEFAULT_REFRESH_INTERVAL_IN_SECONDS | 300       | int    | Default Refresh Interval in the UI (shouldn't be to small, to prevent DDoSing the openvoxdb) |
+| log_level                              | LOG_LEVEL                              | info      | string | Log Level (info,debug,warn,error)                                                            |
+| log_format                             | LOG_FORMAT                             | text      | string | Log Format (text,json)                                                                       |
+
 
 
 

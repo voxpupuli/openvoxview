@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strings"
@@ -88,12 +88,12 @@ func (h *CaHandler) QueryCertificateStatuses(c *gin.Context) {
 func (h *CaHandler) SignCertificate(c *gin.Context) {
 	name := c.Param("name")
 
-	log.Printf("[AUDIT] CA Signing: %s", name)
+	slog.Info("ca signing", "certname", name)
 
 	err := h.caClient.SignCertificate(name)
 
 	if err != nil {
-		log.Printf("Error signing certificate: %s", err)
+		slog.Error("error signing certificate", "error", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(err))
 		return
 	}
@@ -104,12 +104,12 @@ func (h *CaHandler) SignCertificate(c *gin.Context) {
 func (h *CaHandler) RevokeCertificate(c *gin.Context) {
 	name := c.Param("name")
 
-	log.Printf("[AUDIT] CA Revoking: %s", name)
+	slog.Info("ca revoking", "certname", name)
 
 	err := h.caClient.RevokeCertificate(name)
 
 	if err != nil {
-		log.Printf("Error revoking certificate: %s", err)
+		slog.Error("error revoking certificate", "error", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(err))
 		return
 	}
@@ -126,12 +126,12 @@ func (h *CaHandler) RevokeCertificate(c *gin.Context) {
 func (h *CaHandler) CleanCertificate(c *gin.Context) {
 	name := c.Param("name")
 
-	log.Printf("[AUDIT] CA Cleaning: %s", name)
+	slog.Info("ca cleaning", "certname", name)
 
 	err := h.caClient.CleanCertificate(name)
 
 	if err != nil {
-		log.Printf("Error cleaning certificate: %s", err)
+		slog.Error("error cleaning certificate", "error", err)
 		c.AbortWithStatusJSON(http.StatusInternalServerError, NewErrorResponse(err))
 		return
 	}
@@ -150,15 +150,15 @@ func (h *CaHandler) deactivateNode(certname string) error {
 		return nil
 	}
 
-	log.Printf("[AUDIT] Deactivating node: %s", certname)
+	slog.Info("ca deactivating node", "certname", certname)
 
 	pdb := puppetdb.NewClient()
 	resp, err := pdb.DeactivateNode(certname)
 
 	if err != nil {
-		log.Printf("Error deactivating node: %s", err)
+		slog.Error("error deactivating certificate", "error", err)
 	} else {
-		log.Printf("Deactivated node %s with command UUID: %s", certname, resp.Uuid)
+		slog.Info("deactivated node", "certname", certname, "uuid", resp.Uuid)
 	}
 
 	return err

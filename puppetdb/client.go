@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -47,12 +48,11 @@ func (c *client) call(httpMethod string, endpoint string, payload any, query url
 	if payload != nil {
 		data, err = json.Marshal(&payload)
 		if err != nil {
-			fmt.Printf("err: %s", err)
+			slog.Error("error marshal payload", "error", err)
 		}
-		fmt.Printf("Payload:\n%s\n", data)
 	}
 
-	fmt.Printf("HTTP: %#v: %#v\n", httpMethod, uri)
+	slog.Debug("puppet db call", "method", httpMethod, "url", uri)
 
 	var tlsConfig *tls.Config
 

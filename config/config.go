@@ -3,11 +3,24 @@ package config
 import (
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
+	"os"
 	"sync"
 
 	"github.com/sebastianrakel/openvoxview/model"
 	"github.com/spf13/viper"
+)
+
+type LogLevel string
+type LogFormat string
+
+const (
+	LOG_LEVEL_INFO  LogLevel  = "info"
+	LOG_LEVEL_WARN  LogLevel  = "warn"
+	LOG_LEVEL_ERROR LogLevel  = "error"
+	LOG_LEVEL_DEBUG LogLevel  = "debug"
+	LOG_FORMAT_JSON LogFormat = "json"
+	LOG_FOMRAT_TEXT LogFormat = "text"
 )
 
 var configPath = flag.String("config", "", "path to the config file")
@@ -51,6 +64,8 @@ type Config struct {
 		ReadOnly        bool   `mapstructure:"readonly"`
 		DeactivateNodes bool   `mapstructure:"deactivate_nodes"`
 	} `mapstructure:"puppetca"`
+	LogLevel  LogLevel  `mapstructure:"log_level"`
+	LogFormat LogFormat `mapstructure:"log_format"`
 }
 
 func PrintVersion(version string) bool {
@@ -74,7 +89,7 @@ func GetConfig() (*Config, error) {
 		viper.AddConfigPath(".")
 
 		if *configPath != "" {
-			log.Printf("Using config: %s", *configPath)
+			slog.Info("Using config", "path", *configPath)
 			viper.SetConfigFile(*configPath)
 		}
 
@@ -90,6 +105,8 @@ func GetConfig() (*Config, error) {
 		viper.SetDefault("puppetca.readonly", true)
 		viper.SetDefault("puppetca.deactivate_nodes", false)
 		viper.SetDefault("ui_default_refresh_interval_in_seconds", 300)
+		viper.SetDefault("log_level", "info")
+		viper.SetDefault("log_format", "text")
 
 		viper.AutomaticEnv()
 
@@ -115,6 +132,8 @@ func GetConfig() (*Config, error) {
 		viper.BindEnv("puppetca.readonly", "PUPPETCA_READONLY")
 		viper.BindEnv("puppetca.deactivate_nodes", "PUPPETCA_DEACTIVATE_NODES")
 		viper.BindEnv("ui_default_refresh_interval_in_seconds", "UI_DEFAULT_REFRESH_INTERVAL_IN_SECONDS")
+		viper.BindEnv("log_level", "LOG_LEVEL")
+		viper.BindEnv("log_level", "LOG_FORMAT")
 
 		viper.ReadInConfig()
 
@@ -143,4 +162,32 @@ func (c *Config) GetPuppetCAAddress() string {
 	}
 
 	return fmt.Sprintf("%s://%s:%d", scheme, c.PuppetCA.Host, c.PuppetCA.Port)
+}
+
+func (c *Config) GetLogLevel() slog.Level {
+	switch c.LogLevel {
+	case LOG_LEVEL_DEBUG:
+		return slog.LevelDebug
+	case LOG_LEVEL_WARN:
+		return slog.LevelWarn
+	case LOG_LEVEL_ERROR:
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
+}
+
+func (c *Config) GetLogger() *slog.Logger {
+	level := c.GetLogLevel()
+	switch c.LogFormat {
+	case LOG_FORMAT_JSON:
+		return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level: level,
+		}))
+	default:
+		return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level: level,
+		}))
+	}
+
 }
