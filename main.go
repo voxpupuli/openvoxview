@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"io/fs"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sebastianrakel/openvoxview/config"
@@ -21,18 +22,22 @@ func main() {
 	if config.PrintVersion(VERSION) {
 		return
 	}
-	log.Printf("OpenVox View - %s (%s)", VERSION, COMMIT)
 	cfg, err := config.GetConfig()
 	if err != nil {
 		panic(err)
 	}
 
-	log.Printf("LISTEN: %s", cfg.Listen)
-	log.Printf("PORT: %d", cfg.Port)
-	log.Printf("PUPPETDB_ADDRESS: %s", cfg.GetPuppetDbAddress())
-	log.Printf("TRUSTED_PROXIES: %#v", cfg.TrustedProxies)
+	logger := cfg.GetLogger()
+	slog.SetDefault(logger)
 
-	r := gin.Default()
+	slog.Info(fmt.Sprintf("OpenVox View - %s (%s)", VERSION, COMMIT))
+	slog.Info(fmt.Sprintf("LISTEN: %s", cfg.Listen))
+	slog.Info(fmt.Sprintf("PORT: %d", cfg.Port))
+	slog.Info(fmt.Sprintf("PUPPETDB_ADDRESS: %s", cfg.GetPuppetDbAddress()))
+	slog.Info(fmt.Sprintf("TRUSTED_PROXIES: %s", cfg.TrustedProxies))
+
+	r := gin.New()
+	r.Use(SlogMiddleware(logger))
 
 	r.NoRoute(func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
@@ -45,7 +50,6 @@ func main() {
 
 	uiFSSub, _ := fs.Sub(uiFS, "ui/dist/spa")
 	r.StaticFS("ui", http.FS(uiFSSub))
-
 	r.Use(AllowCORS)
 
 	if len(cfg.TrustedProxies) > 0 {
@@ -134,4 +138,30 @@ func AllowCORS(c *gin.Context) {
 	}
 
 	c.Next()
+}
+
+func SlogMiddleware(logger *slog.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		path := c.Request.URL.Path
+		query := c.Request.URL.RawQuery
+
+		c.Next()
+
+		logger.Info("request",
+			slog.String("method", c.Request.Method),
+			slog.String("path", path),
+			slog.String("query", query),
+			slog.Int("status", c.Writer.Status()),
+			slog.Duration("latency", time.Since(start)),
+			slog.String("client_ip", c.ClientIP()),
+			slog.Int("body_size", c.Writer.Size()),
+		)
+
+		if len(c.Errors) > 0 {
+			for _, err := range c.Errors {
+				logger.Error("request error", slog.String("error", err.Error()))
+			}
+		}
+	}
 }
