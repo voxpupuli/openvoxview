@@ -7,7 +7,6 @@ import type {
   ApiPredefinedViewResult,
   ApiPuppetQueryPredefined,
   PuppetQueryHistoryEntry,
-  PuppetQueryRequest,
   PuppetQueryResult,
 } from 'src/puppet/models';
 import { type ApiPuppetNodeWithEventCount } from 'src/puppet/models/puppet-node';
@@ -17,7 +16,7 @@ class Backend {
   getQueryResult<T>(query: PqlQuery): AxiosPromise<BaseResponse<PuppetQueryResult<T>>> {
     const payload = {
       Query: query.build(),
-    } as PuppetQueryRequest;
+    };
 
     return api.post('/api/v1/pdb/query', payload);
   }

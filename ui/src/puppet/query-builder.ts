@@ -179,7 +179,7 @@ class PqlQuerySort {
     this.fields.push({
       field: field,
       order: order,
-    } as PqlSortField);
+    });
 
     return this;
   }

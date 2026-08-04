@@ -201,8 +201,7 @@ function loadMeta() {
 
 function addLanguageChangeListener() {
   window.addEventListener('languagechange', () => {
-    const detectedLocale = getBrowserLocale();
-    i18n.locale.value = detectedLocale as string;
+    i18n.locale.value = getBrowserLocale();
   });
 }
 
