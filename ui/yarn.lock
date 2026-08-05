@@ -598,10 +598,10 @@
     vite "^7.0.3"
     webpack-merge "^6.0.1"
 
-"@quasar/extras@^1.16.4":
-  version "1.17.0"
-  resolved "https://registry.yarnpkg.com/@quasar/extras/-/extras-1.17.0.tgz#966c0464a069d15f929d14f51b61fc8efefcf76c"
-  integrity sha512-KqAHdSJfIDauiR1nJ8rqHWT0diqD0QradZKoVIZJAilHAvgwyPIY7MbyR2z4RIMkUIMUSqBZcbshMpEw+9A30w==
+"@quasar/extras@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@quasar/extras/-/extras-2.0.2.tgz#0e01a55bfd79b4daf4c945a1c0cd6032546523b6"
+  integrity sha512-BkH/iBISDbLNl5qAdsVNpa/0hxHbd1VwfML4dRwTUb8oGeLqlr00yjYM648KGYB1C8plwhU7LyGziE1JpSa6ZA==
 
 "@quasar/render-ssr-error@^1.0.3":
   version "1.0.3"
