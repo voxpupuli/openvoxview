@@ -6,7 +6,6 @@ import { useI18n } from 'vue-i18n';
 const refreshInterval = ref<number>(300);
 const emit = defineEmits(['refresh']);
 const lastRefresh = ref<Date>(new Date());
-let myInterval: ReturnType<typeof setInterval>;
 const { t } = useI18n();
 
 const options = computed(() => {
@@ -30,23 +29,25 @@ const options = computed(() => {
 
 function loadDefaultInterval() {
   void Backend.getMeta().then((result) => {
-    if (result.data.Data.UiDefaultRefreshIntervalInSeconds) {
-      refreshInterval.value =
-        result.data.Data.UiDefaultRefreshIntervalInSeconds;
-    }
+    refreshInterval.value =
+      result.data.Data.UiDefaultRefreshIntervalInSeconds ?? refreshInterval.value;
   });
 }
 
-watch(refreshInterval, () => {
-  if (refreshInterval.value === 0 && myInterval) {
-    clearInterval(myInterval);
-  } else {
-    myInterval = setInterval(() => {
+watch(
+  refreshInterval,
+  (seconds, _previous, onCleanup) => {
+    if (seconds <= 0) return;
+
+    const interval = setInterval(() => {
       emit('refresh');
       lastRefresh.value = new Date();
-    }, refreshInterval.value * 1000);
-  }
-});
+    }, seconds * 1000);
+
+    onCleanup(() => clearInterval(interval));
+  },
+  { immediate: true },
+);
 
 onMounted(() => {
   loadDefaultInterval();
