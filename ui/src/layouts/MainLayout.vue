@@ -66,6 +66,15 @@
             <q-item-label>{{ $t('MENU_REPORTS') }}</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable :to="{ name: 'CatalogOverview' }">
+          <q-item-section avatar>
+            <q-icon name="library_books" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>{{ $t('MENU_CATALOGS') }}</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-expansion-item
           icon="view_list"
           :label="$t('MENU_VIEWS')"
@@ -111,7 +120,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view :key="route.path"/>
+      <router-view :key="route.path" />
     </q-page-container>
 
     <q-page-sticky
