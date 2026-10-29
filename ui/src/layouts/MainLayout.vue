@@ -111,7 +111,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view :key="route.path"/>
     </q-page-container>
 
     <q-page-sticky
