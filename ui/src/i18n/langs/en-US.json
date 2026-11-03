@@ -90,5 +90,17 @@
   "LABEL_AUTO_REFRESH_OFF": "Auto refresh off",
   "LABEL_REFRESH": "Refresh",
   "EXPORT_AS_CSV": "Export as CSV",
-  "ERROR_CSV_EXPORT": "Error while exporting as CSV"
+  "ERROR_CSV_EXPORT": "Error while exporting as CSV",
+  "LABEL_CATALOG_VERSION": "catalog version",
+  "LABEL_PRODUCER_TIMESTAMP": "producer timestamp",
+  "LABEL_CATEGORY": "category",
+  "MENU_CATALOGS": "Catalogs",
+  "LABEL_LOCATION": "location",
+  "LABEL_SOURCE": "source",
+  "LABEL_AGAINST": "against",
+  "LABEL_EDGE": "edge",
+  "LABEL_VERSION": "version",
+  "LABEL_ENVIRONMENT": "environment",
+  "LABEL_COMPARE": "compare",
+  "LABEL_COMPARE_WITH": "compare with {certname}"
 }
