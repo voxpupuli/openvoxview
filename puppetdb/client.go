@@ -18,6 +18,17 @@ import (
 	"github.com/sebastianrakel/openvoxview/model"
 )
 
+type Client interface {
+	Query(query string) ([]json.RawMessage, int, error)
+	GetFacts(query *PdbQuery) ([]model.Fact, error)
+	GetFactNames() (json.RawMessage, error)
+	GetEventCounts(query *PdbQuery) ([]model.EventCount, error)
+	GetNodes(query *PdbQuery) ([]model.Node, error)
+	GetMetric(metricName string) (model.Metric, error)
+	GetMetricList() (model.MetricList, error)
+	DeactivateNode(certname string) (*model.CommandResponse, error)
+}
+
 type client struct {
 }
 
@@ -28,7 +39,7 @@ type PdbQuery struct {
 
 type PdbBadQueryError error
 
-func NewClient() *client {
+func NewClient() Client {
 	return &client{}
 }
 
