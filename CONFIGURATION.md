@@ -75,6 +75,24 @@ There is also a function (enabled by setting `puppetca.deactivate_nodes` to true
 revoking or cleaning a node certificate. This performs the equivalent of `puppet node deactivate $CERTNAME` after the certificate is revoked
 or cleaned, which may be useful in environments where the CLI tools are not easily available.
 
+### Prometheus Metrics
+
+OpenVox View exposes Prometheus metrics at `/metrics` (and `/api/v1/metrics`).
+The exposed metrics reflect the dashboard counters:
+
+| Metric Name                         | Type  | Description                                                                          |
+|-------------------------------------|-------|--------------------------------------------------------------------------------------|
+| `openvoxview_nodes_failed`          | Gauge | Number of nodes with latest report status failed                                     |
+| `openvoxview_nodes_pending`         | Gauge | Number of nodes with latest report status pending                                    |
+| `openvoxview_nodes_changed`         | Gauge | Number of nodes with latest report status changed                                    |
+| `openvoxview_nodes_unchanged`       | Gauge | Number of nodes with latest report status unchanged                                  |
+| `openvoxview_nodes_unreported`      | Gauge | Number of nodes that have not reported within the configured `unreported_hours` window|
+| `openvoxview_population`            | Gauge | Total number of nodes (population)                                                   |
+| `openvoxview_resources_managed`     | Gauge | Total number of resources managed                                                    |
+| `openvoxview_avg_resources_per_node`| Gauge | Average number of resources per node                                                 |
+
+Standard Go runtime and process metrics are also exposed.
+
 ## YAML Example
 
 ```yaml

@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sebastianrakel/openvoxview/config"
 	"github.com/sebastianrakel/openvoxview/handler"
+	"github.com/sebastianrakel/openvoxview/puppetdb"
 )
 
 var (
@@ -58,11 +59,16 @@ func main() {
 
 	caEnabled := cfg.PuppetCA.Host != ""
 
+	pdbClient := puppetdb.NewClient()
 	pdbHandler := handler.NewPdbHandler(cfg)
 	viewHandler := handler.NewViewHandler(cfg)
+	metricsHandler := handler.NewMetricsHandler(cfg, pdbClient)
+
+	r.GET("/metrics", metricsHandler.Handler())
 
 	api := r.Group("/api/v1/")
 	{
+		api.GET("metrics", metricsHandler.Handler())
 		api.GET("meta", func(c *gin.Context) {
 			type metaResponse struct {
 				CaEnabled                         bool

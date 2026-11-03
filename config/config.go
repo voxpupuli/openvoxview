@@ -26,8 +26,10 @@ const (
 var configPath = flag.String("config", "", "path to the config file")
 var printVersion = flag.Bool("version", false, "prints version")
 
-func init() {
-	flag.Parse()
+func parseFlags() {
+	if !flag.Parsed() {
+		flag.Parse()
+	}
 }
 
 type ConfigPqlQuery struct {
@@ -69,6 +71,7 @@ type Config struct {
 }
 
 func PrintVersion(version string) bool {
+	parseFlags()
 	if *printVersion {
 		fmt.Println(version)
 		return true
@@ -83,6 +86,7 @@ var (
 )
 
 func GetConfig() (*Config, error) {
+	parseFlags()
 	configOnce.Do(func() {
 		viper.SetConfigName("config")
 		viper.SetConfigType("yaml")
